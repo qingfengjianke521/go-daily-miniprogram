@@ -1,0 +1,71 @@
+<view class="page">
+  <!-- Custom nav bar -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner" style="height: {{navBarHeight}}px;">
+      <view class="nav-back" bindtap="onTapBack">
+        <view class="back-arrow"></view>
+      </view>
+      <view class="nav-center" wx:if="{{joseki}}">
+        <text class="nav-title">{{joseki.name}}</text>
+        <text class="nav-subtitle">{{stepText}}</text>
+      </view>
+      <view class="nav-spacer"></view>
+    </view>
+  </view>
+
+  <!-- Not found -->
+  <view wx:if="{{!joseki}}" class="not-found" style="padding-top: {{statusBarHeight + navBarHeight + 200}}px;">
+    <text class="not-found-text">未找到该定式</text>
+    <view class="btn-primary btn-small" bindtap="onTapBackToList">返回列表</view>
+  </view>
+
+  <!-- Main content -->
+  <view wx:if="{{joseki}}" class="main" style="padding-top: {{statusBarHeight + navBarHeight}}px;">
+    <!-- Description -->
+    <text class="description">{{joseki.description}}</text>
+
+    <!-- Hint area -->
+    <view class="hint-area">
+      <text wx:if="{{hintMsg}}" class="hint-error">{{hintMsg}}</text>
+      <text wx:elif="{{isDone}}" class="hint-done">学习完成 ✓</text>
+    </view>
+
+    <!-- Board -->
+    <view class="board-wrapper">
+      <go-board
+        boardSize="{{19}}"
+        stones="{{visibleStones}}"
+        viewRegion="{{viewRegion}}"
+        interactive="{{!isDone}}"
+        currentColor="{{nextExpected.color || 'black'}}"
+        lastMove="{{lastMove}}"
+        showMoveNumbers="{{true}}"
+        bind:move="onBoardMove"
+      />
+    </view>
+
+    <!-- Progress bar -->
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+    </view>
+
+    <!-- Controls -->
+    <view wx:if="{{!isDone}}" class="controls">
+      <view class="btn-outline {{currentStep === 0 ? 'btn-disabled' : ''}}" bindtap="onTapPrev">
+        ← 上一步
+      </view>
+      <view class="btn-primary" bindtap="onTapNext">
+        下一步 →
+      </view>
+    </view>
+
+    <view wx:else class="controls">
+      <view class="btn-outline" bindtap="onTapReset">
+        重新开始
+      </view>
+      <view class="btn-primary" bindtap="onTapNextJoseki">
+        {{hasNext ? '下一个定式 →' : '返回列表'}}
+      </view>
+    </view>
+  </view>
+</view>

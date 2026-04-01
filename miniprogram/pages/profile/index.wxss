@@ -1,0 +1,60 @@
+.page { min-height: 100vh; background: #F7F7F7; }
+.nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #FFFFFF; }
+.nav-bar-inner { display: flex; align-items: center; justify-content: center; }
+.nav-title { font-size: 34rpx; font-weight: bold; color: #333; }
+.content { position: fixed; left: 0; right: 0; bottom: 0; }
+.inner-content { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 24rpx; }
+
+/* Profile card */
+.profile-card { padding: 36rpx; }
+.profile-top { display: flex; align-items: center; gap: 24rpx; }
+.avatar-circle {
+  width: 96rpx; height: 96rpx; border-radius: 50%;
+  border: 6rpx solid #CCCCCC;
+  display: flex; align-items: center; justify-content: center;
+  background: white;
+}
+.avatar-text { font-size: 24rpx; font-weight: 700; text-align: center; }
+.profile-info { display: flex; flex-direction: column; gap: 6rpx; }
+.profile-name { font-size: 36rpx; font-weight: 700; color: #4B4B4B; }
+.profile-sub { font-size: 26rpx; color: #AFAFAF; }
+
+/* Stats grid */
+.stats-grid { display: flex; gap: 16rpx; }
+.stat-box {
+  flex: 1; padding: 28rpx 16rpx;
+  display: flex; flex-direction: column; align-items: center; gap: 8rpx;
+}
+.stat-num { font-size: 40rpx; font-weight: 700; color: #4B4B4B; }
+.stat-label { font-size: 22rpx; color: #AFAFAF; }
+
+/* Category stats */
+.section-card { padding: 32rpx; display: flex; flex-direction: column; gap: 24rpx; }
+.section-title { font-size: 30rpx; font-weight: 700; color: #4B4B4B; }
+.bar-row { display: flex; align-items: center; gap: 16rpx; }
+.bar-label { font-size: 26rpx; color: #4B4B4B; width: 80rpx; }
+.bar-track {
+  flex: 1; height: 24rpx; background: #F0F0F0; border-radius: 12rpx; overflow: hidden;
+}
+.bar-fill { height: 100%; border-radius: 12rpx; transition: width 0.5s ease; min-width: 4rpx; }
+.bar-rate { font-size: 26rpx; font-weight: 600; color: #4B4B4B; width: 80rpx; text-align: right; }
+
+/* Actions */
+.action-list { display: flex; flex-direction: column; gap: 2rpx; }
+.action-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 32rpx; background: white; font-size: 30rpx; color: #4B4B4B;
+}
+.action-item:first-child { border-radius: 16rpx 16rpx 0 0; }
+.action-item:last-child { border-radius: 0 0 16rpx 16rpx; }
+.action-danger { color: #FF4B4B; }
+
+/* Freeze card */
+.freeze-card { padding: 28rpx 32rpx; }
+.freeze-row { display: flex; align-items: center; justify-content: space-between; }
+.freeze-left { display: flex; align-items: center; gap: 16rpx; }
+.freeze-icon { font-size: 40rpx; }
+.freeze-title { font-size: 28rpx; font-weight: 600; color: #4B4B4B; display: block; }
+.freeze-desc { font-size: 22rpx; color: #AFAFAF; display: block; }
+.btn-sm { border-radius: 16rpx; }
+.action-arrow { color: #CCCCCC; font-size: 36rpx; }

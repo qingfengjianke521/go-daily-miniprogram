@@ -1,0 +1,128 @@
+.ladder-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F0FBE5 0%, #F7F7F7 30%);
+}
+.nav-bar { background: transparent; }
+
+/* Current info bar */
+.current-info {
+  padding: 24rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.current-level { font-size: 40rpx; font-weight: 700; color: #4B4B4B; }
+.current-rating { font-size: 26rpx; color: #AFAFAF; }
+.current-progress-track {
+  width: 60%; height: 16rpx;
+  background: #E5E5E5; border-radius: 8rpx; overflow: hidden;
+  margin-top: 8rpx;
+}
+.current-progress-fill {
+  height: 100%; border-radius: 8rpx;
+  background: linear-gradient(90deg, #58CC02, #7AE030);
+  transition: width 0.5s;
+}
+.current-gap { font-size: 22rpx; color: #AFAFAF; margin-top: 4rpx; }
+
+/* Scroll area */
+.ladder-scroll {
+  height: calc(100vh - 200px);
+}
+
+/* Path container */
+.ladder-path {
+  padding: 32rpx 48rpx 0;
+  display: flex;
+  flex-direction: column-reverse; /* 从下往上 */
+  gap: 0;
+}
+
+/* Node row - S形交替 */
+.node-row {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  position: relative;
+}
+.node-row.left {
+  justify-content: flex-start;
+  padding-left: 40rpx;
+}
+.node-row.right {
+  justify-content: flex-end;
+  padding-right: 40rpx;
+  flex-direction: row-reverse;
+}
+
+/* 连接线 */
+.connector {
+  position: absolute;
+  width: 6rpx;
+  height: 80rpx;
+  top: -40rpx;
+}
+.connector-left { left: 92rpx; }
+.connector-right { right: 92rpx; }
+.connector-green { background: #58CC02; }
+.connector-gray { background: #E5E5E5; }
+
+/* 节点圆圈 */
+.node {
+  width: 108rpx; height: 108rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.node-passed {
+  background: #58CC02;
+  border: 6rpx solid #FFD700;
+  box-shadow: 0 4rpx 12rpx rgba(88, 204, 2, 0.3);
+}
+.node-current {
+  background: #58CC02;
+  border: 8rpx solid #46A302;
+  width: 128rpx; height: 128rpx;
+  box-shadow: 0 8rpx 24rpx rgba(88, 204, 2, 0.4);
+}
+.node-next {
+  background: rgba(88, 204, 2, 0.15);
+  border: 4rpx dashed #58CC02;
+}
+.node-locked {
+  background: #E5E5E5;
+  border: 4rpx solid #D0D0D0;
+}
+
+.node-icon { color: white; font-size: 44rpx; font-weight: 700; }
+.node-text-current { color: white; font-size: 24rpx; font-weight: 700; text-align: center; }
+.node-icon-lock { font-size: 32rpx; color: #AFAFAF; }
+
+/* Label */
+.node-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-left: 24rpx;
+  margin-right: 24rpx;
+}
+.node-name { font-size: 28rpx; font-weight: 700; color: #4B4B4B; }
+.node-sub { font-size: 22rpx; color: #AFAFAF; }
+
+/* Reward badge */
+.reward-badge {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 6rpx 16rpx;
+  background: #FFF6E5;
+  border-radius: 9999rpx;
+  position: absolute;
+  right: 24rpx;
+}
+.node-row.right .reward-badge { right: auto; left: 24rpx; }
+.reward-text { font-size: 20rpx; font-weight: 700; color: #FFB300; }

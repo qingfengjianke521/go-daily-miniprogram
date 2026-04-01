@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "progress-circle": "/components/progress-circle/index"
+  }
+}

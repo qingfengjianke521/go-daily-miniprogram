@@ -1,0 +1,97 @@
+<!-- Duolingo-style top bar: ✕ + progress bar + counter -->
+<view class="top-bar" style="padding-top:{{statusBarHeight}}px;">
+  <view class="top-bar-inner">
+    <view class="close-btn" bindtap="handleBack">
+      <text class="close-icon">✕</text>
+    </view>
+    <view class="top-progress-track">
+      <view class="top-progress-fill" style="width:{{progressPercent}}%;"></view>
+    </view>
+    <text class="top-counter">{{problemIndex}}/{{totalProblems}}</text>
+  </view>
+</view>
+
+<view class="play-content">
+  <!-- Description -->
+  <view class="desc-row">
+    <text class="desc-text">{{description}}</text>
+    <text wx:if="{{goalHint}}" class="goal-hint">· {{goalHint}}</text>
+    <text class="category-tag {{categoryClass}}">{{category}}</text>
+  </view>
+
+  <!-- Status line -->
+  <view class="status-line">
+    <text wx:if="{{showHint}}" class="status-text animate-pulse" style="color:#FF4B4B;">{{hintMsg}}</text>
+    <text wx:elif="{{showingSolution}}" class="status-text" style="color:#58CC02;">正解演示中...</text>
+    <text wx:elif="{{interactive && !advancing}}" class="status-text text-999">点击棋盘上正确的位置</text>
+    <text wx:elif="{{advancing}}" class="status-text text-999">对方应手中...</text>
+    <text wx:else class="status-text text-999"> </text>
+  </view>
+
+  <!-- Board -->
+  <view class="board-wrap">
+    <go-board
+      boardSize="{{boardSize}}"
+      stones="{{stones}}"
+      viewRegion="{{viewRegion}}"
+      interactive="{{interactive}}"
+      currentColor="{{currentColor}}"
+      lastMove="{{lastMove}}"
+      moveHistory="{{moveHistory}}"
+      highlightPoints="{{highlightPoints}}"
+      bindmove="onBoardMove"
+    />
+  </view>
+
+  <!-- Controls: 做题中 (不显示反馈面板时) -->
+  <view wx:if="{{!isDone && !feedbackVisible}}" class="controls-row">
+    <button
+      class="btn btn-secondary btn-md flex-1 rounded-xl"
+      disabled="{{currentStep === 0}}"
+      bindtap="handleReset"
+    >重置</button>
+    <button
+      class="btn btn-primary btn-md flex-1 rounded-xl"
+      disabled="{{advancing || !interactive}}"
+      bindtap="handleAdvance"
+    >下一步 →</button>
+  </view>
+</view>
+
+<!-- ========== 段位升级浮层 ========== -->
+<view wx:if="{{showLevelUp}}" class="levelup-overlay">
+  <view class="levelup-content animate-pop">
+    <text class="levelup-emoji">🎊</text>
+    <text class="levelup-title">恭喜升级！</text>
+    <text class="levelup-name">{{levelUpName}}</text>
+  </view>
+</view>
+
+<!-- ========== 底部反馈面板 ========== -->
+<view class="feedback-overlay {{feedbackVisible ? 'show' : ''}}"></view>
+<view class="feedback-panel {{feedbackVisible ? 'show' : ''}} feedback-{{feedbackType}}">
+  <!-- 顶部行：图标 + 文案 + 分数 -->
+  <view class="flex items-center" style="margin-bottom:32rpx;">
+    <view class="feedback-icon feedback-icon-{{feedbackType}}">
+      <text wx:if="{{feedbackType === 'correct'}}">✓</text>
+      <text wx:elif="{{feedbackType === 'wrong'}}">✕</text>
+      <text wx:else>📖</text>
+    </view>
+    <text class="feedback-title">{{feedbackText}}</text>
+    <text wx:if="{{feedbackScore}}" class="feedback-score">
+      {{feedbackScore > 0 ? '+' : ''}}{{feedbackScore}}
+    </text>
+  </view>
+
+  <!-- 正解说明（答错时） -->
+  <text wx:if="{{feedbackType === 'wrong' && showingSolution}}" class="text-sm" style="color:#CC3B3B;margin-bottom:24rpx;display:block;">
+    正解演示中...
+  </text>
+
+  <!-- 继续按钮 -->
+  <button
+    class="btn {{feedbackType === 'correct' ? 'btn-primary' : feedbackType === 'wrong' ? 'btn-danger' : 'btn-primary'}} btn-lg w-full rounded-xl"
+    wx:if="{{feedbackCanContinue}}"
+    bindtap="handleFeedbackContinue"
+  >{{feedbackButtonText}}</button>
+</view>

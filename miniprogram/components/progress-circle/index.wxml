@@ -1,0 +1,18 @@
+<view class="circle-wrap">
+  <view class="circle {{isPulse ? 'pulse' : ''}}" style="border-color:{{borderColor}};background:{{bgColor}};">
+    <!-- Checkmark for correct -->
+    <view wx:if="{{iconType === 'check'}}" class="icon-check">
+      <view class="check-stem"></view>
+      <view class="check-kick"></view>
+    </view>
+    <!-- X for wrong -->
+    <view wx:elif="{{iconType === 'cross'}}" class="icon-cross">
+      <view class="cross-line cross-line-1"></view>
+      <view class="cross-line cross-line-2"></view>
+    </view>
+    <!-- Number for current/pending -->
+    <text wx:else class="circle-number" style="color:{{numberColor}};">{{number}}</text>
+  </view>
+  <text wx:if="{{showChange}}" class="rating-change" style="color:{{changeColor}};">{{changeText}}</text>
+  <text wx:else class="rating-placeholder"> </text>
+</view>

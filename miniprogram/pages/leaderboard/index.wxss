@@ -1,0 +1,48 @@
+.page { min-height: 100vh; background: #F7F7F7; }
+.nav-bar { background: white; position: relative; z-index: 10; }
+.back-btn { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; }
+.loading { display: flex; align-items: center; justify-content: center; min-height: 50vh; }
+.list-wrap { height: calc(100vh - 88px); }
+
+/* Podium */
+.podium {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  padding: 48rpx 32rpx;
+  background: white;
+  margin-bottom: 24rpx;
+}
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  min-width: 160rpx;
+}
+.podium-medal { font-size: 56rpx; }
+.podium-name { font-size: 28rpx; font-weight: 700; color: #4B4B4B; }
+.podium-rating { font-size: 36rpx; font-weight: 700; color: #58CC02; }
+.podium-level { font-size: 22rpx; color: #AFAFAF; }
+
+/* Rank list */
+.rank-list {
+  padding: 0 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.rank-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  background: white;
+  border-radius: 16rpx;
+  gap: 20rpx;
+}
+.rank-item-me { background: #F0FBE5; }
+.rank-num { font-size: 30rpx; font-weight: 700; color: #AFAFAF; min-width: 48rpx; text-align: center; }
+.rank-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
+.rank-name { font-size: 28rpx; font-weight: 600; color: #4B4B4B; }
+.rank-sub { font-size: 22rpx; color: #AFAFAF; }
+.rank-rating { font-size: 32rpx; font-weight: 700; color: #58CC02; }

@@ -1,0 +1,156 @@
+/* ========== 顶部固定区域 ========== */
+.top-fixed {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100; background: white;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
+}
+
+/* 状态栏 */
+.status-row {
+  display: flex; align-items: center;
+  padding: 12rpx 32rpx; gap: 16rpx;
+  height: 72rpx;
+}
+.st-item { display: flex; align-items: center; gap: 4rpx; }
+.st-fire { font-size: 28rpx; }
+.st-fire-num { font-size: 28rpx; font-weight: 700; color: #FF9600; }
+.st-badge {
+  width: 56rpx; height: 56rpx; border-radius: 50%;
+  border: 4rpx solid #ccc; background: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.st-badge-text { font-size: 18rpx; font-weight: 700; }
+.st-rating { font-size: 24rpx; color: #AFAFAF; }
+.st-spacer { flex: 1; }
+.coin-item { background: #F0E6FF; padding: 6rpx 16rpx; border-radius: 9999rpx; }
+.st-coin-num { font-size: 24rpx; font-weight: 700; color: #7C3AED; }
+
+/* 今日打卡条 */
+.checkin-row {
+  display: flex; align-items: center;
+  padding: 16rpx 32rpx; gap: 16rpx;
+  border-top: 2rpx solid #F0F0F0;
+}
+.ci-label { font-size: 26rpx; color: #4B4B4B; font-weight: 600; flex-shrink: 0; }
+.ci-done { font-size: 26rpx; color: #58CC02; font-weight: 700; flex-shrink: 0; }
+.ci-dots { display: flex; gap: 12rpx; flex-shrink: 0; }
+.ci-dot {
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 4rpx solid #E5E5E5;
+}
+.ci-dot-ok { background: #58CC02; border-color: #58CC02; }
+.ci-dot-bad { background: #FF4B4B; border-color: #FF4B4B; }
+.ci-dot-current { border-color: #58CC02; }
+.ci-dot-pending { }
+.ci-change { font-size: 28rpx; font-weight: 700; flex-shrink: 0; }
+.ci-btn {
+  margin-left: auto !important; flex-shrink: 0;
+  padding: 0 32rpx !important; height: 56rpx !important;
+  line-height: 56rpx !important;
+  font-size: 24rpx !important; font-weight: 700 !important;
+  border-radius: 9999rpx !important; border: none !important;
+  margin-right: 0 !important;
+}
+.ci-btn-start { background: #58CC02 !important; color: white !important; }
+.ci-btn-continue { background: #58CC02 !important; color: white !important; }
+
+/* ========== 加载中 ========== */
+.loading-wrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 60vh;
+}
+
+/* ========== 路径滚动区 ========== */
+.path-scroll {
+  position: fixed; left: 0; right: 0; bottom: 0;
+}
+.path-bg {
+  min-height: 100%;
+  background: linear-gradient(180deg, #1a1a3e 0%, #2d2d6b 15%, #87CEEB 40%, #E8F5E9 70%, #F0FFF0 100%);
+  padding: 48rpx 0;
+}
+
+/* ========== 路径容器（从下往上） ========== */
+.path-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  padding: 0 32rpx;
+}
+
+/* 节点行 */
+.node-wrap {
+  display: flex; align-items: center; gap: 20rpx;
+  padding: 20rpx 0;
+  width: 100%;
+}
+.node-left { justify-content: flex-start; padding-left: 48rpx; }
+.node-right { justify-content: flex-end; flex-direction: row-reverse; padding-right: 48rpx; }
+
+/* 连接线 */
+.conn {
+  width: 6rpx; height: 48rpx;
+  border-radius: 3rpx;
+  align-self: center;
+}
+.conn-green { background: #58CC02; }
+.conn-gray { background: rgba(255,255,255,0.25); }
+
+/* ========== 节点样式 ========== */
+.node {
+  width: 112rpx; height: 112rpx;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.15);
+  transition: transform 0.3s;
+}
+.node-style-passed {
+  background: #58CC02;
+  border: 6rpx solid #FFD700;
+}
+.node-style-current {
+  width: 148rpx; height: 148rpx;
+  background: #58CC02;
+  border: 8rpx solid #46A302;
+  box-shadow: 0 0 0 8rpx rgba(88,204,2,0.25), 0 8rpx 24rpx rgba(88,204,2,0.3);
+}
+.node-style-next {
+  background: rgba(88,204,2,0.15);
+  border: 4rpx dashed rgba(88,204,2,0.6);
+  box-shadow: none;
+}
+.node-style-locked {
+  background: rgba(255,255,255,0.15);
+  border: 4rpx solid rgba(255,255,255,0.2);
+  box-shadow: none;
+}
+
+.node-check { color: white; font-size: 48rpx; font-weight: 700; }
+.node-cur-text { color: white; font-size: 32rpx; font-weight: 700; }
+.node-next-text { color: rgba(88,204,2,0.6); font-size: 28rpx; font-weight: 700; }
+.node-lock { font-size: 36rpx; opacity: 0.5; }
+
+/* 呼吸动画 */
+.node-breathe {
+  animation: breathe 2s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* 节点信息 */
+.node-info { display: flex; flex-direction: column; gap: 2rpx; }
+.node-name { font-size: 28rpx; font-weight: 700; color: white; text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.3); }
+.node-sub { font-size: 22rpx; color: rgba(255,255,255,0.7); }
+.node-sub-green { color: #D7FFB8; font-weight: 600; }
+
+/* 奖励标签 */
+.reward-tag {
+  background: rgba(255,215,0,0.2);
+  padding: 4rpx 16rpx; border-radius: 9999rpx;
+  font-size: 20rpx; color: #FFD700; font-weight: 700;
+  flex-shrink: 0;
+}

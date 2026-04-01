@@ -1,0 +1,43 @@
+<view class="page">
+  <view class="nav-bar" style="padding-top:{{statusBarHeight}}px;">
+    <view style="height:44px;" class="flex items-center">
+      <view class="back-btn" bindtap="handleBack">
+        <text style="font-size:36rpx;color:#AFAFAF;">❮</text>
+      </view>
+      <text class="flex-1 text-center font-bold text-base" style="color:#4B4B4B;">排行榜</text>
+      <view style="width:64rpx;"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text class="text-999">加载中...</text>
+  </view>
+
+  <scroll-view wx:else scroll-y class="list-wrap">
+    <!-- 前三名特殊展示 -->
+    <view class="podium">
+      <view wx:for="{{topThree}}" wx:key="rank" class="podium-item">
+        <view class="podium-medal">
+          <text>{{item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}}</text>
+        </view>
+        <text class="podium-name">{{item.username}}</text>
+        <text class="podium-rating">{{item.rating}}</text>
+        <text class="podium-level">{{item.level_name}}</text>
+      </view>
+    </view>
+
+    <!-- 其余排名 -->
+    <view class="rank-list">
+      <view wx:for="{{restList}}" wx:key="rank" class="rank-item {{item.isMe ? 'rank-item-me' : ''}}">
+        <text class="rank-num">{{item.rank}}</text>
+        <view class="rank-info">
+          <text class="rank-name">{{item.username}}</text>
+          <text class="rank-sub">{{item.level_name}} · 🔥{{item.streak_days}}天</text>
+        </view>
+        <text class="rank-rating">{{item.rating}}</text>
+      </view>
+    </view>
+
+    <view style="height:120rpx;"></view>
+  </scroll-view>
+</view>

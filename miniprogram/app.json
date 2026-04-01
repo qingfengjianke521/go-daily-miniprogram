@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/index",
+    "pages/level-select/index",
+    "pages/play/index",
+    "pages/result/index",
+    "pages/summary/index",
+    "pages/profile/index",
+    "pages/ladder/index",
+    "pages/ranking/index",
+    "pages/leaderboard/index",
+    "pages/joseki/list/index",
+    "pages/joseki/practice/index",
+    "pages/fuseki/list/index",
+    "pages/fuseki/practice/index",
+    "pages/admin/index"
+  ],
+  "tabBar": {
+    "color": "#BBBBBB",
+    "selectedColor": "#58CC02",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/ranking/index",
+        "text": "排行",
+        "iconPath": "images/tab-rank.png",
+        "selectedIconPath": "images/tab-rank-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
+  },
+  "window": {
+    "backgroundColor": "#F7F7F7",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "黑白天天练",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

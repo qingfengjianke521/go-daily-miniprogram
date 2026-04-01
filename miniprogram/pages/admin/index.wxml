@@ -1,0 +1,55 @@
+<view class="admin-page">
+  <view class="title">题库管理工具</view>
+  <view class="warn" wx:if="{{!isAdmin}}">仅管理员可用</view>
+
+  <!-- Stats -->
+  <view class="section">
+    <view class="section-title">题库统计</view>
+    <button size="mini" type="primary" bindtap="onStats" disabled="{{running}}">查看统计</button>
+    <view class="result" wx:if="{{statsResult}}">
+      <text>总题数: {{statsResult.total}}</text>
+      <view wx:for="{{statsResult.tierList}}" wx:key="name">
+        <text>{{item.name}}: {{item.count}} 题</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Validate -->
+  <view class="section">
+    <view class="section-title">题目检测</view>
+    <view class="btn-row">
+      <button size="mini" type="warn" bindtap="onValidate" disabled="{{running}}">开始检测 (只查不删)</button>
+      <button size="mini" type="warn" bindtap="onValidateFix" disabled="{{running}}">检测 + 删除问题题</button>
+    </view>
+    <view class="progress" wx:if="{{validateProgress}}">
+      <text>进度: 批次 {{validateProgress.batch}} / 已检查 {{validateProgress.checked}} / 问题 {{validateProgress.issues}} / 已删 {{validateProgress.deleted}}</text>
+    </view>
+    <view class="issue-list" wx:if="{{validateIssues.length > 0}}">
+      <view class="section-title">发现的问题 (前50条):</view>
+      <view wx:for="{{validateIssues}}" wx:key="index" class="issue-item">
+        <text>ID:{{item.pid}} [{{item.cat}}] r{{item.rating}} - {{item.errors}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Classify -->
+  <view class="section">
+    <view class="section-title">重新分级</view>
+    <button size="mini" type="primary" bindtap="onClassify" disabled="{{running}}">开始分级</button>
+    <view class="progress" wx:if="{{classifyProgress}}">
+      <text>进度: 批次 {{classifyProgress.batch}} / 已更新 {{classifyProgress.updated}}</text>
+    </view>
+  </view>
+
+  <!-- Log -->
+  <view class="section" wx:if="{{logs.length > 0}}">
+    <view class="section-title">运行日志</view>
+    <scroll-view scroll-y class="log-box">
+      <view wx:for="{{logs}}" wx:key="index" class="log-line">{{item}}</view>
+    </scroll-view>
+  </view>
+
+  <view class="running-indicator" wx:if="{{running}}">
+    <text>执行中... 请勿关闭页面</text>
+  </view>
+</view>

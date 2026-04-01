@@ -1,0 +1,656 @@
+// 云函数入口
+const cloud = require('wx-server-sdk')
+
+cloud.init({
+  env: 'cloud1-2gna4pn73d7fe81e'
+})
+
+const db = cloud.database()
+const _ = db.command
+
+// ========== 工具函数 ==========
+
+var LEVEL_TIERS = [
+  [600, '25级'], [700, '22级'], [800, '20级'], [900, '18级'],
+  [1000, '15级'], [1100, '12级'], [1200, '10级'], [1300, '8级'],
+  [1400, '6级'], [1500, '4级'], [1600, '2级'], [1700, '1级'],
+  [1800, '初段'], [1900, '二段'], [2000, '三段'], [2200, '四段'],
+  [2400, '五段'], [99999, '六段以上'],
+]
+
+function getLevelName(rating) {
+  for (var i = 0; i < LEVEL_TIERS.length; i++) {
+    if (rating < LEVEL_TIERS[i][0]) return LEVEL_TIERS[i][1]
+  }
+  return '六段以上'
+}
+
+function getTodayDate() {
+  var now = new Date()
+  var utc8 = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+  return utc8.toISOString().slice(0, 10)
+}
+
+function calculateRating(userRating, userRD, problemRating, isCorrect, timeSpentMs, expectedTimeMs) {
+  var expected = 1 / (1 + Math.pow(10, (problemRating - userRating) / 400))
+  var K = userRD > 300 ? 64 : userRD > 200 ? 40 : userRD > 100 ? 24 : 16
+  var actual = isCorrect ? 1.0 : 0.0
+  var baseChange = K * (actual - expected)
+  var timeRatio = timeSpentMs / (expectedTimeMs || 60000)
+  var timeFactor
+  if (isCorrect) {
+    timeFactor = timeRatio < 0.5 ? 1.5 : timeRatio < 1.0 ? 1.2 : timeRatio < 2.0 ? 1.0 : 0.6
+  } else {
+    timeFactor = timeRatio < 0.3 ? 0.5 : timeRatio < 1.0 ? 1.0 : 1.3
+  }
+  var change = Math.round(Math.max(-60, Math.min(60, baseChange * timeFactor)))
+  var newRD = Math.max(50, Math.round(userRD * 0.95))
+  return { change: change, newRD: newRD }
+}
+
+// 根据用户rating获取对应的level_tier
+function getUserLevelTier(rating) {
+  if (rating < 800) return 'beginner'
+  if (rating < 1200) return 'elementary'
+  if (rating < 1600) return 'intermediate'
+  return 'advanced'
+}
+
+// Pick one random problem from a rating range, excluding used IDs
+// opts.levelTier: 优先匹配该等级的题目
+async function pickFromDB(minR, maxR, exclude, opts) {
+  var where = { difficulty_rating: _.gte(minR).and(_.lte(maxR)) }
+  // 如果指定了level_tier, 优先选该tier的题
+  if (opts && opts.levelTier) {
+    where.level_tier = opts.levelTier
+  }
+
+  var countRes = await db.collection('problems').where(where).count()
+  var total = countRes.total
+
+  // 如果按tier筛选没有结果, 退回到仅按rating筛选
+  if (total === 0 && opts && opts.levelTier) {
+    delete where.level_tier
+    countRes = await db.collection('problems').where(where).count()
+    total = countRes.total
+  }
+  if (total === 0) return null
+
+  for (var attempt = 0; attempt < 3; attempt++) {
+    var skip = Math.floor(Math.random() * Math.max(0, total - 5))
+    var res = await db.collection('problems').where(where)
+      .skip(skip).limit(10).get()
+    var cands = res.data.filter(function(p) { return !exclude[p.problem_id] })
+    if (cands.length > 0) {
+      var picked = cands[Math.floor(Math.random() * cands.length)]
+      exclude[picked.problem_id] = true
+      return picked
+    }
+  }
+  return null
+}
+
+// Compute recent accuracy from last N attempts
+function recentAccuracy(attempts) {
+  if (!attempts || attempts.length === 0) return 0.5
+  var correct = 0
+  for (var i = 0; i < attempts.length; i++) {
+    if (attempts[i].is_correct) correct++
+  }
+  return correct / attempts.length
+}
+
+// Select 3 problems with accuracy-aware difficulty tiers
+async function selectProblemsFromDB(userRating, recentIds, recentAttempts) {
+  var exclude = {}
+  if (recentIds) {
+    for (var i = 0; i < recentIds.length; i++) exclude[recentIds[i]] = true
+  }
+
+  var acc = recentAccuracy(recentAttempts)
+  var tiers
+  if (acc > 0.7) {
+    // Pushing harder
+    tiers = [
+      [userRating + 50, userRating + 150],
+      [userRating + 100, userRating + 250],
+      [userRating + 150, userRating + 300],
+    ]
+  } else if (acc >= 0.4) {
+    // Balanced
+    tiers = [
+      [userRating - 100, userRating + 50],
+      [userRating, userRating + 150],
+      [userRating - 50, userRating + 100],
+    ]
+  } else {
+    // Build confidence
+    tiers = [
+      [userRating - 200, userRating - 50],
+      [userRating - 150, userRating],
+      [userRating - 100, userRating + 50],
+    ]
+  }
+
+  var userTier = getUserLevelTier(userRating)
+  var selected = []
+  for (var i = 0; i < tiers.length; i++) {
+    var p = await pickFromDB(tiers[i][0], tiers[i][1], exclude, { levelTier: userTier })
+    if (p) selected.push(p)
+  }
+
+  // Fallback: widen range if not enough
+  while (selected.length < 3) {
+    var pFall = await pickFromDB(userRating - 300, userRating + 300, exclude, { levelTier: userTier })
+    if (pFall) { selected.push(pFall); continue }
+    var pFall2 = await pickFromDB(400, 2100, exclude)
+    if (pFall2) { selected.push(pFall2); continue }
+    break
+  }
+
+  return selected
+}
+
+// Pick a single problem for continuation practice
+async function pickContinueProblem(userRating, excludeIds) {
+  var exclude = {}
+  if (excludeIds) {
+    for (var i = 0; i < excludeIds.length; i++) exclude[excludeIds[i]] = true
+  }
+  // Match around current rating, progressively wider
+  var userTier = getUserLevelTier(userRating)
+  var p = await pickFromDB(userRating - 200, userRating + 200, exclude, { levelTier: userTier })
+  if (p) return p
+  p = await pickFromDB(userRating - 400, userRating + 400, exclude, { levelTier: userTier })
+  if (p) return p
+  p = await pickFromDB(userRating - 600, userRating + 600, exclude)
+  if (p) return p
+  return await pickFromDB(400, 2100, exclude)
+}
+
+// Format a problem from DB for client response
+function formatProblem(p) {
+  return {
+    problem_id: p.problem_id,
+    category: p.category,
+    difficulty_rating: p.difficulty_rating,
+    board_size: p.board_size,
+    description: p.description,
+    expected_time_ms: p.expected_time_ms,
+    initial_stones: p.initial_stones,
+    view_region: p.view_region,
+    correct_sequences: p.correct_sequences,
+    level_tier: p.level_tier || getUserLevelTier(p.difficulty_rating),
+    steps: p.steps || 0,
+    hint: p.hint || '',
+  }
+}
+
+// ========== 云函数入口 ==========
+
+exports.main = async function(event, context) {
+  var wxContext = cloud.getWXContext()
+  var openid = wxContext.OPENID
+
+  console.log('goDaily called, action:', event.action, 'openid:', openid)
+
+  // 调试接口：不需要 openid
+  if (event.action === 'debug') {
+    try {
+      var pCount = await db.collection('problems').count()
+      var sample = await db.collection('problems').limit(1).get()
+      var sCount = await db.collection('daily_sessions').count()
+      return {
+        problems_count: pCount.total,
+        sessions_count: sCount.total,
+        sample_problem: sample.data.length > 0 ? {
+          id: sample.data[0].problem_id,
+          rating: sample.data[0].difficulty_rating,
+          has_stones: !!(sample.data[0].initial_stones),
+          has_seqs: !!(sample.data[0].correct_sequences),
+        } : null,
+        env: 'cloud1-2gna4pn73d7fe81e',
+        timestamp: new Date().toISOString(),
+      }
+    } catch (e) {
+      return { debug_error: e.message || String(e) }
+    }
+  }
+
+  if (!openid) {
+    return { error: '无法获取用户身份' }
+  }
+
+  var action = event.action
+
+  try {
+    if (action === 'initUser') {
+      return await initUser(openid)
+    } else if (action === 'setLevel') {
+      return await setLevel(openid, event.level_name)
+    } else if (action === 'getDaily') {
+      return await getDaily(openid)
+    } else if (action === 'submitAnswer') {
+      return await submitAnswer(openid, event)
+    } else if (action === 'getContinueProblem') {
+      return await getContinueProblem(openid)
+    } else if (action === 'resetSession') {
+      var today = getTodayDate()
+      await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).remove()
+      return { ok: true }
+    } else if (action === 'getStats') {
+      return await getStats(openid)
+    } else if (action === 'buyStreakFreeze') {
+      return await buyStreakFreeze(openid)
+    } else if (action === 'getLeaderboard') {
+      return await getLeaderboard()
+    } else if (action === 'setUsername') {
+      return await setUsername(openid, event.username)
+    } else {
+      return { error: '未知操作' }
+    }
+  } catch (e) {
+    console.error('goDaily error:', e)
+    return { error: e.message || String(e) }
+  }
+}
+
+// ========== 各 action 处理 ==========
+
+async function initUser(openid) {
+  var res = await db.collection('users').where({ _openid: openid }).get()
+
+  if (res.data.length > 0) {
+    var u = res.data[0]
+    return {
+      user: {
+        openid: openid,
+        username: u.username || '',
+        rating: u.rating || 1200,
+        rating_deviation: u.rating_deviation || 350,
+        level_name: u.level_name || '18级',
+        streak_days: u.streak_days || 0,
+        total_solved: u.total_solved || 0,
+        total_correct: u.total_correct || 0,
+        level_set: u.level_set || false,
+      }
+    }
+  }
+
+  // 新用户
+  await db.collection('users').add({
+    data: {
+      _openid: openid,
+      username: '',
+      rating: 1200,
+      rating_deviation: 350,
+      level_name: '18级',
+      streak_days: 0,
+      last_play_date: '',
+      total_solved: 0,
+      total_correct: 0,
+      level_set: false,
+      is_admin: false,
+    }
+  })
+
+  return {
+    user: {
+      openid: openid,
+      username: '',
+      rating: 1200,
+      rating_deviation: 350,
+      level_name: '18级',
+      streak_days: 0,
+      total_solved: 0,
+      total_correct: 0,
+      level_set: false,
+    }
+  }
+}
+
+async function setLevel(openid, levelName) {
+  var LEVEL_RATINGS = {
+    '25级': 500, '20级': 700, '15级': 900, '10级': 1100,
+    '5级': 1200, '1级': 1400, '初段': 1600, '二段': 1750, '三段': 1950
+  }
+  var rating = LEVEL_RATINGS[levelName] || 1200
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: { level_name: levelName, rating: rating, level_set: true }
+  })
+
+  return { user: { level_name: levelName, rating: rating, level_set: true } }
+}
+
+async function getDaily(openid) {
+  var today = getTodayDate()
+
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  // 检查已有 session
+  var sessionRes = await db.collection('daily_sessions').where({
+    _openid: openid,
+    session_date: today,
+  }).get()
+
+  if (sessionRes.data.length > 0) {
+    var session = sessionRes.data[0]
+    var resultsRes = await db.collection('attempts').where({
+      _openid: openid,
+      session_date: today,
+    }).orderBy('attempted_at', 'asc').get()
+
+    // 如果 session 标记了 useLocal，返回本地标记
+    if (session.useLocal) {
+      return {
+        session_date: today,
+        problem_ids: session.problem_ids,
+        useLocalProblems: true,
+        completed_count: session.completed_count || 0,
+        results: resultsRes.data.map(function(a) {
+          return { problem_id: a.problem_id, is_correct: a.is_correct, rating_change: a.rating_change }
+        }),
+        total_completed: session.completed_count || 0,
+      }
+    }
+
+    // 从云数据库获取完整题目
+    var problemIds = session.problem_ids || []
+    var problems = []
+    try {
+      for (var i = 0; i < problemIds.length; i++) {
+        var pRes = await db.collection('problems').where({ problem_id: problemIds[i] }).limit(1).get()
+        if (pRes.data.length > 0) {
+          problems.push(formatProblem(pRes.data[0]))
+        }
+      }
+    } catch (e) {
+      // problems 集合不存在，返回空列表触发重新选题
+      problems = []
+    }
+
+    // 如果题目不够（部分被删），删除旧 session 重新选题
+    if (problems.length < 3 && problemIds.length > 0) {
+      console.log('session 题目不足 (' + problems.length + '/' + problemIds.length + '), 重建')
+      await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).remove()
+      return await getDaily(openid)
+    }
+
+    return {
+      session_date: today,
+      problem_ids: problemIds,
+      problems: problems,
+      completed_count: session.completed_count || 0,
+      results: resultsRes.data.map(function(a) {
+        return { problem_id: a.problem_id, is_correct: a.is_correct, rating_change: a.rating_change }
+      }),
+      total_completed: session.completed_count || 0,
+    }
+  }
+
+  // 新建 session — 先检查云数据库有没有题目
+  var hasProblems = false
+  try {
+    var checkProblems = await db.collection('problems').limit(1).get()
+    hasProblems = checkProblems.data.length > 0
+  } catch (e) {
+    hasProblems = false
+  }
+
+  if (!hasProblems) {
+    // 云数据库没有题目，使用本地题库
+    // 从本地200题中随机选3题（由客户端处理）
+    var localIds = []
+    var usedLocal = {}
+    while (localIds.length < 3) {
+      var r = Math.floor(Math.random() * 200)
+      if (!usedLocal[r]) { localIds.push(r); usedLocal[r] = true }
+    }
+
+    await db.collection('daily_sessions').add({
+      data: {
+        _openid: openid,
+        session_date: today,
+        problem_ids: localIds,
+        useLocal: true,
+        completed_count: 0,
+        total_rating_change: 0,
+      }
+    })
+
+    return {
+      session_date: today,
+      problem_ids: localIds,
+      useLocalProblems: true,
+      completed_count: 0,
+      results: [],
+      total_completed: 0,
+    }
+  }
+
+  // 云数据库有题目，按 rating 匹配选题
+  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(90).get()
+  var recentIds = recentRes.data.map(function(a) { return a.problem_id })
+  var recentAttempts = recentRes.data.slice(0, 20) // last 20 for accuracy calc
+  var selectedProblems = await selectProblemsFromDB(user.rating, recentIds, recentAttempts)
+  var problemIds = selectedProblems.map(function(p) { return p.problem_id })
+
+  await db.collection('daily_sessions').add({
+    data: {
+      _openid: openid,
+      session_date: today,
+      problem_ids: problemIds,
+      completed_count: 0,
+      total_rating_change: 0,
+    }
+  })
+
+  return {
+    session_date: today,
+    problem_ids: problemIds,
+    problems: selectedProblems.map(formatProblem),
+    completed_count: 0,
+    results: [],
+    total_completed: 0,
+  }
+}
+
+async function submitAnswer(openid, event) {
+  var today = getTodayDate()
+
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  var problemRating = event.problem_rating || user.rating
+  var result = calculateRating(
+    user.rating, user.rating_deviation || 350, problemRating,
+    event.is_correct, event.time_spent_ms, event.expected_time_ms || 60000
+  )
+
+  var newRating = Math.max(100, user.rating + result.change)
+  var newLevel = getLevelName(newRating)
+
+  // 连续打卡
+  var streakDays = user.streak_days || 0
+  var lastPlay = user.last_play_date || ''
+  if (lastPlay !== today) {
+    var yd = new Date(new Date().getTime() + 8 * 3600000 - 86400000)
+    var ydStr = yd.toISOString().slice(0, 10)
+    streakDays = (lastPlay === ydStr) ? streakDays + 1 : 1
+  }
+
+  await db.collection('attempts').add({
+    data: {
+      _openid: openid, problem_id: event.problem_id, session_date: today,
+      is_correct: event.is_correct, time_spent_ms: event.time_spent_ms,
+      moves: event.moves || [], rating_before: user.rating,
+      rating_after: newRating, rating_change: result.change,
+      attempted_at: new Date(),
+    }
+  })
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: {
+      rating: newRating, rating_deviation: result.newRD,
+      level_name: newLevel, streak_days: streakDays,
+      last_play_date: today,
+      total_solved: _.inc(1),
+      total_correct: event.is_correct ? _.inc(1) : _.inc(0),
+    }
+  })
+
+  // 获取 session 来判断棋币
+  var sessionRes2 = await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).get()
+  var session = sessionRes2.data.length > 0 ? sessionRes2.data[0] : null
+  var completedBefore = session ? (session.completed_count || 0) : 0
+
+  await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).update({
+    data: { completed_count: _.inc(1), total_rating_change: _.inc(result.change) }
+  })
+
+  // 棋币奖励逻辑
+  var coinsEarned = 0
+  var coinReason = ''
+  var completedAfter = completedBefore + 1
+
+  if (completedAfter === 3) {
+    // 完成今日3题打卡: +10 棋币
+    coinsEarned = 10
+    coinReason = '完成打卡'
+
+    // 检查3题全对: 额外+5
+    var todayAttempts = await db.collection('attempts').where({ _openid: openid, session_date: today }).get()
+    var allCorrect = todayAttempts.data.length >= 2 && todayAttempts.data.every(function(a) { return a.is_correct })
+    if (allCorrect && event.is_correct) {
+      coinsEarned += 5
+      coinReason = '全对打卡'
+    }
+
+    // 连续7天打卡: 额外+20
+    if (streakDays > 0 && streakDays % 7 === 0) {
+      coinsEarned += 20
+      coinReason += ' + 7天连续'
+    }
+  }
+
+  if (coinsEarned > 0) {
+    await db.collection('users').where({ _openid: openid }).update({
+      data: { coins: _.inc(coinsEarned) }
+    })
+  }
+
+  return {
+    is_correct: event.is_correct, rating_change: result.change,
+    new_rating: newRating, new_level: newLevel,
+    level_changed: newLevel !== user.level_name, streak_days: streakDays,
+    coins_earned: coinsEarned, coin_reason: coinReason,
+    total_coins: (user.coins || 0) + coinsEarned,
+  }
+}
+
+async function getContinueProblem(openid) {
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  // Exclude today's session problems + recent 90
+  var today = getTodayDate()
+  var sessionRes = await db.collection('daily_sessions').where({
+    _openid: openid, session_date: today,
+  }).get()
+  var sessionIds = sessionRes.data.length > 0 ? (sessionRes.data[0].problem_ids || []) : []
+
+  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(90).get()
+  var excludeIds = recentRes.data.map(function(a) { return a.problem_id }).concat(sessionIds)
+
+  var problem = null
+  try {
+    problem = await pickContinueProblem(user.rating, excludeIds)
+  } catch (e) {
+    return { error: '题库暂未就绪' }
+  }
+  if (!problem) return { error: '没有更多题目了' }
+
+  return { problem: formatProblem(problem) }
+}
+
+async function getStats(openid) {
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+  var rate = user.total_solved > 0 ? Math.round(user.total_correct / user.total_solved * 100) : 0
+
+  var problemsTotal = 0
+  try {
+    var countRes = await db.collection('problems').count()
+    problemsTotal = countRes.total
+  } catch (e) {}
+
+  return {
+    username: user.username || '', rating: user.rating,
+    level_name: user.level_name, streak_days: user.streak_days || 0,
+    total_solved: user.total_solved || 0, total_correct: user.total_correct || 0,
+    correct_rate: rate, is_admin: user.is_admin || false,
+    problems_total: problemsTotal,
+    coins: user.coins || 0,
+    streak_freezes: user.streak_freezes || 0,
+  }
+}
+
+async function buyStreakFreeze(openid) {
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  var coins = user.coins || 0
+  var freezes = user.streak_freezes || 0
+  var cost = 50
+
+  if (freezes >= 2) return { error: '最多持有2个 Streak Freeze' }
+  if (coins < cost) return { error: '棋币不足，需要' + cost + '棋币' }
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: { coins: _.inc(-cost), streak_freezes: _.inc(1) }
+  })
+
+  return { ok: true, coins: coins - cost, streak_freezes: freezes + 1 }
+}
+
+async function getLeaderboard(type) {
+  // type: 'daily', 'weekly', 'monthly', 默认 'daily'
+  type = type || 'daily'
+
+  // 按 rating 排名 (后续可改为按 change 排名)
+  var res = await db.collection('users')
+    .orderBy('rating', 'desc')
+    .limit(50)
+    .field({ _openid: true, username: true, rating: true, level_name: true, streak_days: true, total_solved: true })
+    .get()
+
+  return {
+    type: type,
+    leaderboard: res.data.map(function(u, i) {
+      return {
+        rank: i + 1,
+        openid: u._openid,
+        username: u.username || '匿名棋手',
+        rating: u.rating || 1200,
+        level_name: u.level_name || '',
+        streak_days: u.streak_days || 0,
+        total_solved: u.total_solved || 0,
+      }
+    })
+  }
+}
+
+async function setUsername(openid, username) {
+  if (!username || username.length > 12) return { error: '昵称无效' }
+  await db.collection('users').where({ _openid: openid }).update({
+    data: { username: username }
+  })
+  return { ok: true, username: username }
+}

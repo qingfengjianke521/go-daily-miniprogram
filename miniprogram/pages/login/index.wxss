@@ -1,0 +1,30 @@
+.welcome-page {
+  min-height: 100vh;
+  background: #FFFFFF;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 64rpx 48rpx;
+  gap: 32rpx;
+}
+.logo-area { margin-bottom: 32rpx; }
+.logo-stones { display: flex; position: relative; }
+.logo-black {
+  width: 120rpx; height: 120rpx; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #444, #000);
+  box-shadow: 4rpx 4rpx 12rpx rgba(0,0,0,0.3);
+  z-index: 2;
+}
+.logo-white {
+  width: 120rpx; height: 120rpx; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #ddd);
+  border: 2rpx solid #ccc;
+  box-shadow: 4rpx 4rpx 12rpx rgba(0,0,0,0.15);
+  margin-left: -30rpx; z-index: 1;
+}
+.welcome-title { font-size: 56rpx; font-weight: 700; color: #4B4B4B; }
+.welcome-subtitle { font-size: 30rpx; color: #AFAFAF; margin-bottom: 48rpx; }
+.error-text { font-size: 26rpx; color: #FF4B4B; }
+.hint-text { font-size: 24rpx; color: #CCCCCC; margin-top: 32rpx; }

@@ -1,0 +1,32 @@
+<view class="welcome-page">
+  <view style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+
+  <view class="content">
+    <!-- 围棋黑白子图标 -->
+    <view class="logo-area">
+      <view class="logo-stones">
+        <view class="logo-black"></view>
+        <view class="logo-white"></view>
+      </view>
+    </view>
+
+    <!-- 标题 -->
+    <text class="welcome-title">黑白天天练</text>
+    <text class="welcome-subtitle">每天3道题，棋力日日涨</text>
+
+    <!-- 主按钮 -->
+    <button
+      class="btn btn-primary btn-lg w-full rounded-xl"
+      bindtap="handleStart"
+      disabled="{{loading}}"
+    >
+      {{loading ? '加载中...' : '开始练习'}}
+    </button>
+
+    <!-- 错误提示 -->
+    <text wx:if="{{error}}" class="error-text">{{error}}</text>
+
+    <!-- 底部说明 -->
+    <text class="hint-text">微信授权登录，无需注册</text>
+  </view>
+</view>

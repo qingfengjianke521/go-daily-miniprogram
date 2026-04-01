@@ -1,0 +1,132 @@
+.summary-page {
+  min-height: 100vh;
+  background: #F7F7F7;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 48rpx;
+  gap: 36rpx;
+}
+
+.hidden { opacity: 0; transform: scale(0.8); }
+
+/* Emoji */
+.emoji { font-size: 120rpx; }
+
+/* Title */
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #4B4B4B;
+}
+.subtitle {
+  font-size: 26rpx;
+  color: #AFAFAF;
+  text-align: center;
+}
+
+/* Circles row */
+.circles-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.path-line-sm {
+  width: 40rpx; height: 6rpx;
+  background: #E5E5E5;
+  margin-top: 42rpx;
+  border-radius: 3rpx;
+}
+.line-done { background: #58CC02; }
+
+.circle-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.circle {
+  width: 88rpx; height: 88rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 6rpx solid #E5E5E5;
+}
+.correct-circle { background: #58CC02; border-color: #58CC02; }
+.wrong-circle { background: #FF4B4B; border-color: #FF4B4B; }
+.pending-circle { background: transparent; }
+
+.circle-score {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+/* Rating card */
+.rating-card {
+  width: 100%;
+  padding: 36rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.rating-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+}
+.rating-change {
+  font-size: 56rpx;
+  font-weight: 700;
+}
+.level-row {
+  display: flex;
+  justify-content: space-between;
+}
+.level-bar-track {
+  width: 100%;
+  height: 24rpx;
+  background: #F0F0F0;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+.level-bar-fill {
+  height: 100%;
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, #58CC02, #7AE030);
+  transition: width 1s ease;
+}
+
+/* Streak */
+.streak-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 36rpx;
+  border-radius: 9999rpx;
+  background: #FFF6E5;
+}
+.streak-fire { font-size: 40rpx; }
+.streak-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #FF9600;
+}
+
+/* Buttons */
+.btn-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 16rpx;
+}
+.link-btn {
+  font-size: 28rpx;
+  color: #AFAFAF;
+  padding: 16rpx;
+}

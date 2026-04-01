@@ -1,0 +1,207 @@
+var apiModule = require('../../utils/api')
+var api = apiModule.api
+var app = getApp()
+
+// 段位层级
+var TIERS = [
+  { name: '25级', rating: 500, reward: 5 },
+  { name: '22级', rating: 650, reward: 5 },
+  { name: '20级', rating: 800, reward: 10 },
+  { name: '18级', rating: 900, reward: 10 },
+  { name: '15级', rating: 1000, reward: 15 },
+  { name: '12级', rating: 1100, reward: 15 },
+  { name: '10级', rating: 1200, reward: 20 },
+  { name: '8级', rating: 1300, reward: 20 },
+  { name: '6级', rating: 1400, reward: 25 },
+  { name: '4级', rating: 1500, reward: 25 },
+  { name: '2级', rating: 1600, reward: 30 },
+  { name: '1级', rating: 1700, reward: 30 },
+  { name: '初段', rating: 1800, reward: 50 },
+  { name: '二段', rating: 1900, reward: 50 },
+  { name: '三段', rating: 2000, reward: 50 },
+  { name: '四段', rating: 2200, reward: 80 },
+  { name: '五段', rating: 2400, reward: 100 },
+]
+
+function getLevelColor(name) {
+  if (!name) return '#CCC'
+  if (name.indexOf('段') !== -1) return '#FFB300'
+  var n = parseInt(name)
+  if (n <= 9) return '#9E9E9E'
+  if (n <= 19) return '#CD7F32'
+  return '#BDBDBD'
+}
+
+Page({
+  data: {
+    statusBarHeight: 20,
+    topHeight: 160,
+    loading: true,
+    stats: {},
+    levelColor: '#CCC',
+    // 打卡
+    checkedIn: false,
+    circles: [],
+    totalChange: 0,
+    completedCount: 0,
+    buttonDisabled: false,
+    // 路径
+    nodes: [],
+    scrollTarget: '',
+    daily: null,
+  },
+
+  onLoad: function () {
+    var sbh = app.globalData.statusBarHeight || 20
+    this.setData({
+      statusBarHeight: sbh,
+      topHeight: sbh + 44 + 72 + 56, // statusbar + nav + status row + checkin row
+    })
+  },
+
+  onShow: function () {
+    if (!app.checkAuth()) return
+    this._loadData()
+  },
+
+  onPullDownRefresh: function () {
+    this._loadData()
+    wx.stopPullDownRefresh()
+  },
+
+  _loadData: function () {
+    var that = this
+    that.setData({ loading: true })
+
+    var dailyPromise = api.getDaily().then(function (daily) {
+      if ((!daily.problems || daily.problems.length === 0) && !daily.useLocalProblems) {
+        return wx.cloud.callFunction({ name: 'goDaily', data: { action: 'resetSession' } })
+          .then(function () { return api.getDaily() })
+          .catch(function () { return daily })
+      }
+      return daily
+    })
+
+    Promise.all([dailyPromise, api.getStats()])
+      .then(function (res) {
+        var daily = res[0], stats = res[1]
+        var completedCount = daily.completed_count || 0
+        var checkedIn = completedCount >= 3
+        var problemList = daily.problems || []
+        var problemIds = daily.problem_ids || []
+        daily.problems = problemList
+
+        // 打卡圆圈
+        var circles = [], totalChange = 0
+        for (var i = 0; i < 3; i++) {
+          var result = null
+          if (daily.results) {
+            for (var j = 0; j < daily.results.length; j++) {
+              if (daily.results[j].problem_id === problemIds[i]) { result = daily.results[j]; break }
+            }
+          }
+          var status = 'pending'
+          if (result) {
+            status = result.is_correct ? 'correct' : 'wrong'
+            totalChange += result.rating_change || 0
+          } else if (i === Math.min(completedCount, 2)) {
+            status = 'current'
+          }
+          circles.push({ number: i + 1, status: status })
+        }
+
+        // 天梯节点
+        var rating = stats.rating || 1200
+        var currentIdx = 0
+        for (var k = TIERS.length - 1; k >= 0; k--) {
+          if (rating >= TIERS[k].rating) { currentIdx = k; break }
+        }
+        var nextIdx = Math.min(currentIdx + 1, TIERS.length - 1)
+        var nodes = []
+        for (var m = 0; m < TIERS.length; m++) {
+          var t = TIERS[m]
+          var nStatus = 'locked'
+          if (m < currentIdx) nStatus = 'passed'
+          else if (m === currentIdx) nStatus = 'current'
+          else if (m === currentIdx + 1) nStatus = 'next'
+
+          nodes.push({
+            id: m,
+            name: t.name,
+            label: t.name.replace('级', '').replace('段', 'D'),
+            rating: t.rating,
+            status: nStatus,
+            side: m % 2 === 0 ? 'left' : 'right',
+            gap: nStatus === 'current' ? Math.max(0, TIERS[nextIdx].rating - rating)
+               : nStatus === 'next' ? Math.max(0, t.rating - rating) : 0,
+            reward: t.reward,
+          })
+        }
+
+        that.setData({
+          loading: false,
+          stats: stats,
+          levelColor: getLevelColor(stats.level_name),
+          daily: daily,
+          checkedIn: checkedIn,
+          circles: circles,
+          totalChange: totalChange,
+          completedCount: completedCount,
+          buttonDisabled: !problemList || problemList.length === 0,
+          nodes: nodes,
+          scrollTarget: 'node-' + currentIdx,
+        })
+      })
+      .catch(function (err) {
+        console.error('[index] load error:', err)
+        that.setData({ loading: false, buttonDisabled: true })
+      })
+  },
+
+  handleStart: function () {
+    var daily = this.data.daily
+    if (!daily) return
+
+    if (this.data.checkedIn) {
+      wx.showLoading({ title: '选题中...' })
+      api.getContinueProblem().then(function (res) {
+        wx.hideLoading()
+        if (res.problem) {
+          app.globalData.playState = {
+            problems: [res.problem], currentIndex: 0,
+            resultsAccumulated: [], isContinueMode: true,
+          }
+          wx.navigateTo({ url: '/pages/play/index' })
+        } else {
+          wx.showToast({ title: '没有更多题目了', icon: 'none' })
+        }
+      }).catch(function () {
+        wx.hideLoading()
+        wx.showToast({ title: '获取题目失败', icon: 'none' })
+      })
+      return
+    }
+
+    if (!daily.problems || daily.problems.length === 0) return
+    var idx = this.data.completedCount % daily.problems.length
+    app.globalData.playState = {
+      problems: daily.problems, currentIndex: idx,
+      resultsAccumulated: daily.results || [], isContinueMode: false,
+    }
+    wx.navigateTo({ url: '/pages/play/index' })
+  },
+
+  onTapNode: function (e) {
+    var idx = e.currentTarget.dataset.idx
+    var node = this.data.nodes[idx]
+    if (!node) return
+
+    if (node.status === 'current') {
+      this.handleStart()
+    } else if (node.status === 'passed') {
+      wx.showToast({ title: '已通过 ' + node.name + ' 💎+' + node.reward, icon: 'none' })
+    } else {
+      wx.showToast({ title: '棋力达到 ' + node.rating + ' 解锁', icon: 'none' })
+    }
+  },
+})

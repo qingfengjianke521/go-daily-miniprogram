@@ -1,0 +1,53 @@
+<view class="result-page" style="background:{{bgGradient}};">
+  <!-- Custom nav bar (transparent) -->
+  <view style="padding-top:{{statusBarHeight}}px;">
+    <view style="height:44px;"></view>
+  </view>
+
+  <view class="result-content">
+    <!-- Result icon -->
+    <view class="result-icon" style="background:{{iconColor}};">
+      <!-- Checkmark -->
+      <view wx:if="{{isCorrect}}" class="icon-check-lg">
+        <view class="check-stem-lg"></view>
+        <view class="check-kick-lg"></view>
+      </view>
+      <!-- Cross -->
+      <view wx:else class="icon-cross-lg">
+        <view class="cross-line-lg cross-line-lg-1"></view>
+        <view class="cross-line-lg cross-line-lg-2"></view>
+      </view>
+    </view>
+
+    <!-- Message -->
+    <text class="result-message">{{message}}</text>
+
+    <!-- Rating change -->
+    <text class="result-rating" style="color:{{iconColor}};">
+      {{isCorrect ? '+' : '-'}}{{displayedChange}}
+    </text>
+
+    <!-- Replay board for wrong answers -->
+    <view wx:if="{{showReplay}}" class="replay-section">
+      <text class="text-sm text-999 text-center mb-3">正确走法</text>
+      <go-board
+        boardSize="{{boardSize}}"
+        stones="{{replayStones}}"
+        viewRegion="{{viewRegion}}"
+        interactive="{{false}}"
+        lastMove="{{replayLastMove}}"
+      />
+    </view>
+  </view>
+
+  <!-- Bottom buttons -->
+  <view class="result-bottom" style="padding-bottom:calc(40rpx + env(safe-area-inset-bottom));">
+    <view wx:if="{{showReplay}}" class="result-btn-row">
+      <button class="btn btn-outline btn-lg flex-1 rounded-2xl" bindtap="handleReplay">重新看</button>
+      <button class="btn btn-lg flex-1 rounded-2xl shadow-md" style="background:{{btnColor}};color:#fff;" bindtap="handleContinue">{{btnLabel}}</button>
+    </view>
+    <button wx:else class="btn btn-lg w-full rounded-2xl shadow-md" style="background:{{btnColor}};color:#fff;" bindtap="handleContinue">
+      {{btnLabel}}
+    </button>
+  </view>
+</view>

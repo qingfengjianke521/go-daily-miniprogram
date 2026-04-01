@@ -1,0 +1,66 @@
+<view class="summary-page">
+  <view style="padding-top:{{statusBarHeight}}px;">
+    <view style="height:44px;"></view>
+  </view>
+
+  <view class="summary-content">
+    <!-- Step 1: Emoji -->
+    <text class="emoji {{step >= 1 ? 'animate-pop' : 'hidden'}}">{{emoji}}</text>
+
+    <!-- Step 2: Title -->
+    <text class="title {{step >= 2 ? 'animate-fade-up' : 'hidden'}}">{{title}}</text>
+    <text class="subtitle {{step >= 2 ? 'animate-fade-up' : 'hidden'}}">{{subtitle}}</text>
+
+    <!-- Step 3: Circles -->
+    <view class="circles-row {{step >= 3 ? '' : 'hidden'}}">
+      <block wx:for="{{circles}}" wx:key="number">
+        <view wx:if="{{index > 0}}" class="path-line-sm {{item.status !== 'pending' ? 'line-done' : ''}}"></view>
+        <view class="circle-item" style="animation-delay:{{index * 200}}ms;">
+          <view class="circle {{item.status}}-circle">
+            <text wx:if="{{item.status === 'correct'}}" style="color:white;font-size:36rpx;font-weight:700;">✓</text>
+            <text wx:elif="{{item.status === 'wrong'}}" style="color:white;font-size:36rpx;font-weight:700;">✕</text>
+            <text wx:else style="color:#AFAFAF;font-size:36rpx;font-weight:700;">{{item.number}}</text>
+          </view>
+          <text class="circle-score" style="color:{{item.ratingChange > 0 ? '#58CC02' : item.ratingChange < 0 ? '#FF4B4B' : '#AFAFAF'}};">
+            {{item.ratingChange ? (item.ratingChange > 0 ? '+' : '') + item.ratingChange : '+0'}}
+          </text>
+        </view>
+      </block>
+    </view>
+
+    <!-- Step 4: Rating card -->
+    <view class="rating-card bg-white rounded-2xl shadow-sm {{step >= 4 ? 'animate-fade-up' : 'hidden'}}">
+      <view class="rating-row">
+        <text class="text-sm text-999">棋力变化</text>
+        <text class="rating-change" style="color:{{totalChangeColor}};">{{totalChangeText}}</text>
+      </view>
+      <view class="level-row">
+        <text class="font-semibold" style="color:#4B4B4B;">{{levelName}}</text>
+        <text class="text-sm text-999">棋力 {{rating}}</text>
+      </view>
+      <view class="level-bar-track">
+        <view class="level-bar-fill" style="width:{{step >= 5 ? levelProgress : 0}}%;"></view>
+      </view>
+    </view>
+
+    <!-- Step 5: Streak -->
+    <view wx:if="{{showStreak}}" class="streak-row {{step >= 5 ? 'animate-fade-up' : 'hidden'}}">
+      <text class="streak-fire">🔥</text>
+      <text class="streak-text">连续打卡 {{streakDays}} 天</text>
+    </view>
+
+    <!-- Step 6: Buttons -->
+    <view class="btn-group {{step >= 6 ? 'animate-fade-up' : 'hidden'}}">
+      <button class="btn btn-primary btn-lg w-full rounded-xl" bindtap="handleShare">
+        分享成绩
+      </button>
+      <button class="btn btn-secondary btn-lg w-full rounded-xl" bindtap="handleContinue">
+        继续练习
+      </button>
+      <view class="link-btn" bindtap="handleBack">返回首页</view>
+    </view>
+
+    <!-- 隐藏 canvas 用于生成分享图 -->
+    <canvas type="2d" id="shareCanvas" style="width:600px;height:400px;position:fixed;left:-9999px;top:0;"></canvas>
+  </view>
+</view>

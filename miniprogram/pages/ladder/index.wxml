@@ -1,0 +1,69 @@
+<view class="ladder-page">
+  <!-- Nav bar -->
+  <view class="nav-bar" style="padding-top:{{statusBarHeight}}px;">
+    <view style="height:44px;" class="flex items-center justify-center">
+      <text class="font-bold text-base" style="color:#4B4B4B;">天梯</text>
+    </view>
+  </view>
+
+  <!-- 当前段位信息条 -->
+  <view class="current-info">
+    <text class="current-level">{{currentLevel}}</text>
+    <text class="current-rating">棋力 {{currentRating}}</text>
+    <view class="current-progress-track">
+      <view class="current-progress-fill" style="width:{{progressToNext}}%;"></view>
+    </view>
+    <text class="current-gap">距离 {{nextLevel}} 还差 {{gapPoints}} 分</text>
+  </view>
+
+  <!-- S形天梯路径 -->
+  <scroll-view
+    scroll-y
+    class="ladder-scroll"
+    scroll-into-view="{{scrollTarget}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="ladder-path">
+      <view
+        wx:for="{{nodes}}"
+        wx:key="id"
+        id="node-{{item.id}}"
+        class="node-row {{item.side}}"
+      >
+        <!-- 连接线 -->
+        <view wx:if="{{index > 0}}" class="connector connector-{{item.side}} {{item.status === 'locked' ? 'connector-gray' : 'connector-green'}}"></view>
+
+        <!-- 节点 -->
+        <view
+          class="node node-{{item.status}} {{item.status === 'current' ? 'animate-breathe' : ''}}"
+          bindtap="onTapNode"
+          data-index="{{index}}"
+        >
+          <text wx:if="{{item.status === 'passed'}}" class="node-icon">✓</text>
+          <text wx:elif="{{item.status === 'current'}}" class="node-text-current">{{item.label}}</text>
+          <text wx:elif="{{item.status === 'next'}}" class="node-icon-lock" style="opacity:0.5;">{{item.label}}</text>
+          <text wx:else class="node-icon-lock">🔒</text>
+        </view>
+
+        <!-- 标签 -->
+        <view class="node-label">
+          <text class="node-name">{{item.name}}</text>
+          <text wx:if="{{item.status === 'current'}}" class="node-sub" style="color:#58CC02;">当前</text>
+          <text wx:elif="{{item.status === 'next'}}" class="node-sub">还差 {{item.gap}} 分</text>
+          <text wx:elif="{{item.status === 'locked'}}" class="node-sub">棋力 {{item.rating}}</text>
+          <text wx:elif="{{item.passDate}}" class="node-sub">{{item.passDate}}</text>
+        </view>
+
+        <!-- 奖励图标 -->
+        <view wx:if="{{item.reward}}" class="reward-badge">
+          <text>{{item.rewardIcon}}</text>
+          <text class="reward-text">+{{item.reward}}</text>
+        </view>
+      </view>
+
+      <!-- 底部留白 -->
+      <view style="height:200rpx;"></view>
+    </view>
+  </scroll-view>
+</view>

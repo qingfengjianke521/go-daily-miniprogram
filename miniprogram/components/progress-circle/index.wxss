@@ -1,0 +1,97 @@
+.circle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.circle {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  border: 6rpx solid #E5E5E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.circle-number {
+  font-weight: 700;
+  font-size: 36rpx;
+}
+
+/* Checkmark - pure CSS */
+.icon-check {
+  width: 44rpx;
+  height: 44rpx;
+  position: relative;
+}
+
+.check-stem {
+  position: absolute;
+  width: 24rpx;
+  height: 6rpx;
+  background: #FFFFFF;
+  border-radius: 3rpx;
+  left: 4rpx;
+  top: 26rpx;
+  transform: rotate(45deg);
+}
+
+.check-kick {
+  position: absolute;
+  width: 36rpx;
+  height: 6rpx;
+  background: #FFFFFF;
+  border-radius: 3rpx;
+  left: 14rpx;
+  top: 20rpx;
+  transform: rotate(-45deg);
+}
+
+/* Cross - pure CSS */
+.icon-cross {
+  width: 36rpx;
+  height: 36rpx;
+  position: relative;
+}
+
+.cross-line {
+  position: absolute;
+  width: 36rpx;
+  height: 6rpx;
+  background: #FFFFFF;
+  border-radius: 3rpx;
+  top: 50%;
+  left: 0;
+  margin-top: -3rpx;
+}
+
+.cross-line-1 {
+  transform: rotate(45deg);
+}
+
+.cross-line-2 {
+  transform: rotate(-45deg);
+}
+
+.rating-change {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.rating-placeholder {
+  font-size: 24rpx;
+  color: transparent;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.95); }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

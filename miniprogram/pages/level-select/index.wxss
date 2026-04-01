@@ -1,0 +1,40 @@
+.page-level {
+  min-height: 100vh;
+  background: #FFFFFF;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 48rpx 48rpx;
+  gap: 32rpx;
+}
+.ls-title { font-size: 48rpx; font-weight: 700; color: #4B4B4B; }
+.ls-subtitle { font-size: 28rpx; color: #AFAFAF; margin-bottom: 16rpx; }
+
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-bottom: 32rpx;
+}
+.level-card {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  border: 4rpx solid #E5E5E5;
+  border-bottom: 8rpx solid #E5E5E5;
+  border-radius: 24rpx;
+  background: #FFFFFF;
+  gap: 24rpx;
+  transition: all 0.2s;
+}
+.level-card-active {
+  border-color: #58CC02;
+  border-bottom-color: #46A302;
+  background: #F0FBE5;
+}
+.level-emoji { font-size: 48rpx; }
+.level-text { display: flex; flex-direction: column; gap: 4rpx; }
+.level-name { font-size: 32rpx; font-weight: 700; color: #4B4B4B; }
+.level-desc { font-size: 26rpx; color: #AFAFAF; }
+.level-card-active .level-name { color: #58CC02; }

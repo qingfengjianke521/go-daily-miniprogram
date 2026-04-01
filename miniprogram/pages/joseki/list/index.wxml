@@ -1,0 +1,60 @@
+<view class="page">
+  <!-- Custom nav bar -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner" style="height: {{navBarHeight}}px;">
+      <text class="nav-title">定式练习</text>
+    </view>
+  </view>
+
+  <!-- Content -->
+  <scroll-view scroll-y class="content" style="top: {{statusBarHeight + navBarHeight}}px;">
+    <view class="inner-content">
+      <view class="header">
+        <text class="page-title">定式练习</text>
+        <text class="page-subtitle">学习经典定式，掌握角部基本功</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{groups.length === 0}}" class="empty-state">
+        <text class="empty-icon">📖</text>
+        <text class="empty-title">定式库正在整理中</text>
+        <text class="empty-desc">真实定式数据正在准备，请稍后再来</text>
+      </view>
+
+      <block wx:for="{{groups}}" wx:key="difficulty">
+        <view class="group">
+          <view class="group-header">
+            <view class="badge" style="background-color: {{item.bgColor}}; color: {{item.textColor}};">
+              {{item.label}}
+            </view>
+            <text class="group-count">{{item.count}} 个定式</text>
+          </view>
+
+          <view class="card-list">
+            <view
+              wx:for="{{item.items}}"
+              wx:for-item="joseki"
+              wx:key="id"
+              class="card"
+              hover-class="card-hover"
+              bindtap="onTapJoseki"
+              data-id="{{joseki.id}}"
+            >
+              <view class="card-icon" style="background-color: {{joseki.bgColor}};">
+                <text class="card-icon-text" style="color: {{joseki.textColor}};">{{joseki.moveCount}}</text>
+              </view>
+              <view class="card-body">
+                <text class="card-name">{{joseki.name}}</text>
+                <text class="card-desc">{{joseki.description}}</text>
+              </view>
+              <view class="card-arrow"></view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- Bottom padding for tab bar -->
+      <view style="height: 180rpx;"></view>
+    </view>
+  </scroll-view>
+</view>

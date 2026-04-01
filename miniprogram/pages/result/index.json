@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "go-board": "/components/go-board/index"
+  }
+}

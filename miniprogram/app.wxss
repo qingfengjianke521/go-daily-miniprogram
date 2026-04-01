@@ -1,0 +1,224 @@
+/* ========== Go Daily - Global Styles ========== */
+
+/* Design Tokens:
+   primary:    #58CC02
+   error:      #FF4B4B
+   orange:     #FF9500
+   gold:       #FFC800
+   bg:         #F7F7F7
+   board-wood: #D4A76A
+*/
+
+page {
+  background: #F7F7F7;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  color: #333;
+}
+
+/* ========== Layout ========== */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+
+/* ========== Spacing ========== */
+.p-4 { padding: 32rpx; }
+.px-4 { padding-left: 32rpx; padding-right: 32rpx; }
+.py-3 { padding-top: 24rpx; padding-bottom: 24rpx; }
+.pt-3 { padding-top: 24rpx; }
+.pb-6 { padding-bottom: 48rpx; }
+.pb-24 { padding-bottom: 192rpx; }
+.gap-2 { gap: 16rpx; }
+.gap-3 { gap: 24rpx; }
+.gap-4 { gap: 32rpx; }
+.gap-5 { gap: 40rpx; }
+.mt-1 { margin-top: 8rpx; }
+.mt-2 { margin-top: 16rpx; }
+.mb-3 { margin-bottom: 24rpx; }
+.mb-4 { margin-bottom: 32rpx; }
+.ml-2 { margin-left: 16rpx; }
+
+/* ========== Typography ========== */
+.text-xs { font-size: 24rpx; }
+.text-sm { font-size: 28rpx; }
+.text-base { font-size: 32rpx; }
+.text-lg { font-size: 36rpx; }
+.text-xl { font-size: 40rpx; }
+.text-2xl { font-size: 48rpx; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* ========== Colors ========== */
+.text-primary { color: #58CC02; }
+.text-error { color: #FF4B4B; }
+.text-orange { color: #FF9500; }
+.text-gold { color: #FFC800; }
+.text-333 { color: #333333; }
+.text-666 { color: #666666; }
+.text-999 { color: #999999; }
+.text-bbb { color: #BBBBBB; }
+.text-white { color: #FFFFFF; }
+.bg-white { background: #FFFFFF; }
+.bg-page { background: #F7F7F7; }
+.bg-primary { background: #58CC02; }
+.bg-error { background: #FF4B4B; }
+
+/* ========== Border & Radius ========== */
+.rounded-lg { border-radius: 16rpx; }
+.rounded-xl { border-radius: 24rpx; }
+.rounded-2xl { border-radius: 32rpx; }
+.rounded-full { border-radius: 9999rpx; }
+.shadow-sm { box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05); }
+.shadow-md { box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08); }
+
+/* ========== Buttons (Duolingo 3D style) ========== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24rpx;
+  font-weight: 700;
+  font-size: 32rpx;
+  border: none;
+  padding: 0 32rpx;
+  line-height: 1;
+}
+.btn-lg { height: 96rpx; font-size: 34rpx; }
+.btn-md { height: 88rpx; }
+
+/* 3D 主按钮 - 绿色 */
+.btn-primary {
+  background: #58CC02;
+  color: #FFFFFF;
+  border-bottom: 8rpx solid #46A302;
+}
+.btn-primary:active {
+  border-bottom-width: 0;
+  margin-top: 8rpx;
+}
+
+/* 3D 次要按钮 - 白色 */
+.btn-outline, .btn-secondary {
+  background: #FFFFFF;
+  color: #4B4B4B;
+  border: 4rpx solid #E5E5E5;
+  border-bottom: 8rpx solid #E5E5E5;
+}
+.btn-outline:active, .btn-secondary:active {
+  border-bottom-width: 4rpx;
+  margin-top: 4rpx;
+}
+
+/* 3D 禁用按钮 */
+.btn-disabled, .btn[disabled] {
+  background: #E5E5E5 !important;
+  color: #AFAFAF !important;
+  border-bottom: 8rpx solid #CCCCCC !important;
+}
+
+/* 危险按钮 - 红色 */
+.btn-danger {
+  background: #FF4B4B;
+  color: #FFFFFF;
+  border-bottom: 8rpx solid #CC3B3B;
+}
+.btn-danger:active {
+  border-bottom-width: 0;
+  margin-top: 8rpx;
+}
+
+/* ========== Custom Nav Bar ========== */
+.nav-bar {
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+}
+.nav-bar-back { padding: 16rpx; color: #999999; }
+.nav-bar-title { flex: 1; text-align: center; }
+.nav-bar-title .title { font-weight: 700; color: #333; font-size: 30rpx; }
+.nav-bar-title .subtitle { font-size: 24rpx; color: #999; }
+.nav-bar-spacer { width: 80rpx; }
+
+/* ========== Animation ========== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(88,204,2,0.3); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 12rpx rgba(88,204,2,0.1); }
+}
+.animate-breathe { animation: breathe 2s ease-in-out infinite; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.animate-blink { animation: blink 0.8s ease-in-out infinite; }
+
+@keyframes pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pop-in 0.4s ease-out forwards; }
+
+@keyframes fade-up {
+  from { transform: translateY(20rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-fade-up { animation: fade-up 0.4s ease-out forwards; }
+
+/* ========== Feedback Panel (底部滑入面板) ========== */
+.feedback-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+.feedback-overlay.show { pointer-events: auto; }
+
+.feedback-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 201;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 48rpx 48rpx calc(48rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
+}
+.feedback-panel.show { transform: translateY(0); }
+.feedback-correct { background: #D7FFB8; }
+.feedback-wrong { background: #FFDFE0; }
+.feedback-skip { background: #FFF4D6; }
+
+.feedback-icon {
+  width: 64rpx; height: 64rpx;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32rpx; font-weight: 700; color: white;
+}
+.feedback-icon-correct { background: #58CC02; }
+.feedback-icon-wrong { background: #FF4B4B; }
+.feedback-icon-skip { background: #FFC800; }
+
+.feedback-title {
+  font-size: 40rpx; font-weight: 700; margin-left: 20rpx;
+}
+.feedback-correct .feedback-title { color: #46A302; }
+.feedback-wrong .feedback-title { color: #CC3B3B; }
+.feedback-skip .feedback-title { color: #B87800; }
+
+.feedback-score {
+  font-size: 36rpx; font-weight: 700; margin-left: auto;
+}
+.feedback-correct .feedback-score { color: #46A302; }
+.feedback-wrong .feedback-score { color: #CC3B3B; }

@@ -1,0 +1,32 @@
+<view class="page-level">
+  <view style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+
+  <view class="content">
+    <text class="ls-title">你的围棋水平是？</text>
+    <text class="ls-subtitle">帮我们为你匹配合适的题目</text>
+
+    <view class="level-list">
+      <view
+        wx:for="{{levels}}"
+        wx:key="name"
+        class="level-card {{selected === item.name ? 'level-card-active' : ''}}"
+        data-name="{{item.name}}"
+        bindtap="onSelectLevel"
+      >
+        <text class="level-emoji">{{item.emoji}}</text>
+        <view class="level-text">
+          <text class="level-name">{{item.label}}</text>
+          <text class="level-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <button
+      class="btn {{selected ? 'btn-primary' : 'btn-disabled'}} btn-lg w-full rounded-xl"
+      bindtap="handleConfirm"
+      disabled="{{!selected || loading}}"
+    >
+      {{loading ? '设置中...' : '开始练习'}}
+    </button>
+  </view>
+</view>

@@ -1,0 +1,1 @@
+<canvas type="2d" id="goboard" style="width:100%;height:{{canvasHeight}}px;" bindtouchend="onTouchEnd"></canvas>
