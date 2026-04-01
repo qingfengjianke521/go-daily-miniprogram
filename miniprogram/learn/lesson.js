@@ -114,7 +114,7 @@ Page({
       }))
     }
 
-    const showBoard = !isQuiz && stones.length > 0
+    const showBoard = !isQuiz && page.mode === 'puzzle'
     const hasMoves = page.cm && page.cm.length > 0
     const interactive = showBoard && hasMoves
     const initialPlayer = page.ip || 'black'
