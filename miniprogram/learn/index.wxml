@@ -1,0 +1,51 @@
+<view class="learn-page" style="padding-top:{{topPadding}}px;">
+  <!-- Custom nav bar -->
+  <view class="nav-bar" style="padding-top:{{statusBarHeight}}px;">
+    <view class="nav-bar-inner">
+      <view class="nav-back" bindtap="goBack">
+        <text class="nav-back-icon">&#x2190;</text>
+      </view>
+      <text class="nav-title">学习围棋</text>
+    </view>
+  </view>
+
+  <!-- Sections -->
+  <view class="sections">
+    <view
+      wx:for="{{sections}}"
+      wx:key="id"
+      class="section-card"
+    >
+      <!-- Section header (clickable to expand/collapse) -->
+      <view class="section-header" data-id="{{item.id}}" bindtap="toggleSection">
+        <view class="section-left">
+          <text class="section-num">{{item.id}}</text>
+          <text class="section-name">{{item.name}}</text>
+        </view>
+        <view class="section-right">
+          <text class="section-progress">{{item.completed || 0}}/{{item.lessons.length}} 课程</text>
+          <text class="section-chevron {{item.expanded ? 'expanded' : ''}}">&#x203A;</text>
+        </view>
+      </view>
+
+      <!-- Lesson grid (shown when expanded) -->
+      <view wx:if="{{item.expanded}}" class="lesson-grid">
+        <view
+          wx:for="{{item.lessons}}"
+          wx:for-item="lesson"
+          wx:key="id"
+          class="lesson-card {{lesson.done ? 'done' : ''}}"
+          data-section="{{item.id}}"
+          data-lesson="{{lesson.id}}"
+          data-slug="{{lesson.slug}}"
+          bindtap="startLesson"
+        >
+          <text class="lesson-id">{{lesson.id}}</text>
+          <text class="lesson-title">{{lesson.title}}</text>
+          <text class="lesson-sub">{{lesson.subtext}}</text>
+          <text wx:if="{{lesson.done}}" class="lesson-check">&#x2713;</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,66 @@
+<!-- Top bar -->
+<view class="top-bar" style="padding-top:{{statusBarHeight}}px;">
+  <view class="top-bar-inner">
+    <view class="close-btn" bindtap="handleBack">
+      <text class="close-icon">&#x2715;</text>
+    </view>
+    <view class="top-progress-track">
+      <view class="top-progress-fill" style="width:{{progressPercent}}%;"></view>
+    </view>
+    <text class="top-counter">{{currentPage}}/{{totalPages}}</text>
+  </view>
+</view>
+
+<view class="lesson-content" style="padding-top:{{topPadding}}px;">
+  <!-- Lesson title (first page only) -->
+  <view wx:if="{{currentPage === 1}}" class="lesson-header">
+    <text class="lesson-num">{{lessonId}}</text>
+    <text class="lesson-title-text">{{lessonTitle}}</text>
+  </view>
+
+  <!-- Instruction text -->
+  <view class="text-area">
+    <text class="instruction-text">{{pageText}}</text>
+  </view>
+
+  <!-- Board -->
+  <view class="board-wrap" wx:if="{{showBoard}}">
+    <go-board
+      boardSize="{{boardSize}}"
+      stones="{{stones}}"
+      viewRegion="{{viewRegion}}"
+      interactive="{{interactive}}"
+      currentColor="{{currentColor}}"
+      lastMove="{{lastMove}}"
+      highlightPoints="{{highlightPoints}}"
+      bindmove="onBoardMove"
+    />
+  </view>
+
+  <!-- Quiz options -->
+  <view wx:if="{{quizOptions.length > 0}}" class="quiz-area">
+    <view
+      wx:for="{{quizOptions}}"
+      wx:key="index"
+      class="quiz-option {{item.selected ? (item.correct ? 'correct' : 'wrong') : ''}}"
+      data-index="{{index}}"
+      bindtap="onQuizSelect"
+    >
+      <text>{{item.text}}</text>
+    </view>
+  </view>
+
+  <!-- Feedback -->
+  <view wx:if="{{feedback}}" class="feedback-bar feedback-{{feedbackType}}">
+    <text class="feedback-msg">{{feedbackType === 'correct' ? '正确!' : '再试一次'}}</text>
+  </view>
+</view>
+
+<!-- Bottom button -->
+<view class="bottom-bar">
+  <button
+    wx:if="{{canNext}}"
+    class="btn-next {{feedbackType === 'correct' ? 'btn-green' : 'btn-blue'}}"
+    bindtap="nextPage"
+  >{{currentPage >= totalPages ? '完成' : '下一步'}}</button>
+</view>

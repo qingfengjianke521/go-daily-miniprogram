@@ -168,6 +168,10 @@ Page({
       })
   },
 
+  goLearn: function () {
+    wx.navigateTo({ url: '/learn/index' })
+  },
+
   handleStart: function () {
     var daily = this.data.daily
     if (!daily) return

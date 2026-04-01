@@ -1,0 +1,150 @@
+.learn-page {
+  min-height: 100vh;
+  background: #F7F7F7;
+  padding-bottom: 40rpx;
+}
+
+/* Nav bar */
+.nav-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #fff;
+  z-index: 100;
+}
+.nav-bar-inner {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+}
+.nav-back {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-back-icon {
+  font-size: 40rpx;
+  color: #4B4B4B;
+  font-weight: 500;
+}
+.nav-title {
+  flex: 1;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #4B4B4B;
+  margin-right: 64rpx;
+}
+
+/* Sections */
+.sections {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.section-card {
+  background: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+}
+.section-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.section-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #58CC02;
+  min-width: 40rpx;
+}
+.section-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4B4B4B;
+}
+.section-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.section-progress {
+  font-size: 24rpx;
+  color: #AFAFAF;
+}
+.section-chevron {
+  font-size: 32rpx;
+  color: #AFAFAF;
+  transition: transform 0.3s;
+  display: inline-block;
+}
+.section-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+/* Lesson grid */
+.lesson-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 24rpx 24rpx;
+  gap: 16rpx;
+}
+.lesson-card {
+  width: calc(33.33% - 12rpx);
+  background: #FF9500;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  position: relative;
+  min-height: 140rpx;
+}
+.lesson-card.done {
+  background: #58CC02;
+}
+.lesson-id {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+}
+.lesson-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.lesson-sub {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lesson-check {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  font-size: 24rpx;
+  color: #fff;
+  background: rgba(255,255,255,0.3);
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
