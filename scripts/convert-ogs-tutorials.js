@@ -497,12 +497,27 @@ const TEXT_TRANSLATIONS = {
     "\u4f60\u4f1a\u6ce8\u610f\u5230\u68cb\u76d8\u4e0a\u6709\u51e0\u4e2a\u5706\u70b9\uff0c\u8fd9\u4e9b\u79f0\u4e3a\u201c\u661f\u4f4d\u201d\u3002\u5b83\u4eec\u5e76\u4e0d\u7279\u6b8a\uff0c\u53ea\u662f\u7528\u6765\u5e2e\u52a9\u5b9a\u4f4d\u3002\u5728\u4e00\u4e2a\u661f\u4f4d\u4e0a\u843d\u5b50\u3002",
 };
 
-// ─── Common short instruction patterns for auto-translation ─────────────────
+// ─── Load OGS official Chinese translations ─────────────────────────────────
+let OGS_ZH_CATALOG = {};
+try {
+  const vm = require("vm");
+  const zhSrc = fs.readFileSync("/tmp/ogs-zh-cn.js", "utf8");
+  const ctx = { window: {} };
+  vm.createContext(ctx);
+  vm.runInContext(zhSrc, ctx);
+  OGS_ZH_CATALOG = ctx.window.ogs_locales && ctx.window.ogs_locales["zh-cn"] || {};
+  console.log("Loaded OGS zh-CN catalog:", Object.keys(OGS_ZH_CATALOG).length, "entries");
+} catch (e) {
+  console.warn("Could not load OGS zh-CN translations:", e.message);
+}
 
 function translateText(text) {
   if (!text || typeof text !== "string") return text || "";
 
-  // Direct match first
+  // 1. OGS official translation (exact match)
+  if (OGS_ZH_CATALOG[text] && OGS_ZH_CATALOG[text][0]) return OGS_ZH_CATALOG[text][0];
+
+  // 2. Direct match from our manual dictionary
   if (TEXT_TRANSLATIONS[text]) return TEXT_TRANSLATIONS[text];
 
   // For short repetitive instructions, do pattern-based translation
@@ -578,30 +593,89 @@ function translateText(text) {
     c.toLowerCase() === "black" ? "\u6740\u6b7b\u9ed1\u68cb" : "\u6740\u6b7b\u767d\u68cb"
   );
   t = t.replace(/\bWhich (group|side) is alive\??\b/gi, "\u54ea\u4e00\u7ec4\u662f\u6d3b\u7684\uff1f");
-  t = t.replace(/\b(Yes|No)\b/g, (m) => (m === "Yes" ? "\u662f" : "\u5426"));
-  t = t.replace(/\bblack\b/gi, "\u9ed1\u68cb");
-  t = t.replace(/\bwhite\b/gi, "\u767d\u68cb");
-  t = t.replace(/\bstone\b/gi, "\u68cb\u5b50");
-  t = t.replace(/\bstones\b/gi, "\u68cb\u5b50");
-  t = t.replace(/\bgroup\b/gi, "\u68cb\u7ec4");
-  t = t.replace(/\bgroups\b/gi, "\u68cb\u7ec4");
-  t = t.replace(/\bboard\b/gi, "\u68cb\u76d8");
-  t = t.replace(/\bcorner\b/gi, "\u89d2");
-  t = t.replace(/\bside\b/gi, "\u8fb9");
-  t = t.replace(/\bmiddle\b/gi, "\u4e2d\u8179");
-  t = t.replace(/\bpoint\b/gi, "\u76ee");
-  t = t.replace(/\bpoints\b/gi, "\u76ee");
-  t = t.replace(/\bdead\b/gi, "\u6b7b");
-  t = t.replace(/\balive\b/gi, "\u6d3b");
-  t = t.replace(/\bwin\b/gi, "\u8d62");
-  t = t.replace(/\blose\b/gi, "\u8f93");
-  t = t.replace(/\bpass\b/gi, "\u505c\u624b");
+  // Sentence-level patterns for remaining English
+  t = t.replace(/\bHow many\b/gi, "有多少");
+  t = t.replace(/\bWhat is the value of\b/gi, "的价值是多少");
+  t = t.replace(/\bWhat is the value\b/gi, "价值是多少");
+  t = t.replace(/\bCount the number of\b/gi, "数一数");
+  t = t.replace(/\bCount the\b/gi, "数一数");
+  t = t.replace(/\bDoes the\b/gi, "这个");
+  t = t.replace(/\bhave\s+a?\b/gi, "有");
+  t = t.replace(/\bNote:\s*a?\b/gi, "注意：");
+  t = t.replace(/\bcounts? for two\b/gi, "算两目");
+  t = t.replace(/\bcounts? for\b/gi, "算作");
+  t = t.replace(/\bplaying at\b/gi, "下在");
+  t = t.replace(/\bplaying\b/gi, "下");
+  t = t.replace(/\bneutral\b/gi, "中立");
+  t = t.replace(/\bthe game (is|has) finished\b/gi, "对局已结束");
+  t = t.replace(/\bfinished\b/gi, "结束");
+  t = t.replace(/\bneed\b/gi, "需要");
+  t = t.replace(/\bmoves?\b/gi, "手");
+  t = t.replace(/\bcapture\b/gi, "吃");
+  t = t.replace(/\bcaptures?\b/gi, "吃");
+  t = t.replace(/\breal\b/gi, "真");
+  t = t.replace(/\bfalse\b/gi, "假");
+  t = t.replace(/\bthree\b/gi, "三");
+  t = t.replace(/\btwo\b/gi, "二");
+  t = t.replace(/\bone\b/gi, "一");
+  t = t.replace(/\bfour\b/gi, "四");
+  t = t.replace(/\bfive\b/gi, "五");
+  t = t.replace(/\bempty\b/gi, "空");
+  t = t.replace(/\bcalled\b/gi, "称为");
+  t = t.replace(/\bbetween\b/gi, "之间");
+  t = t.replace(/\bgets?\b/gi, "得到");
+  t = t.replace(/\blost\b/gi, "失去");
+  t = t.replace(/\bpart\b/gi, "部分");
+  t = t.replace(/\bthere\b/gi, "那里");
+  t = t.replace(/\bthese\b/gi, "这些");
+  t = t.replace(/\bthat\b/gi, "那");
+  t = t.replace(/\byour\b/gi, "你的");
+  t = t.replace(/\b(Yes|No)\b/g, (m) => (m === "Yes" ? "是" : "否"));
+  t = t.replace(/\bblack\b/gi, "黑棋");
+  t = t.replace(/\bwhite\b/gi, "白棋");
+  t = t.replace(/\bstone\b/gi, "棋子");
+  t = t.replace(/\bstones\b/gi, "棋子");
+  t = t.replace(/\bgroup\b/gi, "棋组");
+  t = t.replace(/\bgroups\b/gi, "棋组");
+  t = t.replace(/\bboard\b/gi, "棋盘");
+  t = t.replace(/\bcorner\b/gi, "角");
+  t = t.replace(/\bside\b/gi, "边");
+  t = t.replace(/\bmiddle\b/gi, "中腹");
+  t = t.replace(/\bpoint\b/gi, "目");
+  t = t.replace(/\bpoints\b/gi, "目");
+  t = t.replace(/\bdead\b/gi, "死");
+  t = t.replace(/\balive\b/gi, "活");
+  t = t.replace(/\bwin\b/gi, "赢");
+  t = t.replace(/\blose\b/gi, "输");
+  t = t.replace(/\bpass\b/gi, "停手");
+  t = t.replace(/\bis\b/gi, "是");
+  t = t.replace(/\bthe\b/gi, "");
+  t = t.replace(/\ba\b/gi, "");
+  t = t.replace(/\ban\b/gi, "");
+  t = t.replace(/\bof\b/gi, "的");
+  t = t.replace(/\bin\b/gi, "在");
+  t = t.replace(/\bdo\b/gi, "");
+  t = t.replace(/\bor\b/gi, "或");
+  t = t.replace(/\band\b/gi, "和");
+  t = t.replace(/\bfor\b/gi, "对于");
+  t = t.replace(/\bwith\b/gi, "用");
+  t = t.replace(/\bby\b/gi, "通过");
+  t = t.replace(/\bnot\b/gi, "不");
+  t = t.replace(/\bcan\b/gi, "可以");
+  t = t.replace(/\bwill\b/gi, "会");
+  t = t.replace(/\bhas\b/gi, "有");
+  t = t.replace(/\bits?\b/gi, "它");
+
+  // Clean up double spaces
+  t = t.replace(/\s{2,}/g, " ").trim();
 
   return t;
 }
 
 function translateTitle(title) {
   if (!title) return "";
+  // OGS official
+  if (OGS_ZH_CATALOG[title] && OGS_ZH_CATALOG[title][0]) return OGS_ZH_CATALOG[title][0];
   // Exact match
   if (TITLE_DICT[title]) return TITLE_DICT[title];
   // Try trimmed
@@ -622,6 +696,7 @@ function translateTitle(title) {
 
 function translateSubtext(subtext) {
   if (!subtext) return "";
+  if (OGS_ZH_CATALOG[subtext] && OGS_ZH_CATALOG[subtext][0]) return OGS_ZH_CATALOG[subtext][0];
   if (SUBTEXT_DICT[subtext]) return SUBTEXT_DICT[subtext];
   // Try translateTitle as fallback for subtexts that match titles
   const fromTitle = translateTitle(subtext);
