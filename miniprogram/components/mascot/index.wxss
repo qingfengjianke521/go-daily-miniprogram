@@ -1,0 +1,183 @@
+/* ===== 棋子精灵吉祥物 ===== */
+.mascot {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 尺寸 */
+.mascot-sm { --sz: 64rpx; }
+.mascot-md { --sz: 96rpx; }
+.mascot-lg { --sz: 140rpx; }
+
+/* 身体 */
+.body {
+  width: var(--sz); height: var(--sz);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 calc(var(--sz) * 0.06) 0 rgba(0,0,0,0.2);
+}
+.mascot-black .body {
+  background: radial-gradient(circle at 35% 30%, #555, #111);
+}
+.mascot-white .body {
+  background: radial-gradient(circle at 35% 30%, #fff, #ddd);
+  border: 2rpx solid #ccc;
+}
+.highlight {
+  position: absolute; top: 15%; left: 20%;
+  width: 30%; height: 20%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.35), transparent);
+  border-radius: 50%;
+}
+.mascot-white .highlight {
+  background: radial-gradient(ellipse, rgba(255,255,255,0.7), transparent);
+}
+
+/* 眼睛 */
+.eyes {
+  position: absolute; top: 35%; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: calc(var(--sz) * 0.15);
+}
+.eye {
+  width: calc(var(--sz) * 0.18);
+  height: calc(var(--sz) * 0.22);
+  border-radius: 50%;
+  position: relative;
+}
+.mascot-black .eye { background: white; }
+.mascot-white .eye { background: #333; }
+
+.pupil {
+  width: 55%; height: 55%;
+  border-radius: 50%;
+  position: absolute; bottom: 15%; left: 50%;
+  transform: translateX(-50%);
+}
+.mascot-black .pupil { background: #111; }
+.mascot-white .pupil { background: white; }
+
+/* 眨眼 */
+.blink .eye {
+  animation: blink-anim 3s ease-in-out infinite;
+}
+@keyframes blink-anim {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+/* 嘴巴 */
+.mouth {
+  position: absolute; bottom: 22%; left: 50%;
+  transform: translateX(-50%);
+}
+.mouth-smile {
+  width: calc(var(--sz) * 0.22);
+  height: calc(var(--sz) * 0.1);
+  border-bottom: calc(var(--sz) * 0.04) solid;
+  border-radius: 0 0 50% 50%;
+}
+.mascot-black .mouth-smile { border-color: white; }
+.mascot-white .mouth-smile { border-color: #333; }
+
+.mouth-happy {
+  width: calc(var(--sz) * 0.26);
+  height: calc(var(--sz) * 0.16);
+  background: #FF6B6B;
+  border-radius: 0 0 50% 50%;
+}
+.mouth-sad {
+  width: calc(var(--sz) * 0.16);
+  height: calc(var(--sz) * 0.08);
+  border-top: calc(var(--sz) * 0.04) solid;
+  border-radius: 50% 50% 0 0;
+}
+.mascot-black .mouth-sad { border-color: rgba(255,255,255,0.6); }
+.mascot-white .mouth-sad { border-color: rgba(0,0,0,0.3); }
+
+.mouth-o {
+  width: calc(var(--sz) * 0.12);
+  height: calc(var(--sz) * 0.14);
+  border-radius: 50%;
+  background: #FF6B6B;
+}
+
+/* 睡觉 */
+.zzz {
+  position: absolute; top: -10%; right: -15%;
+  font-size: calc(var(--sz) * 0.2);
+  color: #AFAFAF;
+  animation: zzz-float 2s ease-in-out infinite;
+}
+@keyframes zzz-float {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-10rpx); opacity: 1; }
+}
+
+/* 手 */
+.hand {
+  width: calc(var(--sz) * 0.16);
+  height: calc(var(--sz) * 0.16);
+  border-radius: 50%;
+  position: absolute;
+  top: 55%;
+}
+.mascot-black .hand { background: #222; }
+.mascot-white .hand { background: #eee; border: 1rpx solid #ccc; }
+
+.hand-l { left: -10%; }
+.hand-r { right: -10%; }
+
+.hand-down { top: 60%; }
+.hand-up { top: 10%; }
+.hand-wave .hand-r {
+  top: 10%;
+  animation: wave 0.6s ease-in-out 3;
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-20deg); }
+}
+
+/* 脚 */
+.foot {
+  width: calc(var(--sz) * 0.18);
+  height: calc(var(--sz) * 0.1);
+  border-radius: 50%;
+  position: absolute;
+  bottom: -8%;
+}
+.mascot-black .foot { background: #222; }
+.mascot-white .foot { background: #eee; border: 1rpx solid #ccc; }
+.foot-l { left: 18%; }
+.foot-r { right: 18%; }
+
+/* ===== 动画状态 ===== */
+.anim-bounce {
+  animation: bounce 0.5s ease 3;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-20rpx); }
+  60% { transform: translateY(-10rpx); }
+}
+
+.anim-jump {
+  animation: jump 0.8s ease infinite;
+}
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-24rpx); }
+}
+
+.anim-nod {
+  animation: nod 1s ease 2;
+}
+@keyframes nod {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-8deg); }
+  60% { transform: rotate(5deg); }
+}

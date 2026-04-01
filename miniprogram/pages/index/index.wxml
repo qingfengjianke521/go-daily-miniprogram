@@ -85,6 +85,9 @@
             <text wx:else class="nd-next">{{item.label}}</text>
           </view>
 
+          <!-- 当前节点旁的精灵 -->
+          <mascot wx:if="{{item.status === 'current'}}" color="black" mood="wait" size="sm" />
+
           <!-- 信息 -->
           <view class="nd-info">
             <text class="nd-name">{{item.name}}</text>
@@ -113,13 +116,18 @@
       <text>🚩 起点</text>
     </view>
 
-    <!-- 装饰元素 -->
-    <view class="deco deco-cloud1">☁️</view>
-    <view class="deco deco-cloud2">☁️</view>
-    <view class="deco deco-star1">⭐</view>
-    <view class="deco deco-star2">✨</view>
-    <view class="deco deco-stone1">⚫</view>
-    <view class="deco deco-stone2">⚪</view>
+    <!-- CSS 云朵 -->
+    <view class="cloud cloud-1"><view class="cloud-puff"></view><view class="cloud-puff p2"></view><view class="cloud-puff p3"></view></view>
+    <view class="cloud cloud-2"><view class="cloud-puff"></view><view class="cloud-puff p2"></view><view class="cloud-puff p3"></view></view>
+
+    <!-- CSS 小草 -->
+    <view class="grass grass-1"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
+    <view class="grass grass-2"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
+
+    <!-- 闪烁星星 -->
+    <view class="twinkle twinkle-1">✦</view>
+    <view class="twinkle twinkle-2">✦</view>
+    <view class="twinkle twinkle-3">✧</view>
 
     <view style="height:200rpx;"></view>
   </view>

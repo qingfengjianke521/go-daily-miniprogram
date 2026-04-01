@@ -115,6 +115,7 @@
 }
 .nd-passed {
   background: #58CC02; border: 4rpx solid #46A302;
+  box-shadow: 0 8rpx 0 #46A302;
 }
 .nd-current {
   width: 120rpx; height: 120rpx;
@@ -127,7 +128,8 @@
 }
 .nd-locked {
   background: #F0F0F0; border: 3rpx solid #E0E0E0;
-  box-shadow: none;
+  box-shadow: 0 6rpx 0 #D0D0D0;
+  opacity: 0.6;
 }
 
 .nd-icon { color: white; font-size: 36rpx; font-weight: 700; }
@@ -174,11 +176,48 @@
 .divider-star { font-size: 28rpx; }
 .divider-text { font-size: 22rpx; color: #FFB300; font-weight: 700; white-space: nowrap; }
 
-/* ===== 装饰 ===== */
-.deco { position: absolute; opacity: 0.3; font-size: 40rpx; z-index: 1; }
-.deco-cloud1 { top: 35%; left: 8%; font-size: 48rpx; opacity: 0.2; }
-.deco-cloud2 { top: 45%; right: 5%; font-size: 36rpx; opacity: 0.15; }
-.deco-star1 { top: 8%; right: 15%; font-size: 28rpx; opacity: 0.4; }
-.deco-star2 { top: 15%; left: 10%; font-size: 24rpx; opacity: 0.3; }
-.deco-stone1 { bottom: 25%; left: 85%; font-size: 20rpx; opacity: 0.15; }
-.deco-stone2 { bottom: 30%; right: 85%; font-size: 20rpx; opacity: 0.15; }
+/* ===== CSS 云朵 ===== */
+.cloud {
+  position: absolute; z-index: 1;
+  animation: cloud-drift 25s ease-in-out infinite;
+}
+.cloud-1 { top: 38%; left: 5%; }
+.cloud-2 { top: 48%; right: 3%; animation-delay: -12s; }
+.cloud-puff {
+  width: 60rpx; height: 32rpx;
+  background: rgba(255,255,255,0.5);
+  border-radius: 32rpx;
+  position: absolute;
+}
+.cloud-puff.p2 { width: 48rpx; height: 28rpx; top: -14rpx; left: 12rpx; }
+.cloud-puff.p3 { width: 40rpx; height: 24rpx; top: -8rpx; left: 36rpx; }
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(20rpx); }
+}
+
+/* ===== CSS 小草 ===== */
+.grass { position: absolute; z-index: 1; display: flex; gap: 4rpx; }
+.grass-1 { bottom: 12%; left: 8%; }
+.grass-2 { bottom: 15%; right: 10%; }
+.blade {
+  width: 4rpx; height: 24rpx;
+  background: #81C784; border-radius: 2rpx 2rpx 0 0;
+  transform: rotate(-8deg); transform-origin: bottom;
+}
+.blade.b2 { height: 32rpx; transform: rotate(0); }
+.blade.b3 { height: 20rpx; transform: rotate(10deg); }
+
+/* ===== 闪烁星星 ===== */
+.twinkle {
+  position: absolute; z-index: 1;
+  font-size: 24rpx; color: #FFD700;
+  animation: twinkle-anim 2s ease-in-out infinite;
+}
+.twinkle-1 { top: 6%; right: 12%; }
+.twinkle-2 { top: 12%; left: 8%; animation-delay: 0.7s; }
+.twinkle-3 { top: 18%; right: 25%; font-size: 18rpx; animation-delay: 1.3s; }
+@keyframes twinkle-anim {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}

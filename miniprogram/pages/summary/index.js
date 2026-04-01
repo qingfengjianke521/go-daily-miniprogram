@@ -35,6 +35,7 @@ Page({
     statusBarHeight: 20,
     step: 0,
     emoji: '🎉',
+    confettiColors: ['#58CC02', '#FF4B4B', '#FFC800', '#1C94E0', '#9B59B6'],
     title: '',
     subtitle: '',
     circles: [],

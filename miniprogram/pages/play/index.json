@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "go-board": "/components/go-board/index"
+    "go-board": "/components/go-board/index",
+    "mascot": "/components/mascot/index"
   }
 }

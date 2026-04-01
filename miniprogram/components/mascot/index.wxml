@@ -1,0 +1,26 @@
+<!-- 棋子精灵吉祥物 -->
+<view class="mascot mascot-{{color}} mascot-{{size}} {{animClass}}">
+  <!-- 身体（棋子） -->
+  <view class="body">
+    <view class="highlight"></view>
+    <!-- 眼睛 -->
+    <view class="eyes">
+      <view class="eye eye-l {{blinkClass}}">
+        <view class="pupil" wx:if="{{mood !== 'sleep'}}"></view>
+      </view>
+      <view class="eye eye-r {{blinkClass}}">
+        <view class="pupil" wx:if="{{mood !== 'sleep'}}"></view>
+      </view>
+    </view>
+    <!-- 嘴巴 -->
+    <view class="mouth mouth-{{mouthType}}"></view>
+    <!-- 睡觉zzz -->
+    <text wx:if="{{mood === 'sleep'}}" class="zzz">zzz</text>
+  </view>
+  <!-- 手 -->
+  <view class="hand hand-l hand-{{handPose}}"></view>
+  <view class="hand hand-r hand-{{handPose}}"></view>
+  <!-- 脚 -->
+  <view class="foot foot-l"></view>
+  <view class="foot foot-r"></view>
+</view>

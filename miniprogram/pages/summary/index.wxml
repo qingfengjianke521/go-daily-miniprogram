@@ -4,8 +4,16 @@
   </view>
 
   <view class="summary-content">
-    <!-- Step 1: Emoji -->
-    <text class="emoji {{step >= 1 ? 'animate-pop' : 'hidden'}}">{{emoji}}</text>
+    <!-- 纸屑动画 -->
+    <view wx:if="{{step >= 1}}" class="confetti-container">
+      <view wx:for="{{15}}" wx:key="*this" class="confetti-piece" style="left:{{index * 7}}%;animation-delay:{{index * 0.1}}s;background:{{confettiColors[index % 5]}};"></view>
+    </view>
+
+    <!-- Step 1: 吉祥物庆祝 -->
+    <view class="mascot-celebrate {{step >= 1 ? 'animate-pop' : 'hidden'}}">
+      <mascot color="black" mood="celebrate" size="lg" />
+      <mascot color="white" mood="celebrate" size="lg" />
+    </view>
 
     <!-- Step 2: Title -->
     <text class="title {{step >= 2 ? 'animate-fade-up' : 'hidden'}}">{{title}}</text>

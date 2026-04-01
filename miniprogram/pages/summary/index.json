@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "progress-circle": "/components/progress-circle/index"
+    "progress-circle": "/components/progress-circle/index",
+    "mascot": "/components/mascot/index"
   }
 }

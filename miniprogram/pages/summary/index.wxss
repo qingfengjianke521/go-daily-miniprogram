@@ -13,8 +13,36 @@
 
 .hidden { opacity: 0; transform: scale(0.8); }
 
-/* Emoji */
-.emoji { font-size: 120rpx; }
+/* 纸屑 */
+.confetti-container {
+  position: fixed; top: 0; left: 0; right: 0; height: 100vh;
+  pointer-events: none; z-index: 100; overflow: hidden;
+}
+.confetti-piece {
+  position: absolute; top: -20rpx;
+  width: 16rpx; height: 24rpx;
+  border-radius: 4rpx;
+  animation: confetti-fall 2.5s ease-out forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* 吉祥物庆祝 */
+.mascot-celebrate {
+  display: flex; gap: 32rpx; margin-bottom: 16rpx;
+}
+.animate-pop {
+  animation: pop-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+@keyframes pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Emoji - now smaller since mascots are the focus */
+.emoji { font-size: 64rpx; }
 
 /* Title */
 .title {

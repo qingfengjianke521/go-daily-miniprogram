@@ -70,12 +70,18 @@
 <!-- ========== 底部反馈面板 ========== -->
 <view class="feedback-overlay {{feedbackVisible ? 'show' : ''}}"></view>
 <view class="feedback-panel {{feedbackVisible ? 'show' : ''}} feedback-{{feedbackType}}">
-  <!-- 顶部行：图标 + 文案 + 分数 -->
+  <!-- 顶部行：吉祥物 + 文案 + 分数 -->
   <view class="flex items-center" style="margin-bottom:32rpx;">
-    <view class="feedback-icon feedback-icon-{{feedbackType}}">
-      <text wx:if="{{feedbackType === 'correct'}}">✓</text>
-      <text wx:elif="{{feedbackType === 'wrong'}}">✕</text>
-      <text wx:else>📖</text>
+    <mascot
+      wx:if="{{feedbackType === 'correct'}}"
+      color="black" mood="happy" size="sm"
+    />
+    <mascot
+      wx:elif="{{feedbackType === 'wrong'}}"
+      color="white" mood="encourage" size="sm"
+    />
+    <view wx:else class="feedback-icon feedback-icon-hint">
+      <text>📖</text>
     </view>
     <text class="feedback-title">{{feedbackText}}</text>
     <text wx:if="{{feedbackScore}}" class="feedback-score">
