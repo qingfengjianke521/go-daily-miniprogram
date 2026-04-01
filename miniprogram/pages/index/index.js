@@ -2,26 +2,30 @@ var apiModule = require('../../utils/api')
 var api = apiModule.api
 var app = getApp()
 
-// 段位层级
+// 段位层级（每2级一个节点，更密集）
 var TIERS = [
   { name: '25级', rating: 500, reward: 5 },
-  { name: '22级', rating: 650, reward: 5 },
-  { name: '20级', rating: 800, reward: 10 },
-  { name: '18级', rating: 900, reward: 10 },
-  { name: '15级', rating: 1000, reward: 15 },
-  { name: '12级', rating: 1100, reward: 15 },
-  { name: '10级', rating: 1200, reward: 20 },
-  { name: '8级', rating: 1300, reward: 20 },
-  { name: '6级', rating: 1400, reward: 25 },
-  { name: '4级', rating: 1500, reward: 25 },
-  { name: '2级', rating: 1600, reward: 30 },
-  { name: '1级', rating: 1700, reward: 30 },
+  { name: '23级', rating: 600, reward: 0 },
+  { name: '21级', rating: 700, reward: 5 },
+  { name: '19级', rating: 800, reward: 0 },
+  { name: '17级', rating: 900, reward: 10 },
+  { name: '15级', rating: 1000, reward: 0 },
+  { name: '13级', rating: 1050, reward: 10 },
+  { name: '11级', rating: 1100, reward: 0 },
+  { name: '9级', rating: 1200, reward: 15 },
+  { name: '7级', rating: 1300, reward: 0 },
+  { name: '5级', rating: 1400, reward: 15 },
+  { name: '3级', rating: 1500, reward: 0 },
+  { name: '1级', rating: 1700, reward: 20 },
+  // -- 段位分界线 --
   { name: '初段', rating: 1800, reward: 50 },
-  { name: '二段', rating: 1900, reward: 50 },
+  { name: '二段', rating: 1900, reward: 0 },
   { name: '三段', rating: 2000, reward: 50 },
-  { name: '四段', rating: 2200, reward: 80 },
+  { name: '四段', rating: 2200, reward: 0 },
   { name: '五段', rating: 2400, reward: 100 },
 ]
+
+var DAN_START_INDEX = 13 // 初段的index
 
 function getLevelColor(name) {
   if (!name) return '#CCC'
@@ -35,27 +39,26 @@ function getLevelColor(name) {
 Page({
   data: {
     statusBarHeight: 20,
-    topHeight: 160,
+    topHeight: 140,
     loading: true,
     stats: {},
     levelColor: '#CCC',
-    // 打卡
     checkedIn: false,
     circles: [],
     totalChange: 0,
     completedCount: 0,
     buttonDisabled: false,
-    // 路径
     nodes: [],
     scrollTarget: '',
     daily: null,
+    danDividerBottom: 0,
   },
 
   onLoad: function () {
     var sbh = app.globalData.statusBarHeight || 20
     this.setData({
       statusBarHeight: sbh,
-      topHeight: sbh + 44 + 72 + 56, // statusbar + nav + status row + checkin row
+      topHeight: sbh + 44 + 64 + 52,
     })
   },
 
@@ -100,14 +103,14 @@ Page({
               if (daily.results[j].problem_id === problemIds[i]) { result = daily.results[j]; break }
             }
           }
-          var status = 'pending'
+          var st = 'pending'
           if (result) {
-            status = result.is_correct ? 'correct' : 'wrong'
+            st = result.is_correct ? 'correct' : 'wrong'
             totalChange += result.rating_change || 0
           } else if (i === Math.min(completedCount, 2)) {
-            status = 'current'
+            st = 'current'
           }
-          circles.push({ number: i + 1, status: status })
+          circles.push({ number: i + 1, status: st })
         }
 
         // 天梯节点
@@ -117,26 +120,32 @@ Page({
           if (rating >= TIERS[k].rating) { currentIdx = k; break }
         }
         var nextIdx = Math.min(currentIdx + 1, TIERS.length - 1)
+
         var nodes = []
         for (var m = 0; m < TIERS.length; m++) {
           var t = TIERS[m]
-          var nStatus = 'locked'
-          if (m < currentIdx) nStatus = 'passed'
-          else if (m === currentIdx) nStatus = 'current'
-          else if (m === currentIdx + 1) nStatus = 'next'
+          var nst = 'locked'
+          if (m < currentIdx) nst = 'passed'
+          else if (m === currentIdx) nst = 'current'
+          else if (m === currentIdx + 1) nst = 'next'
 
           nodes.push({
             id: m,
             name: t.name,
-            label: t.name.replace('级', '').replace('段', 'D'),
+            label: t.name.replace('级', '').replace('初段', '初D').replace('二段', '二D').replace('三段', '三D').replace('四段', '四D').replace('五段', '五D'),
             rating: t.rating,
-            status: nStatus,
+            status: nst,
             side: m % 2 === 0 ? 'left' : 'right',
-            gap: nStatus === 'current' ? Math.max(0, TIERS[nextIdx].rating - rating)
-               : nStatus === 'next' ? Math.max(0, t.rating - rating) : 0,
+            gap: nst === 'current' ? Math.max(0, TIERS[nextIdx].rating - rating)
+               : nst === 'next' ? Math.max(0, t.rating - rating) : 0,
             reward: t.reward,
+            showReward: t.reward > 0 && nst !== 'passed',
           })
         }
+
+        // 段位分界线位置（简单估算，用节点数计算）
+        var nodeHeight = 120 // 每个节点约120rpx
+        var danBottom = (DAN_START_INDEX) * nodeHeight + 200
 
         that.setData({
           loading: false,
@@ -150,6 +159,7 @@ Page({
           buttonDisabled: !problemList || problemList.length === 0,
           nodes: nodes,
           scrollTarget: 'node-' + currentIdx,
+          danDividerBottom: danBottom,
         })
       })
       .catch(function (err) {
@@ -199,7 +209,7 @@ Page({
     if (node.status === 'current') {
       this.handleStart()
     } else if (node.status === 'passed') {
-      wx.showToast({ title: '已通过 ' + node.name + ' 💎+' + node.reward, icon: 'none' })
+      wx.showToast({ title: '已通过 ' + node.name, icon: 'none' })
     } else {
       wx.showToast({ title: '棋力达到 ' + node.rating + ' 解锁', icon: 'none' })
     }

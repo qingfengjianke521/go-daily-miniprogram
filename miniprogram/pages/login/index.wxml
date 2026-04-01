@@ -2,11 +2,21 @@
   <view style="height: {{statusBarHeight + navBarHeight}}px;"></view>
 
   <view class="content">
-    <!-- 围棋黑白子图标 -->
-    <view class="logo-area">
-      <view class="logo-stones">
-        <view class="logo-black"></view>
-        <view class="logo-white"></view>
+    <!-- 棋盘装饰背景 -->
+    <view class="board-deco">
+      <view class="board-grid">
+        <view wx:for="{{9}}" wx:key="*this" class="grid-h"></view>
+        <view wx:for="{{9}}" wx:key="*this" class="grid-v"></view>
+      </view>
+    </view>
+
+    <!-- 黑白子（立体大号） -->
+    <view class="logo-stones">
+      <view class="stone stone-black">
+        <view class="stone-highlight"></view>
+      </view>
+      <view class="stone stone-white">
+        <view class="stone-highlight stone-highlight-w"></view>
       </view>
     </view>
 
@@ -14,19 +24,21 @@
     <text class="welcome-title">黑白天天练</text>
     <text class="welcome-subtitle">每天3道题，棋力日日涨</text>
 
-    <!-- 主按钮 -->
-    <button
-      class="btn btn-primary btn-lg w-full rounded-xl"
-      bindtap="handleStart"
-      disabled="{{loading}}"
-    >
+    <!-- 3D主按钮 -->
+    <button class="start-btn" bindtap="handleStart" disabled="{{loading}}">
       {{loading ? '加载中...' : '开始练习'}}
     </button>
 
-    <!-- 错误提示 -->
     <text wx:if="{{error}}" class="error-text">{{error}}</text>
 
-    <!-- 底部说明 -->
     <text class="hint-text">微信授权登录，无需注册</text>
+
+    <!-- 底部装饰：3个小棋子 -->
+    <view class="bottom-deco">
+      <view class="mini-stone mini-black"></view>
+      <view class="mini-stone mini-white"></view>
+      <view class="mini-stone mini-black"></view>
+      <text class="bottom-deco-text">每天3题</text>
+    </view>
   </view>
 </view>

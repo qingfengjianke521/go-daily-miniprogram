@@ -1,93 +1,74 @@
 .ranking-page { min-height: 100vh; background: #F7F7F7; }
 .nav-bar { background: white; }
 
-/* Tab bar */
-.tab-bar {
-  display: flex;
-  padding: 16rpx 48rpx;
-  gap: 8rpx;
-  background: white;
+/* Tabs */
+.tab-row {
+  display: flex; padding: 12rpx 48rpx; gap: 8rpx; background: white;
+  border-bottom: 2rpx solid #F0F0F0;
 }
-.tab-item {
-  flex: 1;
-  text-align: center;
-  padding: 16rpx 0;
-  border-radius: 9999rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #AFAFAF;
-  background: #F7F7F7;
+.tab {
+  flex: 1; text-align: center; padding: 14rpx 0;
+  border-radius: 9999rpx; font-size: 26rpx; font-weight: 600;
+  color: #AFAFAF; background: #F7F7F7;
 }
-.tab-active {
-  background: #58CC02;
-  color: white;
-}
+.tab-on { background: #58CC02; color: white; }
 
-.loading-wrap {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 40vh;
-}
-
-.rank-scroll { height: calc(100vh - 240px); }
-
-/* Podium */
-.podium {
-  display: flex;
-  justify-content: center;
-  gap: 16rpx;
-  padding: 32rpx;
-}
-.podium-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-  padding: 28rpx 24rpx;
-  border-radius: 24rpx;
-  min-width: 180rpx;
-}
-.podium-1 { background: #FFF9E6; border: 4rpx solid #FFD700; }
-.podium-2 { background: #F5F5F5; border: 4rpx solid #C0C0C0; }
-.podium-3 { background: #FFF5EE; border: 4rpx solid #CD7F32; }
-.podium-medal { font-size: 48rpx; }
-.podium-name { font-size: 26rpx; font-weight: 700; color: #4B4B4B; }
-.podium-change { font-size: 36rpx; font-weight: 700; }
-.podium-level { font-size: 22rpx; color: #AFAFAF; }
+.loading-center { display: flex; align-items: center; justify-content: center; min-height: 40vh; }
+.rank-scroll { height: calc(100vh - 160px); }
 
 /* Empty */
-.empty-state {
+.empty {
   display: flex; flex-direction: column; align-items: center;
-  padding: 80rpx; gap: 16rpx;
+  padding: 120rpx 48rpx; gap: 16rpx;
 }
-.empty-icon { font-size: 80rpx; }
-.empty-text { font-size: 32rpx; font-weight: 600; color: #4B4B4B; }
+.empty-icon { font-size: 96rpx; }
+.empty-title { font-size: 32rpx; font-weight: 700; color: #4B4B4B; }
 .empty-sub { font-size: 26rpx; color: #AFAFAF; }
 
-/* Rank list */
-.rank-list { padding: 0 32rpx; display: flex; flex-direction: column; gap: 4rpx; }
+/* ===== 领奖台 ===== */
+.podium {
+  display: flex; justify-content: center; align-items: flex-end;
+  padding: 48rpx 32rpx 0; gap: 16rpx;
+}
+.podium-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8rpx; width: 180rpx;
+}
+.podium-col-1 { margin-top: -32rpx; }
+.podium-medal { font-size: 36rpx; }
+.podium-medal-1 { font-size: 48rpx; }
+.podium-avatar {
+  width: 88rpx; height: 88rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32rpx; font-weight: 700; color: white;
+}
+.podium-gold { background: linear-gradient(135deg, #FFD700, #FFA000); border: 4rpx solid #FF8F00; }
+.podium-silver { background: linear-gradient(135deg, #E0E0E0, #9E9E9E); border: 4rpx solid #757575; }
+.podium-bronze { background: linear-gradient(135deg, #FFCC80, #E65100); border: 4rpx solid #BF360C; }
+.podium-initial { font-size: 32rpx; }
+.podium-name { font-size: 24rpx; font-weight: 700; color: #4B4B4B; max-width: 160rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium-score { font-size: 28rpx; font-weight: 700; color: #58CC02; }
+.podium-score-1 { font-size: 32rpx; }
+
+/* 台子 */
+.podium-stand { width: 100%; border-radius: 16rpx 16rpx 0 0; }
+.stand-1 { height: 120rpx; background: linear-gradient(180deg, #FFF8E1, #FFE082); }
+.stand-2 { height: 80rpx; background: linear-gradient(180deg, #F5F5F5, #E0E0E0); }
+.stand-3 { height: 56rpx; background: linear-gradient(180deg, #FFF3E0, #FFCC80); }
+
+/* ===== 列表 ===== */
+.rank-list { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 8rpx; }
 .rank-item {
-  display: flex; align-items: center;
-  padding: 24rpx; background: white;
-  border-radius: 16rpx; gap: 20rpx;
+  display: flex; align-items: center; padding: 20rpx 24rpx;
+  background: white; border-radius: 16rpx; gap: 16rpx;
 }
 .rank-num { font-size: 28rpx; font-weight: 700; color: #AFAFAF; min-width: 48rpx; text-align: center; }
-.rank-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-.rank-name { font-size: 28rpx; font-weight: 600; color: #4B4B4B; }
-.rank-sub { font-size: 22rpx; color: #AFAFAF; }
-.rank-change { font-size: 32rpx; font-weight: 700; }
-
-/* My rank bar - fixed bottom */
-.my-rank-bar {
-  position: fixed;
-  bottom: calc(100rpx + env(safe-area-inset-bottom));
-  left: 32rpx; right: 32rpx;
-  display: flex; align-items: center;
-  padding: 24rpx 32rpx;
-  background: white;
-  border-radius: 24rpx;
-  box-shadow: 0 -4rpx 24rpx rgba(0,0,0,0.1);
-  gap: 20rpx; z-index: 50;
+.rank-avatar-sm {
+  width: 56rpx; height: 56rpx; border-radius: 50%;
+  background: #E8F5E9; display: flex; align-items: center; justify-content: center;
+  font-size: 24rpx; font-weight: 700; color: #58CC02;
 }
-.my-rank-num {
-  font-size: 28rpx; font-weight: 700; color: #58CC02; min-width: 80rpx;
-}
+.rank-info { flex: 1; display: flex; flex-direction: column; }
+.rank-name { font-size: 26rpx; font-weight: 600; color: #4B4B4B; }
+.rank-sub { font-size: 20rpx; color: #AFAFAF; }
+.rank-score { font-size: 28rpx; font-weight: 700; color: #58CC02; }

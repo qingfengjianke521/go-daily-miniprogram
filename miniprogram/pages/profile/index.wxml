@@ -9,14 +9,14 @@
     <view class="inner-content">
 
       <!-- 个人卡片 -->
-      <view class="profile-card bg-white rounded-2xl shadow-sm">
+      <view class="profile-card">
         <view class="profile-top">
           <view class="avatar-circle" style="border-color:{{levelColor}};">
             <text class="avatar-text" style="color:{{levelColor}};">{{levelName}}</text>
           </view>
           <view class="profile-info">
-            <text class="profile-name">{{username || '围棋爱好者'}}</text>
-            <text class="profile-sub">棋力 {{rating}} · 🔥 {{streakDays}}天</text>
+            <text class="profile-name" bindtap="onEditName">{{username || '围棋爱好者'}} ✏️</text>
+            <text class="profile-sub">棋力 {{rating}} · 🔥 {{streakDays}}天 · 💎 {{coins}}</text>
           </view>
         </view>
       </view>
@@ -24,17 +24,23 @@
       <!-- 数据统计 -->
       <view class="stats-grid">
         <view class="stat-box bg-white rounded-xl shadow-sm">
-          <text class="stat-num">{{totalSolved}}</text>
+          <text class="stat-num" style="color:#58CC02;">{{totalSolved}}</text>
           <text class="stat-label">累计做题</text>
         </view>
         <view class="stat-box bg-white rounded-xl shadow-sm">
-          <text class="stat-num">{{accuracy}}%</text>
+          <text class="stat-num" style="color:#1C94E0;">{{accuracy}}%</text>
           <text class="stat-label">正确率</text>
         </view>
         <view class="stat-box bg-white rounded-xl shadow-sm">
-          <text class="stat-num">{{maxStreak}}</text>
+          <text class="stat-num" style="color:#FF9600;">{{maxStreak}}</text>
           <text class="stat-label">最长连续</text>
         </view>
+      </view>
+
+      <!-- 棋力趋势图 -->
+      <view class="section-card bg-white rounded-2xl shadow-sm" wx:if="{{ratingHistory.length > 1}}">
+        <text class="section-title">棋力趋势</text>
+        <canvas type="2d" id="ratingChart" class="rating-chart"></canvas>
       </view>
 
       <!-- 题型正确率 -->
@@ -43,19 +49,19 @@
         <view class="bar-row" wx:for="{{categoryStats}}" wx:key="name">
           <text class="bar-label">{{item.name}}</text>
           <view class="bar-track">
-            <view class="bar-fill" style="width:{{item.rate}}%;background:{{item.color}};"></view>
+            <view class="bar-fill" style="width:{{item.barWidth}}%;background:{{item.color}};"></view>
           </view>
           <text class="bar-rate">{{item.rate}}%</text>
         </view>
       </view>
 
-      <!-- Streak Freeze -->
+      <!-- 打卡保护卡 -->
       <view class="freeze-card bg-white rounded-2xl shadow-sm">
         <view class="freeze-row">
           <view class="freeze-left">
             <text class="freeze-icon">🛡️</text>
             <view>
-              <text class="freeze-title">Streak Freeze</text>
+              <text class="freeze-title">打卡保护卡</text>
               <text class="freeze-desc">保护连续打卡，持有 {{streakFreezes}}/2</text>
             </view>
           </view>
@@ -68,14 +74,18 @@
         </view>
       </view>
 
-      <!-- 操作按钮 -->
+      <!-- 操作列表 -->
       <view class="action-list">
-        <view class="action-item" bindtap="onTapLeaderboard">
-          <text>🏆 排行榜</text>
+        <view class="action-item" bindtap="onTapShare">
+          <text>📤 分享给朋友</text>
+          <text class="action-arrow">›</text>
+        </view>
+        <view class="action-item" bindtap="onTapSettings">
+          <text>⚙️ 设置</text>
           <text class="action-arrow">›</text>
         </view>
         <view class="action-item" bindtap="onTapAdjustLevel">
-          <text>调整等级</text>
+          <text>🎯 重新定级</text>
           <text class="action-arrow">›</text>
         </view>
         <view class="action-item action-danger" bindtap="onTapClearData">
@@ -83,7 +93,7 @@
           <text class="action-arrow">›</text>
         </view>
         <view class="action-item" bindtap="onTapAdmin" wx:if="{{isAdmin}}">
-          <text>题库管理</text>
+          <text>🔧 题库管理</text>
           <text class="action-arrow">›</text>
         </view>
       </view>

@@ -63,6 +63,11 @@ var api = {
   getLeaderboard: function() {
     return callCloud('getLeaderboard')
   },
+
+  // Get rating history (last 30 days)
+  getRatingHistory: function() {
+    return callCloud('getRatingHistory')
+  },
 }
 
 module.exports = {

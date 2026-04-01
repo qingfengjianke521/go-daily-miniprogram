@@ -26,12 +26,13 @@ Page({
     coins: 0,
     streakFreezes: 0,
     canBuyFreeze: false,
-    isAdmin: true, // TODO: 从用户信息获取
+    isAdmin: false,
+    ratingHistory: [],
     categoryStats: [
-      { name: '死活', rate: 0, color: '#1C94E0' },
-      { name: '手筋', rate: 0, color: '#9B59B6' },
-      { name: '入门', rate: 0, color: '#58CC02' },
-      { name: '官子', rate: 0, color: '#FF9500' },
+      { name: '死活', rate: 0, barWidth: 3, color: '#1C94E0' },
+      { name: '手筋', rate: 0, barWidth: 3, color: '#9B59B6' },
+      { name: '入门', rate: 0, barWidth: 3, color: '#58CC02' },
+      { name: '官子', rate: 0, barWidth: 3, color: '#FF9500' },
     ],
   },
 
@@ -67,12 +68,115 @@ Page({
         coins: coins,
         streakFreezes: freezes,
         canBuyFreeze: freezes < 2 && coins >= 50,
+        isAdmin: stats.is_admin || false,
+        categoryStats: self.data.categoryStats.map(function(c) {
+          return { name: c.name, rate: c.rate, barWidth: Math.max(c.rate, 3), color: c.color }
+        }),
       })
+      // 加载棋力趋势
+      self._loadRatingChart()
     }).catch(function () {})
   },
 
+  _loadRatingChart: function () {
+    var self = this
+    api.getRatingHistory().then(function (res) {
+      var history = res.history || []
+      self.setData({ ratingHistory: history })
+      if (history.length > 1) {
+        setTimeout(function () { self._drawChart(history) }, 300)
+      }
+    }).catch(function () {})
+  },
+
+  _drawChart: function (data) {
+    var query = this.createSelectorQuery()
+    query.select('#ratingChart').fields({ node: true, size: true }).exec(function (res) {
+      if (!res || !res[0] || !res[0].node) return
+      var canvas = res[0].node
+      var ctx = canvas.getContext('2d')
+      var dpr = wx.getWindowInfo().pixelRatio || 2
+      var w = res[0].width
+      var h = res[0].height
+
+      canvas.width = w * dpr
+      canvas.height = h * dpr
+      ctx.scale(dpr, dpr)
+
+      var pad = { top: 10, right: 15, bottom: 25, left: 40 }
+      var cw = w - pad.left - pad.right
+      var ch = h - pad.top - pad.bottom
+
+      var ratings = data.map(function (d) { return d.rating })
+      var minR = Math.min.apply(null, ratings) - 20
+      var maxR = Math.max.apply(null, ratings) + 20
+      if (maxR === minR) maxR = minR + 50
+
+      function toX(i) { return pad.left + (i / (data.length - 1)) * cw }
+      function toY(r) { return pad.top + (1 - (r - minR) / (maxR - minR)) * ch }
+
+      // 填充区域
+      ctx.beginPath()
+      ctx.moveTo(toX(0), toY(ratings[0]))
+      for (var i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(ratings[i]))
+      ctx.lineTo(toX(data.length - 1), pad.top + ch)
+      ctx.lineTo(toX(0), pad.top + ch)
+      ctx.closePath()
+      ctx.fillStyle = 'rgba(88,204,2,0.15)'
+      ctx.fill()
+
+      // 线条
+      ctx.beginPath()
+      ctx.moveTo(toX(0), toY(ratings[0]))
+      for (var j = 1; j < data.length; j++) ctx.lineTo(toX(j), toY(ratings[j]))
+      ctx.strokeStyle = '#58CC02'
+      ctx.lineWidth = 2
+      ctx.lineJoin = 'round'
+      ctx.stroke()
+
+      // 端点
+      for (var k = 0; k < data.length; k++) {
+        ctx.beginPath()
+        ctx.arc(toX(k), toY(ratings[k]), 3, 0, Math.PI * 2)
+        ctx.fillStyle = '#58CC02'
+        ctx.fill()
+      }
+
+      // Y轴标签
+      ctx.fillStyle = '#AFAFAF'
+      ctx.font = '10px sans-serif'
+      ctx.textAlign = 'right'
+      ctx.fillText(String(Math.round(maxR)), pad.left - 5, pad.top + 10)
+      ctx.fillText(String(Math.round(minR)), pad.left - 5, pad.top + ch)
+
+      // X轴日期标签（首尾）
+      ctx.textAlign = 'center'
+      ctx.fillText(data[0].date.slice(5), toX(0), pad.top + ch + 15)
+      ctx.fillText(data[data.length - 1].date.slice(5), toX(data.length - 1), pad.top + ch + 15)
+    })
+  },
+
+  onEditName: function () {
+    var self = this
+    wx.showModal({
+      title: '修改昵称',
+      editable: true,
+      placeholderText: '输入你的围棋昵称',
+      success: function (res) {
+        if (res.confirm && res.content && res.content.trim()) {
+          api.setUsername(res.content.trim()).then(function () {
+            self.setData({ username: res.content.trim() })
+            wx.showToast({ title: '修改成功', icon: 'success' })
+          }).catch(function () {
+            wx.showToast({ title: '修改失败', icon: 'none' })
+          })
+        }
+      }
+    })
+  },
+
   onTapLeaderboard: function () {
-    wx.navigateTo({ url: '/pages/leaderboard/index' })
+    wx.switchTab({ url: '/pages/ranking/index' })
   },
 
   onBuyFreeze: function () {
@@ -94,6 +198,32 @@ Page({
           }).catch(function (err) {
             wx.showToast({ title: err.message || '购买失败', icon: 'none' })
           })
+        }
+      }
+    })
+  },
+
+  onTapShare: function () {
+    wx.showShareMenu({ withShareTicket: true })
+    // 小程序分享默认通过页面 onShareAppMessage 触发
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '黑白天天练 - 每天3道围棋题',
+      path: '/pages/login/index',
+    }
+  },
+
+  onTapSettings: function () {
+    var soundOn = wx.getStorageSync('soundEnabled') !== false
+    wx.showActionSheet({
+      itemList: [soundOn ? '🔊 关闭音效' : '🔇 开启音效'],
+      success: function (res) {
+        if (res.tapIndex === 0) {
+          var newVal = !soundOn
+          wx.setStorageSync('soundEnabled', newVal)
+          wx.showToast({ title: newVal ? '音效已开启' : '音效已关闭', icon: 'none' })
         }
       }
     })

@@ -1,80 +1,78 @@
 <view class="ranking-page">
-  <!-- Nav bar -->
   <view class="nav-bar" style="padding-top:{{statusBarHeight}}px;">
     <view style="height:44px;" class="flex items-center justify-center">
       <text class="font-bold text-base" style="color:#4B4B4B;">排行榜</text>
     </view>
   </view>
 
-  <!-- Tab 切换: 今日/本周/本月 -->
-  <view class="tab-bar">
-    <view
-      class="tab-item {{activeTab === 'daily' ? 'tab-active' : ''}}"
-      bindtap="onSwitchTab"
-      data-tab="daily"
-    >今日</view>
-    <view
-      class="tab-item {{activeTab === 'weekly' ? 'tab-active' : ''}}"
-      bindtap="onSwitchTab"
-      data-tab="weekly"
-    >本周</view>
-    <view
-      class="tab-item {{activeTab === 'monthly' ? 'tab-active' : ''}}"
-      bindtap="onSwitchTab"
-      data-tab="monthly"
-    >本月</view>
+  <!-- Tab 切换 -->
+  <view class="tab-row">
+    <view class="tab {{activeTab === 'daily' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="daily">今日</view>
+    <view class="tab {{activeTab === 'weekly' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="weekly">本周</view>
+    <view class="tab {{activeTab === 'monthly' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="monthly">本月</view>
   </view>
 
-  <!-- 加载中 -->
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <text class="text-999">加载中...</text>
-  </view>
+  <view wx:if="{{loading}}" class="loading-center"><text class="text-999">加载中...</text></view>
 
-  <!-- 排行列表 -->
   <scroll-view wx:else scroll-y class="rank-scroll">
-    <!-- 前三名 -->
-    <view wx:if="{{topThree.length > 0}}" class="podium">
-      <block wx:for="{{topThree}}" wx:key="rank">
-        <view class="podium-card podium-{{item.rank}}">
-          <text class="podium-medal">{{item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}}</text>
-          <text class="podium-name">{{item.username}}</text>
-          <text class="podium-change" style="color:#58CC02;">+{{item.change}}</text>
-          <text class="podium-level">{{item.level_name}}</text>
-        </view>
-      </block>
-    </view>
-
     <!-- 空状态 -->
-    <view wx:if="{{!topThree.length && !loading}}" class="empty-state">
+    <view wx:if="{{list.length === 0}}" class="empty">
       <text class="empty-icon">🏆</text>
-      <text class="empty-text">暂无排行数据</text>
-      <text class="empty-sub">完成今日练习即可上榜</text>
+      <text class="empty-title">还没有人上榜</text>
+      <text class="empty-sub">成为第一个打卡的棋手吧！</text>
     </view>
 
-    <!-- 其余排名 -->
-    <view class="rank-list">
-      <view wx:for="{{restList}}" wx:key="rank" class="rank-item">
-        <text class="rank-num">{{item.rank}}</text>
-        <view class="rank-info">
-          <text class="rank-name">{{item.username}}</text>
-          <text class="rank-sub">{{item.level_name}} · 🔥{{item.streak_days}}天</text>
+    <block wx:else>
+      <!-- 领奖台 -->
+      <view wx:if="{{topThree.length >= 3}}" class="podium">
+        <!-- 第2名 左 -->
+        <view class="podium-col">
+          <text class="podium-medal">🥈</text>
+          <view class="podium-avatar podium-silver">
+            <text class="podium-initial">{{topThree[1].initial}}</text>
+          </view>
+          <text class="podium-name">{{topThree[1].username}}</text>
+          <text class="podium-score">{{topThree[1].rating}}</text>
+          <view class="podium-stand stand-2"></view>
         </view>
-        <text class="rank-change" style="color:#58CC02;">+{{item.change}}</text>
+        <!-- 第1名 中 -->
+        <view class="podium-col podium-col-1">
+          <text class="podium-medal podium-medal-1">🥇</text>
+          <view class="podium-avatar podium-gold">
+            <text class="podium-initial">{{topThree[0].initial}}</text>
+          </view>
+          <text class="podium-name">{{topThree[0].username}}</text>
+          <text class="podium-score podium-score-1">{{topThree[0].rating}}</text>
+          <view class="podium-stand stand-1"></view>
+        </view>
+        <!-- 第3名 右 -->
+        <view class="podium-col">
+          <text class="podium-medal">🥉</text>
+          <view class="podium-avatar podium-bronze">
+            <text class="podium-initial">{{topThree[2].initial}}</text>
+          </view>
+          <text class="podium-name">{{topThree[2].username}}</text>
+          <text class="podium-score">{{topThree[2].rating}}</text>
+          <view class="podium-stand stand-3"></view>
+        </view>
       </view>
-    </view>
+
+      <!-- 列表 -->
+      <view class="rank-list">
+        <view wx:for="{{restList}}" wx:key="rank" class="rank-item">
+          <text class="rank-num">{{item.rank}}</text>
+          <view class="rank-avatar-sm">
+            <text>{{item.initial}}</text>
+          </view>
+          <view class="rank-info">
+            <text class="rank-name">{{item.username}}</text>
+            <text class="rank-sub">{{item.level_name}}</text>
+          </view>
+          <text class="rank-score">{{item.rating}}</text>
+        </view>
+      </view>
+    </block>
 
     <view style="height:200rpx;"></view>
   </scroll-view>
-
-  <!-- 底部固定：我的排名 -->
-  <view wx:if="{{myRank}}" class="my-rank-bar">
-    <text class="my-rank-num">{{myRank.rank ? '#' + myRank.rank : '未上榜'}}</text>
-    <view class="rank-info">
-      <text class="rank-name" style="color:#58CC02;">我</text>
-      <text class="rank-sub">{{myRank.level_name}}</text>
-    </view>
-    <text class="rank-change" style="color:{{myRank.change > 0 ? '#58CC02' : '#FF4B4B'}};">
-      {{myRank.change > 0 ? '+' : ''}}{{myRank.change}}
-    </text>
-  </view>
 </view>

@@ -246,6 +246,8 @@ exports.main = async function(event, context) {
       return await getLeaderboard()
     } else if (action === 'setUsername') {
       return await setUsername(openid, event.username)
+    } else if (action === 'getRatingHistory') {
+      return await getRatingHistory(openid)
     } else {
       return { error: '未知操作' }
     }
@@ -653,4 +655,36 @@ async function setUsername(openid, username) {
     data: { username: username }
   })
   return { ok: true, username: username }
+}
+
+async function getRatingHistory(openid) {
+  // 取最近30天每天最后一次答题的 rating
+  var res = await db.collection('attempts')
+    .where({ _openid: openid })
+    .orderBy('attempted_at', 'desc')
+    .limit(200)
+    .field({ session_date: true, rating_after: true, attempted_at: true })
+    .get()
+
+  // 按日期聚合，取每天最后一次的 rating_after
+  var dateMap = {}
+  for (var i = 0; i < res.data.length; i++) {
+    var d = res.data[i]
+    var date = d.session_date
+    if (!dateMap[date]) {
+      dateMap[date] = d.rating_after || 0
+    }
+  }
+
+  // 转成数组排序
+  var points = []
+  for (var key in dateMap) {
+    points.push({ date: key, rating: dateMap[key] })
+  }
+  points.sort(function(a, b) { return a.date < b.date ? -1 : 1 })
+
+  // 只取最近30个
+  if (points.length > 30) points = points.slice(points.length - 30)
+
+  return { history: points }
 }

@@ -1,45 +1,42 @@
-<!-- 顶部状态栏 (固定) -->
+<!-- 顶部固定区域 -->
 <view class="top-fixed" style="padding-top:{{statusBarHeight}}px;">
   <!-- 状态栏 -->
   <view class="status-row">
     <view class="st-item" wx:if="{{stats.streak_days > 0}}">
       <text class="st-fire">🔥</text>
-      <text class="st-fire-num">{{stats.streak_days}}</text>
+      <text class="st-num" style="color:#FF9600;">{{stats.streak_days}}</text>
     </view>
     <view class="st-badge" style="border-color:{{levelColor}};">
       <text class="st-badge-text" style="color:{{levelColor}};">{{stats.level_name || '--'}}</text>
     </view>
     <text class="st-rating">棋力 {{stats.rating || '--'}}</text>
     <view class="st-spacer"></view>
-    <view class="st-item coin-item">
+    <view class="st-coin">
       <text>💎</text>
-      <text class="st-coin-num">{{stats.coins || 0}}</text>
+      <text class="st-num" style="color:#7C3AED;">{{stats.coins || 0}}</text>
     </view>
   </view>
 
   <!-- 今日打卡条 -->
-  <view class="checkin-row">
+  <view class="checkin-bar">
     <block wx:if="{{checkedIn}}">
-      <text class="ci-done">🎉 已打卡</text>
-      <view class="ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ci-dot {{item.status === 'correct' ? 'ci-dot-ok' : item.status === 'wrong' ? 'ci-dot-bad' : 'ci-dot-pending'}}">
-          <text wx:if="{{item.status === 'correct'}}" style="color:white;font-size:20rpx;">✓</text>
-          <text wx:elif="{{item.status === 'wrong'}}" style="color:white;font-size:20rpx;">✕</text>
+      <text class="ck-done">🎉 已打卡</text>
+      <view class="ck-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ck-dot ck-dot-{{item.status}}">
+          <text wx:if="{{item.status === 'correct'}}" style="color:white;font-size:18rpx;">✓</text>
+          <text wx:elif="{{item.status === 'wrong'}}" style="color:white;font-size:18rpx;">✕</text>
         </view>
       </view>
-      <text class="ci-change" style="color:{{totalChange >= 0 ? '#58CC02' : '#FF4B4B'}};">{{totalChange >= 0 ? '+' : ''}}{{totalChange}}</text>
-      <button class="ci-btn ci-btn-continue" bindtap="handleStart">继续</button>
+      <text class="ck-change" style="color:{{totalChange >= 0 ? '#58CC02' : '#FF4B4B'}};">{{totalChange >= 0 ? '+' : ''}}{{totalChange}}</text>
+      <button class="ck-btn" bindtap="handleStart">继续</button>
     </block>
     <block wx:else>
-      <text class="ci-label">今日目标</text>
-      <view class="ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ci-dot {{item.status === 'correct' ? 'ci-dot-ok' : item.status === 'wrong' ? 'ci-dot-bad' : item.status === 'current' ? 'ci-dot-current' : 'ci-dot-pending'}}">
-          <text wx:if="{{item.status === 'correct'}}" style="color:white;font-size:20rpx;">✓</text>
-          <text wx:elif="{{item.status === 'wrong'}}" style="color:white;font-size:20rpx;">✕</text>
-        </view>
+      <text class="ck-label">今日目标</text>
+      <view class="ck-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ck-dot ck-dot-{{item.status}}"></view>
       </view>
-      <button class="ci-btn ci-btn-start" bindtap="handleStart" disabled="{{buttonDisabled}}">
-        {{completedCount > 0 ? '继续' : '开始'}}
+      <button class="ck-btn" bindtap="handleStart" disabled="{{buttonDisabled}}">
+        {{completedCount > 0 ? '继续' : '开始练习'}}
       </button>
     </block>
   </view>
@@ -50,7 +47,7 @@
   <text class="text-999">加载中...</text>
 </view>
 
-<!-- 主体：天梯路径（可滚动） -->
+<!-- 天梯路径 -->
 <scroll-view
   wx:else
   scroll-y
@@ -61,43 +58,69 @@
   show-scrollbar="{{false}}"
 >
   <view class="path-bg">
-    <!-- S形路径节点 (从下往上，column-reverse) -->
+    <!-- 装饰：段位分界线 -->
+    <view class="divider-line" style="bottom:{{danDividerBottom}}rpx;">
+      <text class="divider-star">⭐</text>
+      <view class="divider-bar"></view>
+      <text class="divider-text">段位之路</text>
+      <view class="divider-bar"></view>
+      <text class="divider-star">⭐</text>
+    </view>
+
+    <!-- 路径节点（从下往上） -->
     <view class="path-container">
       <block wx:for="{{nodes}}" wx:key="id">
+        <!-- 节点行 -->
         <view
           id="node-{{item.id}}"
-          class="node-wrap node-{{item.side}}"
+          class="node-row node-{{item.side}}"
           bindtap="onTapNode"
           data-idx="{{index}}"
         >
-          <!-- 节点圆圈 -->
-          <view class="node node-style-{{item.status}} {{item.status === 'current' ? 'node-breathe' : ''}}">
-            <text wx:if="{{item.status === 'passed'}}" class="node-check">✓</text>
-            <text wx:elif="{{item.status === 'current'}}" class="node-cur-text">{{item.label}}</text>
-            <text wx:elif="{{item.status === 'locked'}}" class="node-lock">🔒</text>
-            <text wx:else class="node-next-text">{{item.label}}</text>
+          <!-- 节点圆 -->
+          <view class="node nd-{{item.status}} {{item.status === 'current' ? 'nd-breathe' : ''}}">
+            <text wx:if="{{item.status === 'passed'}}" class="nd-icon">✓</text>
+            <text wx:elif="{{item.status === 'current'}}" class="nd-cur">{{item.label}}</text>
+            <text wx:elif="{{item.status === 'locked'}}" class="nd-lock">🔒</text>
+            <text wx:else class="nd-next">{{item.label}}</text>
           </view>
 
-          <!-- 节点标签 -->
-          <view class="node-info">
-            <text class="node-name">{{item.name}}</text>
-            <text wx:if="{{item.status === 'current'}}" class="node-sub node-sub-green">当前 · 还差{{item.gap}}分</text>
-            <text wx:elif="{{item.status === 'next'}}" class="node-sub">还差{{item.gap}}分</text>
-            <text wx:elif="{{item.status === 'locked'}}" class="node-sub">棋力 {{item.rating}}</text>
+          <!-- 信息 -->
+          <view class="nd-info">
+            <text class="nd-name">{{item.name}}</text>
+            <view wx:if="{{item.status === 'current'}}" class="nd-bubble">
+              <text>当前 · 还差{{item.gap}}分</text>
+            </view>
+            <text wx:elif="{{item.status === 'next'}}" class="nd-sub">还差{{item.gap}}分</text>
+            <text wx:elif="{{item.status === 'locked'}}" class="nd-sub">棋力 {{item.rating}}</text>
           </view>
 
-          <!-- 棋币奖励 -->
-          <view wx:if="{{item.reward && item.status !== 'passed'}}" class="reward-tag">
+          <!-- 奖励 -->
+          <view wx:if="{{item.showReward}}" class="nd-reward">
             <text>💎+{{item.reward}}</text>
           </view>
         </view>
 
         <!-- 连接线 -->
-        <view wx:if="{{index < nodes.length - 1}}" class="conn conn-{{item.status === 'locked' || item.status === 'next' ? 'gray' : 'green'}}"></view>
+        <view wx:if="{{index < nodes.length - 1}}" class="conn-wrap">
+          <view class="conn conn-{{nodes[index + 1].status === 'passed' || nodes[index + 1].status === 'current' ? 'green' : item.status === 'current' ? 'dash' : 'gray'}}"></view>
+        </view>
       </block>
     </view>
 
-    <!-- 底部留白 -->
-    <view style="height:240rpx;"></view>
+    <!-- 起点旗帜 -->
+    <view class="start-flag">
+      <text>🚩 起点</text>
+    </view>
+
+    <!-- 装饰元素 -->
+    <view class="deco deco-cloud1">☁️</view>
+    <view class="deco deco-cloud2">☁️</view>
+    <view class="deco deco-star1">⭐</view>
+    <view class="deco deco-star2">✨</view>
+    <view class="deco deco-stone1">⚫</view>
+    <view class="deco deco-stone2">⚪</view>
+
+    <view style="height:200rpx;"></view>
   </view>
 </scroll-view>
