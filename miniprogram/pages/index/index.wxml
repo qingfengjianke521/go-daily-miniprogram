@@ -39,6 +39,9 @@
       </view>
     </block>
   </view>
+  <view class="hud-info">
+    <text class="hud-info-txt">已收录 {{problemCount || '--'}} 题</text>
+  </view>
 </view>
 
 <!-- 加载 -->
@@ -91,7 +94,5 @@
       </block>
     </view>
 
-    <!-- 底部留白 -->
-    <view style="height:200rpx;"></view>
   </view>
 </scroll-view>

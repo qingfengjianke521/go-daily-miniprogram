@@ -37,6 +37,8 @@
   display: flex; align-items: center; gap: 12rpx;
   border-top: 1rpx solid #F0F0F0;
 }
+.hud-info { padding: 6rpx 24rpx 10rpx; border-top: 1rpx solid #F0F0F0; }
+.hud-info-txt { font-size: 22rpx; color: #AFAFAF; }
 .ci-label { font-size: 24rpx; font-weight: 600; color: #666; }
 .ci-dots { display: flex; gap: 8rpx; }
 .ci-dot {
@@ -68,10 +70,16 @@
 /* ===== 世界 ===== */
 .world-scroll { position: fixed; left: 0; right: 0; bottom: 0; }
 
-.world-container { position: relative; width: 100%; }
+.world-container {
+  position: relative; width: 100%;
+  background: #0D3B0F; /* 底部草地色兜底 */
+}
 
-/* 背景图：widthFix 自适应宽度 */
-.world-bg { width: 100%; display: block; }
+/* 背景图 */
+.world-bg {
+  width: 100%; display: block;
+  margin: 0; padding: 0;
+}
 
 /* ===== 节点覆盖层 ===== */
 .nodes-overlay {

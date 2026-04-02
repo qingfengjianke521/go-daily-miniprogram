@@ -58,7 +58,7 @@ Page({
     var sbh = app.globalData.statusBarHeight || 20
     this.setData({
       statusBarHeight: sbh,
-      topHeight: sbh + 44 + 64 + 52,
+      topHeight: sbh + 44 + 44 + 28,
     })
   },
 
@@ -181,6 +181,7 @@ Page({
           circles: circles,
           totalChange: totalChange,
           completedCount: completedCount,
+          problemCount: stats.problems_total || 0,
           buttonDisabled: !problemList || problemList.length === 0,
           nodes: nodes,
           scrollTarget: 'node-' + currentIdx,
