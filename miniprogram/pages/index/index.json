@@ -4,5 +4,6 @@
     "mascot": "/components/mascot/index"
   },
   "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark"
+  "backgroundTextStyle": "dark",
+  "backgroundColor": "#1A237E"
 }

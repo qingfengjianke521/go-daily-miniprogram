@@ -1,4 +1,4 @@
-<!-- ===== 顶部HUD（半透明浮层） ===== -->
+<!-- ===== 顶部HUD ===== -->
 <view class="hud" style="padding-top:{{statusBarHeight}}px;">
   <view class="hud-row">
     <view class="hud-pill hud-fire" wx:if="{{stats.streak_days > 0}}">
@@ -7,40 +7,11 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">棋力 {{stats.rating || '--'}}</text>
+    <text class="hud-rating">棋力 {{stats.rating || '--'}} · v3.3.0 · {{problemCount || '--'}}题</text>
     <view class="hud-spacer"></view>
-    <view class="hud-pill hud-coin">
-      <text>💎</text><text class="hud-val">{{stats.coins || 0}}</text>
+    <view class="ci-go-btn ci-green" bindtap="handleStart">
+      <text class="ci-go-txt">{{checkedIn ? '继续' : completedCount > 0 ? '继续' : '开始'}}</text>
     </view>
-  </view>
-  <!-- 打卡条 -->
-  <view class="hud-checkin">
-    <block wx:if="{{checkedIn}}">
-      <text class="ci-label" style="color:#58CC02;">🎉 已打卡</text>
-      <view class="ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-{{item.status}}">
-          <text wx:if="{{item.status==='correct'}}" class="ci-m">✓</text>
-          <text wx:elif="{{item.status==='wrong'}}" class="ci-m">✕</text>
-        </view>
-      </view>
-      <text class="ci-score" style="color:{{totalChange>=0?'#58CC02':'#FF4B4B'}}">{{totalChange>=0?'+':''}}{{totalChange}}</text>
-      <view class="ci-go-btn" bindtap="handleStart"><text class="ci-go-txt">继续</text></view>
-    </block>
-    <block wx:else>
-      <text class="ci-label">今日目标</text>
-      <view class="ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-{{item.status}}">
-          <text wx:if="{{item.status==='correct'}}" class="ci-m">✓</text>
-          <text wx:elif="{{item.status==='wrong'}}" class="ci-m">✕</text>
-        </view>
-      </view>
-      <view class="ci-go-btn ci-green" bindtap="handleStart">
-        <text class="ci-go-txt">{{completedCount > 0 ? '继续' : '开始'}}</text>
-      </view>
-    </block>
-  </view>
-  <view class="hud-info">
-    <text class="hud-info-txt">已收录 {{problemCount || '--'}} 题</text>
   </view>
 </view>
 
@@ -55,7 +26,8 @@
   scroll-y
   class="world-scroll"
   style="top:{{topHeight}}px;"
-  scroll-into-view="{{scrollTarget}}"
+  scroll-top="{{scrollToTop}}"
+  scroll-with-animation="{{true}}"
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
 >

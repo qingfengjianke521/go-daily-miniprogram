@@ -268,6 +268,9 @@ Page({
     var y = detail.y
     var expected = this._seq[step]
 
+    console.log('[play] move:', x, y, 'expected:', JSON.stringify(expected), 'step:', step, 'seqLen:', this._seq.length)
+    console.log('[play] allSeqs first moves:', (this._problem.correct_sequences||[]).map(function(s){return s&&s[0]?JSON.stringify(s[0]):'null'}).join(', '))
+
     // Check against ALL correct sequences, not just the first one
     var allSeqs = (this._problem.correct_sequences || [])
     var isCorrectMove = false

@@ -58,7 +58,7 @@ Page({
     var sbh = app.globalData.statusBarHeight || 20
     this.setData({
       statusBarHeight: sbh,
-      topHeight: sbh + 44 + 44 + 28,
+      topHeight: sbh + 44,
     })
   },
 
@@ -76,16 +76,8 @@ Page({
     var that = this
     that.setData({ loading: true })
 
-    var dailyPromise = api.getDaily().then(function (daily) {
-      if ((!daily.problems || daily.problems.length === 0) && !daily.useLocalProblems) {
-        return wx.cloud.callFunction({ name: 'goDaily', data: { action: 'resetSession' } })
-          .then(function () { return api.getDaily() })
-          .catch(function () { return daily })
-      }
-      return daily
-    })
-
-    Promise.all([dailyPromise, api.getStats()])
+    // 并行加载，不再 resetSession（避免3次云函数调用导致慢）
+    Promise.all([api.getDaily(), api.getStats()])
       .then(function (res) {
         var daily = res[0], stats = res[1]
         var completedCount = daily.completed_count || 0
@@ -172,6 +164,16 @@ Page({
           })
         }
 
+        // 计算滚动位置使当前节点居中
+        // 图片宽高比 1800/854 = 2.108
+        var sysInfo = wx.getWindowInfo()
+        var screenW = sysInfo.windowWidth
+        var imgHeight = screenW * (1800 / 854)
+        var currentPctY = (nodes[currentIdx] || {}).pctY || 50
+        var nodePixelY = imgHeight * (currentPctY / 100)
+        var viewportH = sysInfo.windowHeight - that.data.topHeight
+        var scrollTo = Math.max(0, nodePixelY - viewportH * 0.75)
+
         that.setData({
           loading: false,
           stats: stats,
@@ -184,7 +186,7 @@ Page({
           problemCount: stats.problems_total || 0,
           buttonDisabled: !problemList || problemList.length === 0,
           nodes: nodes,
-          scrollTarget: 'node-' + currentIdx,
+          scrollToTop: scrollTo,
         })
       })
       .catch(function (err) {
