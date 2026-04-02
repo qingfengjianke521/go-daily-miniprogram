@@ -268,7 +268,26 @@ Page({
     var y = detail.y
     var expected = this._seq[step]
 
+    // Check against ALL correct sequences, not just the first one
+    var allSeqs = (this._problem.correct_sequences || [])
+    var isCorrectMove = false
+
     if (expected && expected[0] === x && expected[1] === y) {
+      isCorrectMove = true
+    } else if (step === 0) {
+      // First move: check if it matches the first move of ANY correct sequence
+      for (var si = 0; si < allSeqs.length; si++) {
+        var altSeq = allSeqs[si]
+        if (altSeq && altSeq[0] && altSeq[0][0] === x && altSeq[0][1] === y) {
+          // Switch to this sequence for subsequent moves
+          this._seq = altSeq
+          isCorrectMove = true
+          break
+        }
+      }
+    }
+
+    if (isCorrectMove) {
       this.handleAdvance()
     } else {
       this._showWrongMove(x, y)
