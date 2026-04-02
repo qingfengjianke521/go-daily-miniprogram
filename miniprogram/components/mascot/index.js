@@ -1,17 +1,17 @@
 /**
- * 棋子精灵吉祥物组件
- * <mascot color="black|white" mood="happy|encourage|celebrate|wait|sleep" size="sm|md|lg" />
+ * Q版棋子精灵吉祥物
+ * <mascot color="black|white" mood="happy|encourage|celebrate|wait|sleep" size="sm|md|lg" bubble="text" />
  */
 Component({
   properties: {
-    color: { type: String, value: 'black' },    // black | white
-    mood: { type: String, value: 'wait' },       // happy | encourage | celebrate | wait | sleep
-    size: { type: String, value: 'md' },         // sm | md | lg
+    color: { type: String, value: 'black' },
+    mood: { type: String, value: 'wait' },
+    size: { type: String, value: 'md' },
+    bubble: { type: String, value: '' },
   },
 
   data: {
     mouthType: 'smile',
-    handPose: 'down',
     animClass: '',
     blinkClass: 'blink',
   },
@@ -19,38 +19,40 @@ Component({
   observers: {
     'mood': function (mood) {
       var mouthType = 'smile'
-      var handPose = 'down'
       var animClass = ''
       var blinkClass = 'blink'
 
       switch (mood) {
         case 'happy':
           mouthType = 'happy'
-          handPose = 'up'
-          animClass = 'anim-bounce'
+          animClass = 'squint anim-bounce'
+          blinkClass = ''
           break
         case 'encourage':
           mouthType = 'smile'
-          handPose = 'wave'
           animClass = 'anim-nod'
           break
         case 'celebrate':
           mouthType = 'happy'
-          handPose = 'up'
-          animClass = 'anim-jump'
+          animClass = 'squint anim-jump'
+          blinkClass = ''
           break
         case 'wait':
           mouthType = 'smile'
-          handPose = 'down'
+          animClass = 'anim-wave'
           break
         case 'sleep':
-          mouthType = 'sad'
-          handPose = 'down'
+          mouthType = 'o'
           blinkClass = ''
+          animClass = ''
+          break
+        case 'surprised':
+          mouthType = 'o'
+          animClass = ''
           break
       }
 
-      this.setData({ mouthType, handPose, animClass, blinkClass })
+      this.setData({ mouthType: mouthType, animClass: animClass, blinkClass: blinkClass })
     }
   },
 })

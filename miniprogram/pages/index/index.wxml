@@ -1,60 +1,54 @@
-<!-- 顶部固定区域 -->
-<view class="top-fixed" style="padding-top:{{statusBarHeight}}px;">
-  <!-- 状态栏 -->
+<!-- ===== 顶部固定区域 ===== -->
+<view class="top-bar" style="padding-top:{{statusBarHeight}}px;">
   <view class="status-row">
-    <view class="st-item" wx:if="{{stats.streak_days > 0}}">
-      <text class="st-fire">🔥</text>
-      <text class="st-num" style="color:#FF9600;">{{stats.streak_days}}</text>
+    <view class="st-pill fire-pill" wx:if="{{stats.streak_days > 0}}">
+      <text>🔥</text><text class="st-val fire-val">{{stats.streak_days}}</text>
     </view>
     <view class="st-badge" style="border-color:{{levelColor}};">
-      <text class="st-badge-text" style="color:{{levelColor}};">{{stats.level_name || '--'}}</text>
+      <text style="color:{{levelColor}};font-size:20rpx;font-weight:700;">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="st-rating">棋力 {{stats.rating || '--'}}</text>
+    <text class="st-rating">{{stats.rating || '--'}}</text>
     <view class="st-spacer"></view>
-    <view class="st-coin">
-      <text>💎</text>
-      <text class="st-num" style="color:#7C3AED;">{{stats.coins || 0}}</text>
+    <view class="st-pill coin-pill">
+      <text>💎</text><text class="st-val coin-val">{{stats.coins || 0}}</text>
     </view>
   </view>
 
-  <!-- 今日打卡条 -->
+  <!-- 打卡条 -->
   <view class="checkin-bar">
     <block wx:if="{{checkedIn}}">
-      <text class="ck-done">🎉 已打卡</text>
-      <view class="ck-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ck-dot ck-dot-{{item.status}}">
-          <text wx:if="{{item.status === 'correct'}}" style="color:white;font-size:18rpx;">✓</text>
-          <text wx:elif="{{item.status === 'wrong'}}" style="color:white;font-size:18rpx;">✕</text>
+      <text class="ci-emoji">🎉</text>
+      <text class="ci-txt ci-done-txt">已打卡</text>
+      <view class="ci-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-dot-{{item.status}}">
+          <text wx:if="{{item.status==='correct'}}" class="ci-mark">✓</text>
+          <text wx:elif="{{item.status==='wrong'}}" class="ci-mark">✕</text>
         </view>
       </view>
-      <text class="ck-change" style="color:{{totalChange >= 0 ? '#58CC02' : '#FF4B4B'}};">{{totalChange >= 0 ? '+' : ''}}{{totalChange}}</text>
-      <button class="ck-btn" bindtap="handleStart">继续</button>
+      <text class="ci-change" style="color:{{totalChange>=0?'#58CC02':'#FF4B4B'}}">{{totalChange>=0?'+':''}}{{totalChange}}</text>
+      <view class="ci-btn" bindtap="handleStart"><text class="ci-btn-txt">继续</text></view>
     </block>
     <block wx:else>
-      <text class="ck-label">今日目标</text>
-      <view class="ck-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="ck-dot ck-dot-{{item.status}}"></view>
+      <text class="ci-txt">今日目标</text>
+      <view class="ci-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-dot-{{item.status}}">
+          <text wx:if="{{item.status==='correct'}}" class="ci-mark">✓</text>
+          <text wx:elif="{{item.status==='wrong'}}" class="ci-mark">✕</text>
+        </view>
       </view>
-      <button class="ck-btn" bindtap="handleStart" disabled="{{buttonDisabled}}">
-        {{completedCount > 0 ? '继续' : '开始练习'}}
-      </button>
+      <view class="ci-btn ci-btn-green" bindtap="handleStart">
+        <text class="ci-btn-txt">{{completedCount > 0 ? '继续' : '开始'}}</text>
+      </view>
     </block>
   </view>
-
-  <!-- 学习入口 -->
-  <view class="learn-entry" bindtap="goLearn">
-    <text class="learn-icon">📖</text>
-    <text class="learn-label">学习围棋</text>
-    <text class="learn-arrow">&#x203A;</text>
-  </view>
 </view>
 
-<!-- 加载中 -->
-<view wx:if="{{loading}}" class="loading-wrap" style="padding-top:{{topHeight}}px;">
-  <text class="text-999">加载中...</text>
+<!-- ===== 加载 ===== -->
+<view wx:if="{{loading}}" class="loading-center" style="margin-top:{{topHeight}}px;">
+  <mascot color="black" mood="wait" size="lg" bubble="加载中..." />
 </view>
 
-<!-- 天梯路径 -->
+<!-- ===== 天梯路径 ===== -->
 <scroll-view
   wx:else
   scroll-y
@@ -64,78 +58,111 @@
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
 >
-  <view class="path-bg">
-    <!-- 装饰：段位分界线 -->
-    <view class="divider-line" style="bottom:{{danDividerBottom}}rpx;">
-      <text class="divider-star">⭐</text>
-      <view class="divider-bar"></view>
-      <text class="divider-text">段位之路</text>
-      <view class="divider-bar"></view>
-      <text class="divider-star">⭐</text>
+  <!-- 丰富渐变背景 -->
+  <view class="path-world">
+
+    <!-- 段位金色区域 -->
+    <view class="zone zone-gold"></view>
+    <!-- 高手紫色区域 -->
+    <view class="zone zone-purple"></view>
+    <!-- 天空蓝色区域 -->
+    <view class="zone zone-sky"></view>
+    <!-- 草地绿色区域 -->
+    <view class="zone zone-grass"></view>
+
+    <!-- ===== 装饰层 ===== -->
+    <!-- 星星（段位区） -->
+    <view class="deco star star-1">✦</view>
+    <view class="deco star star-2">✧</view>
+    <view class="deco star star-3">✦</view>
+    <view class="deco star star-4">⭐</view>
+
+    <!-- 云朵（天空区） -->
+    <view class="deco-cloud cloud-a">
+      <view class="c-puff"></view><view class="c-puff p2"></view><view class="c-puff p3"></view>
+    </view>
+    <view class="deco-cloud cloud-b">
+      <view class="c-puff"></view><view class="c-puff p2"></view><view class="c-puff p3"></view>
+    </view>
+    <view class="deco-cloud cloud-c">
+      <view class="c-puff sm"></view><view class="c-puff sm p2"></view>
     </view>
 
-    <!-- 路径节点（从下往上） -->
-    <view class="path-container">
+    <!-- 小花小草（草地区） -->
+    <view class="deco-grass g1"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
+    <view class="deco-grass g2"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
+    <view class="deco-grass g3"><view class="blade"></view><view class="blade b2"></view></view>
+    <view class="deco-flower f1"><view class="petal"></view><view class="petal r2"></view><view class="petal r3"></view><view class="petal r4"></view><view class="stamen"></view></view>
+    <view class="deco-flower f2"><view class="petal"></view><view class="petal r2"></view><view class="petal r3"></view><view class="petal r4"></view><view class="stamen"></view></view>
+
+    <!-- 小棋子装饰 -->
+    <view class="deco mini-stone ms1"></view>
+    <view class="deco mini-stone ms2 white"></view>
+    <view class="deco mini-stone ms3"></view>
+
+    <!-- 段位分界线 -->
+    <view class="dan-divider" style="bottom:{{danDividerBottom}}rpx;">
+      <view class="dan-line"></view>
+      <view class="dan-label">⭐ 段位之路 ⭐</view>
+      <view class="dan-line"></view>
+    </view>
+
+    <!-- 起点旗帜 -->
+    <view class="start-flag">🚩</view>
+
+    <!-- ===== 节点路径 ===== -->
+    <view class="nodes-container">
       <block wx:for="{{nodes}}" wx:key="id">
-        <!-- 节点行 -->
+        <!-- 连接线 -->
+        <view wx:if="{{index < nodes.length - 1}}" class="path-line path-line-{{item.side}} {{item.status === 'locked' || item.status === 'next' ? 'line-locked' : 'line-done'}}"></view>
+
+        <!-- 节点 -->
         <view
           id="node-{{item.id}}"
           class="node-row node-{{item.side}}"
           bindtap="onTapNode"
           data-idx="{{index}}"
         >
-          <!-- 节点圆 -->
+          <!-- 当前节点粒子光环 -->
+          <view wx:if="{{item.status === 'current'}}" class="node-glow"></view>
+
+          <!-- 锁定雾气 -->
+          <view wx:if="{{item.status === 'locked'}}" class="node-fog"></view>
+
+          <!-- 圆形节点 -->
           <view class="node nd-{{item.status}} {{item.status === 'current' ? 'nd-breathe' : ''}}">
             <text wx:if="{{item.status === 'passed'}}" class="nd-icon">✓</text>
-            <text wx:elif="{{item.status === 'current'}}" class="nd-cur">{{item.label}}</text>
+            <text wx:elif="{{item.status === 'current'}}" class="nd-cur-label">{{item.label}}</text>
             <text wx:elif="{{item.status === 'locked'}}" class="nd-lock">🔒</text>
-            <text wx:else class="nd-next">{{item.label}}</text>
+            <text wx:else class="nd-next-label">{{item.label}}</text>
+            <!-- 3D底座 -->
+            <view class="nd-base nd-base-{{item.status}}"></view>
           </view>
 
-          <!-- 当前节点旁的精灵 -->
-          <mascot wx:if="{{item.status === 'current'}}" color="black" mood="wait" size="sm" />
+          <!-- 当前节点：小黑 + 气泡 -->
+          <view wx:if="{{item.status === 'current'}}" class="node-mascot">
+            <mascot color="black" mood="wait" size="sm" bubble="冲！" />
+            <!-- 弹跳箭头 -->
+            <view class="bounce-arrow">▼</view>
+          </view>
 
-          <!-- 信息 -->
-          <view class="nd-info">
+          <!-- 标签 -->
+          <view class="nd-label">
             <text class="nd-name">{{item.name}}</text>
-            <view wx:if="{{item.status === 'current'}}" class="nd-bubble">
-              <text>当前 · 还差{{item.gap}}分</text>
-            </view>
-            <text wx:elif="{{item.status === 'next'}}" class="nd-sub">还差{{item.gap}}分</text>
-            <text wx:elif="{{item.status === 'locked'}}" class="nd-sub">棋力 {{item.rating}}</text>
+            <text wx:if="{{item.status==='current'}}" class="nd-sub green">还差{{item.gap}}分</text>
+            <text wx:elif="{{item.status==='next'}}" class="nd-sub">还差{{item.gap}}分</text>
+            <text wx:elif="{{item.status==='locked'}}" class="nd-sub gray">{{item.rating}}分解锁</text>
           </view>
 
-          <!-- 奖励 -->
-          <view wx:if="{{item.showReward}}" class="nd-reward">
+          <!-- 奖励标签 -->
+          <view wx:if="{{item.showReward}}" class="reward-bubble">
             <text>💎+{{item.reward}}</text>
           </view>
-        </view>
-
-        <!-- 连接线 -->
-        <view wx:if="{{index < nodes.length - 1}}" class="conn-wrap">
-          <view class="conn conn-{{nodes[index + 1].status === 'passed' || nodes[index + 1].status === 'current' ? 'green' : item.status === 'current' ? 'dash' : 'gray'}}"></view>
         </view>
       </block>
     </view>
 
-    <!-- 起点旗帜 -->
-    <view class="start-flag">
-      <text>🚩 起点</text>
-    </view>
-
-    <!-- CSS 云朵 -->
-    <view class="cloud cloud-1"><view class="cloud-puff"></view><view class="cloud-puff p2"></view><view class="cloud-puff p3"></view></view>
-    <view class="cloud cloud-2"><view class="cloud-puff"></view><view class="cloud-puff p2"></view><view class="cloud-puff p3"></view></view>
-
-    <!-- CSS 小草 -->
-    <view class="grass grass-1"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
-    <view class="grass grass-2"><view class="blade"></view><view class="blade b2"></view><view class="blade b3"></view></view>
-
-    <!-- 闪烁星星 -->
-    <view class="twinkle twinkle-1">✦</view>
-    <view class="twinkle twinkle-2">✦</view>
-    <view class="twinkle twinkle-3">✧</view>
-
-    <view style="height:200rpx;"></view>
+    <!-- 底部留白 -->
+    <view style="height:300rpx;"></view>
   </view>
 </scroll-view>

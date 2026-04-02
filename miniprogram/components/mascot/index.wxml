@@ -1,26 +1,52 @@
-<!-- 棋子精灵吉祥物 -->
+<!-- Q版棋子精灵 — Line Friends 风格 -->
 <view class="mascot mascot-{{color}} mascot-{{size}} {{animClass}}">
-  <!-- 身体（棋子） -->
+  <!-- 身体（圆形棋子） -->
   <view class="body">
-    <view class="highlight"></view>
-    <!-- 眼睛 -->
+    <view class="body-shine"></view>
+
+    <!-- 呆毛（带爱心） -->
+    <view class="ahoge">
+      <view class="ahoge-stem"></view>
+      <view class="ahoge-heart">♥</view>
+    </view>
+
+    <!-- 眼睛（大圆眼，占脸1/3） -->
     <view class="eyes">
-      <view class="eye eye-l {{blinkClass}}">
-        <view class="pupil" wx:if="{{mood !== 'sleep'}}"></view>
+      <view class="eye {{blinkClass}}">
+        <view class="eye-white"></view>
+        <view class="pupil">
+          <view class="pupil-highlight h1"></view>
+          <view class="pupil-highlight h2"></view>
+        </view>
       </view>
-      <view class="eye eye-r {{blinkClass}}">
-        <view class="pupil" wx:if="{{mood !== 'sleep'}}"></view>
+      <view class="eye {{blinkClass}}">
+        <view class="eye-white"></view>
+        <view class="pupil">
+          <view class="pupil-highlight h1"></view>
+          <view class="pupil-highlight h2"></view>
+        </view>
       </view>
     </view>
+
+    <!-- 腮红 -->
+    <view class="cheeks">
+      <view class="cheek cheek-l"></view>
+      <view class="cheek cheek-r"></view>
+    </view>
+
     <!-- 嘴巴 -->
     <view class="mouth mouth-{{mouthType}}"></view>
-    <!-- 睡觉zzz -->
-    <text wx:if="{{mood === 'sleep'}}" class="zzz">zzz</text>
   </view>
-  <!-- 手 -->
-  <view class="hand hand-l hand-{{handPose}}"></view>
-  <view class="hand hand-r hand-{{handPose}}"></view>
-  <!-- 脚 -->
-  <view class="foot foot-l"></view>
-  <view class="foot foot-r"></view>
+
+  <!-- 小脚 -->
+  <view class="feet">
+    <view class="foot foot-l"></view>
+    <view class="foot foot-r"></view>
+  </view>
+
+  <!-- 对话气泡 -->
+  <view wx:if="{{bubble}}" class="bubble">
+    <text>{{bubble}}</text>
+    <view class="bubble-tail"></view>
+  </view>
 </view>
