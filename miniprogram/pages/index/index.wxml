@@ -1,4 +1,4 @@
-<!-- ===== 顶部状态栏（半透明浮层） ===== -->
+<!-- ===== 顶部HUD（半透明浮层） ===== -->
 <view class="hud" style="padding-top:{{statusBarHeight}}px;">
   <view class="hud-row">
     <view class="hud-pill hud-fire" wx:if="{{stats.streak_days > 0}}">
@@ -7,46 +7,46 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
+    <text class="hud-rating">棋力 {{stats.rating || '--'}}</text>
     <view class="hud-spacer"></view>
     <view class="hud-pill hud-coin">
       <text>💎</text><text class="hud-val">{{stats.coins || 0}}</text>
     </view>
   </view>
-
   <!-- 打卡条 -->
   <view class="hud-checkin">
     <block wx:if="{{checkedIn}}">
-      <text class="hud-ci-txt" style="color:#58CC02;">🎉 已打卡</text>
-      <view class="hud-ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="hud-dot hud-dot-{{item.status}}">
-          <text wx:if="{{item.status==='correct'}}" class="hud-dot-mark">✓</text>
-          <text wx:elif="{{item.status==='wrong'}}" class="hud-dot-mark">✕</text>
+      <text class="ci-label" style="color:#58CC02;">🎉 已打卡</text>
+      <view class="ci-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-{{item.status}}">
+          <text wx:if="{{item.status==='correct'}}" class="ci-m">✓</text>
+          <text wx:elif="{{item.status==='wrong'}}" class="ci-m">✕</text>
         </view>
       </view>
-      <text class="hud-ci-change" style="color:{{totalChange>=0?'#58CC02':'#FF4B4B'}}">{{totalChange>=0?'+':''}}{{totalChange}}</text>
-      <view class="hud-ci-btn" bindtap="handleStart"><text style="color:white;font-weight:700;font-size:22rpx;">继续</text></view>
+      <text class="ci-score" style="color:{{totalChange>=0?'#58CC02':'#FF4B4B'}}">{{totalChange>=0?'+':''}}{{totalChange}}</text>
+      <view class="ci-go-btn" bindtap="handleStart"><text class="ci-go-txt">继续</text></view>
     </block>
     <block wx:else>
-      <text class="hud-ci-txt">今日目标</text>
-      <view class="hud-ci-dots">
-        <view wx:for="{{circles}}" wx:key="number" class="hud-dot hud-dot-{{item.status}}">
-          <text wx:if="{{item.status==='correct'}}" class="hud-dot-mark">✓</text>
-          <text wx:elif="{{item.status==='wrong'}}" class="hud-dot-mark">✕</text>
+      <text class="ci-label">今日目标</text>
+      <view class="ci-dots">
+        <view wx:for="{{circles}}" wx:key="number" class="ci-dot ci-{{item.status}}">
+          <text wx:if="{{item.status==='correct'}}" class="ci-m">✓</text>
+          <text wx:elif="{{item.status==='wrong'}}" class="ci-m">✕</text>
         </view>
       </view>
-      <view class="hud-ci-btn hud-ci-btn-go" bindtap="handleStart">
-        <text style="color:white;font-weight:700;font-size:22rpx;">{{completedCount > 0 ? '继续' : '开始'}}</text>
+      <view class="ci-go-btn ci-green" bindtap="handleStart">
+        <text class="ci-go-txt">{{completedCount > 0 ? '继续' : '开始'}}</text>
       </view>
     </block>
   </view>
 </view>
 
-<!-- ===== 加载 ===== -->
-<view wx:if="{{loading}}" class="world-loading" style="padding-top:{{topHeight}}px;">
+<!-- 加载 -->
+<view wx:if="{{loading}}" class="loading-full" style="padding-top:{{topHeight}}px;">
   <mascot color="black" mood="wait" size="lg" bubble="加载中..." />
 </view>
 
-<!-- ===== 主世界（可滚动） ===== -->
+<!-- ===== 主世界 ===== -->
 <scroll-view
   wx:else
   scroll-y
@@ -56,111 +56,42 @@
   enhanced="{{true}}"
   show-scrollbar="{{false}}"
 >
-  <view class="world" style="min-height:{{worldHeight || 5600}}rpx;">
-    <!-- 背景层 -->
-    <view class="bg-layer">
-      <!-- 底层：深绿森林 -->
-      <view class="bg-forest"></view>
-      <!-- 中层：草坡渐变到天空 -->
-      <view class="bg-meadow"></view>
-      <!-- 顶层：夜空 -->
-      <view class="bg-sky"></view>
-    </view>
+  <!-- 背景图片层 -->
+  <view class="world-container">
+    <image class="world-bg" src="/images/world-bg.jpg" mode="widthFix" />
 
-    <!-- ===== 装饰层 ===== -->
-    <!-- 星星和月亮（顶部夜空区） -->
-    <view class="d-moon">🌙</view>
-    <view class="d-star s1">✦</view>
-    <view class="d-star s2">✧</view>
-    <view class="d-star s3">·</view>
-    <view class="d-star s4">✦</view>
-    <view class="d-star s5">·</view>
-    <view class="d-star s6">✧</view>
-
-    <!-- 云朵（天空区） -->
-    <view class="d-cloud cl1">
-      <view class="cl-p"></view><view class="cl-p p2"></view><view class="cl-p p3"></view>
-    </view>
-    <view class="d-cloud cl2">
-      <view class="cl-p"></view><view class="cl-p p2"></view><view class="cl-p p3"></view>
-    </view>
-    <view class="d-cloud cl3">
-      <view class="cl-p sm"></view><view class="cl-p sm p2"></view>
-    </view>
-
-    <!-- 树木剪影（中部） -->
-    <view class="d-tree t1"></view>
-    <view class="d-tree t2"></view>
-    <view class="d-tree t3 small"></view>
-
-    <!-- 蘑菇（底部草地区） -->
-    <view class="d-mush m1">
-      <view class="mush-cap"></view><view class="mush-stem"></view>
-      <view class="mush-dot md1"></view><view class="mush-dot md2"></view>
-    </view>
-    <view class="d-mush m2">
-      <view class="mush-cap small-cap"></view><view class="mush-stem small-stem"></view>
-      <view class="mush-dot md1 small-dot"></view>
-    </view>
-    <view class="d-mush m3">
-      <view class="mush-cap"></view><view class="mush-stem"></view>
-      <view class="mush-dot md1"></view><view class="mush-dot md2"></view>
-    </view>
-
-    <!-- 小白花 -->
-    <view class="d-flower fl1">❀</view>
-    <view class="d-flower fl2">✿</view>
-    <view class="d-flower fl3">❀</view>
-    <view class="d-flower fl4">✿</view>
-    <view class="d-flower fl5">❀</view>
-    <view class="d-flower fl6">✿</view>
-
-    <!-- 段位分界线 -->
-    <view class="dan-divider" style="bottom:{{danDividerBottom}}rpx;">
-      <view class="dan-glow-line"></view>
-      <view class="dan-badge">⭐ 段位之路 ⭐</view>
-      <view class="dan-glow-line"></view>
-    </view>
-
-    <!-- ===== S形米白色路径 ===== -->
-    <view class="road-container">
-      <view class="road-segment" wx:for="{{roadSegments}}" wx:key="idx"
-        style="left:{{item.x}}rpx;bottom:{{item.y}}rpx;width:{{item.w}}rpx;height:{{item.h}}rpx;transform:rotate({{item.rotate}}deg);border-radius:{{item.radius}};">
-      </view>
-    </view>
-
-    <!-- ===== 关卡节点 ===== -->
-    <view class="nodes-layer">
+    <!-- ===== 悬浮UI：关卡节点 ===== -->
+    <view class="nodes-overlay">
       <block wx:for="{{nodes}}" wx:key="id">
         <view
           id="node-{{item.id}}"
-          class="gnode"
-          style="left:{{item.px}}rpx;bottom:{{item.py}}rpx;"
+          class="gn"
+          style="left:{{item.pctX}}%;top:{{item.pctY}}%;"
           bindtap="onTapNode"
           data-idx="{{index}}"
         >
-          <!-- 发光圈（当前节点） -->
-          <view wx:if="{{item.status === 'current'}}" class="gnode-glow"></view>
+          <!-- 发光（当前） -->
+          <view wx:if="{{item.status === 'current'}}" class="gn-glow"></view>
 
-          <!-- 金色/绿色/灰色圆形 -->
-          <view class="gnode-circle gnode-{{item.status}} {{item.status === 'current' ? 'gnode-pulse' : ''}}">
-            <text wx:if="{{item.status === 'passed'}}" class="gnode-icon">✓</text>
-            <text wx:elif="{{item.status === 'locked'}}" class="gnode-icon gnode-lock-icon">🔒</text>
-            <text wx:else class="gnode-num">{{item.label}}</text>
+          <!-- 圆形节点 -->
+          <view class="gn-circle gn-{{item.status}} {{item.status === 'current' ? 'gn-pulse' : ''}}">
+            <text wx:if="{{item.status === 'passed'}}" class="gn-check">✓</text>
+            <text wx:elif="{{item.status === 'locked'}}" class="gn-lock">🔒</text>
+            <text wx:else class="gn-num">{{item.label}}</text>
           </view>
 
-          <!-- 标签 -->
-          <text class="gnode-name">{{item.name}}</text>
+          <!-- 等级名 -->
+          <text class="gn-name">{{item.name}}</text>
 
-          <!-- 当前节点：小黑 -->
-          <view wx:if="{{item.status === 'current'}}" class="gnode-mascot">
-            <mascot color="black" mood="wait" size="sm" />
+          <!-- 当前节点：小黑精灵 -->
+          <view wx:if="{{item.status === 'current'}}" class="gn-mascot">
+            <mascot color="black" mood="wait" size="sm" bubble="冲！" />
           </view>
         </view>
       </block>
     </view>
 
     <!-- 底部留白 -->
-    <view style="height:320rpx;"></view>
+    <view style="height:200rpx;"></view>
   </view>
 </scroll-view>

@@ -121,25 +121,41 @@ Page({
         }
         var nextIdx = Math.min(currentIdx + 1, TIERS.length - 1)
 
-        // S形路径坐标计算
-        var totalNodes = TIERS.length
-        var vertSpacing = 260 // rpx between nodes vertically
-        var leftX = 160      // left side X position
-        var rightX = 520     // right side X position
-        var startY = 200     // bottom start Y
+        // 节点坐标（百分比，对齐背景图上的小路 S 形）
+        // 图片是从底部草地到顶部星空
+        // Y: 0%=顶部(星空), 100%=底部(草地)
+        var NODE_POSITIONS = [
+          // 25级(底部) → 五段(顶部)
+          { x: 30, y: 88 }, // 25级 底部左
+          { x: 65, y: 82 }, // 23级 右
+          { x: 35, y: 76 }, // 21级 左
+          { x: 60, y: 70 }, // 19级 右
+          { x: 30, y: 64 }, // 17级 左
+          { x: 65, y: 58 }, // 15级 右
+          { x: 35, y: 52 }, // 13级 左
+          { x: 60, y: 46 }, // 11级 右
+          { x: 30, y: 40 }, // 9级 左
+          { x: 65, y: 35 }, // 7级 右
+          { x: 35, y: 30 }, // 5级 左
+          { x: 60, y: 25 }, // 3级 右
+          { x: 35, y: 20 }, // 1级 左
+          // 段位区
+          { x: 55, y: 15 }, // 初段
+          { x: 35, y: 11 }, // 二段
+          { x: 60, y: 7 },  // 三段
+          { x: 40, y: 4 },  // 四段
+          { x: 55, y: 1 },  // 五段
+        ]
 
         var nodes = []
-        var roadSegments = []
-        for (var m = 0; m < totalNodes; m++) {
+        for (var m = 0; m < TIERS.length; m++) {
           var t = TIERS[m]
           var nst = 'locked'
           if (m < currentIdx) nst = 'passed'
           else if (m === currentIdx) nst = 'current'
           else if (m === currentIdx + 1) nst = 'next'
 
-          // S形：偶数左，奇数右
-          var px = m % 2 === 0 ? leftX : rightX
-          var py = startY + m * vertSpacing
+          var pos = NODE_POSITIONS[m] || { x: 50, y: 50 }
 
           nodes.push({
             id: m,
@@ -147,40 +163,14 @@ Page({
             label: t.name.replace('级', '').replace('初段', '初').replace('二段', '二').replace('三段', '三').replace('四段', '四').replace('五段', '五'),
             rating: t.rating,
             status: nst,
-            px: px,
-            py: py,
+            pctX: pos.x,
+            pctY: pos.y,
             gap: nst === 'current' ? Math.max(0, TIERS[nextIdx].rating - rating)
                : nst === 'next' ? Math.max(0, t.rating - rating) : 0,
             reward: t.reward,
             showReward: t.reward > 0 && nst !== 'passed',
           })
-
-          // 道路段（连接相邻节点）
-          if (m < totalNodes - 1) {
-            var nextPx = (m + 1) % 2 === 0 ? leftX : rightX
-            var nextPy = startY + (m + 1) * vertSpacing
-            // 对角线段
-            var dx = nextPx - px
-            var dy = nextPy - py
-            var len = Math.sqrt(dx * dx + dy * dy)
-            var angle = Math.atan2(-dx, dy) * (180 / Math.PI) // CSS rotate
-            roadSegments.push({
-              idx: m,
-              x: Math.min(px, nextPx) - 10,
-              y: py + 40,
-              w: 60,
-              h: Math.round(len),
-              rotate: Math.round(angle),
-              radius: '30rpx',
-            })
-          }
         }
-
-        // 段位分界线位置
-        var danBottom = startY + DAN_START_INDEX * vertSpacing - 40
-
-        // 世界总高度
-        var worldHeight = startY + totalNodes * vertSpacing + 400
 
         that.setData({
           loading: false,
@@ -193,10 +183,7 @@ Page({
           completedCount: completedCount,
           buttonDisabled: !problemList || problemList.length === 0,
           nodes: nodes,
-          roadSegments: roadSegments,
           scrollTarget: 'node-' + currentIdx,
-          danDividerBottom: danBottom,
-          worldHeight: worldHeight,
         })
       })
       .catch(function (err) {
