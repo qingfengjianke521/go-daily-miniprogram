@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@sabaki/sgf": "^3.4.7"
+  }
+}
