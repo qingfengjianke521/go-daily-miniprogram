@@ -2,21 +2,21 @@ var apiModule = require('../../utils/api')
 var api = apiModule.api
 var app = getApp()
 
-// 段位层级（每2级一个节点，更密集）
+// 天梯节点（对照完整方案 25K=0 到 5D=950）
 var TIERS = [
-  { name: '25级', rating: 500, reward: 5 },
-  { name: '23级', rating: 600, reward: 0 },
-  { name: '21级', rating: 700, reward: 5 },
-  { name: '19级', rating: 800, reward: 0 },
-  { name: '17级', rating: 900, reward: 10 },
-  { name: '15级', rating: 1000, reward: 0 },
-  { name: '13级', rating: 1050, reward: 10 },
-  { name: '11级', rating: 1100, reward: 0 },
-  { name: '9级', rating: 1200, reward: 15 },
-  { name: '7级', rating: 1300, reward: 0 },
-  { name: '5级', rating: 1400, reward: 15 },
-  { name: '3级', rating: 1500, reward: 0 },
-  { name: '1级', rating: 1700, reward: 20 },
+  { name: '25K', rating: 0, reward: 0 },
+  { name: '20K', rating: 100, reward: 5 },
+  { name: '18K', rating: 150, reward: 0 },
+  { name: '15K', rating: 225, reward: 5 },
+  { name: '13K', rating: 275, reward: 0 },
+  { name: '10K', rating: 360, reward: 10 },
+  { name: '8K', rating: 420, reward: 0 },
+  { name: '5K', rating: 520, reward: 10 },
+  { name: '3K', rating: 595, reward: 0 },
+  { name: '1K', rating: 675, reward: 15 },
+  { name: '1D', rating: 720, reward: 20 },
+  { name: '3D', rating: 825, reward: 25 },
+  { name: '5D', rating: 950, reward: 30 },
   // -- 段位分界线 --
   { name: '初段', rating: 1800, reward: 50 },
   { name: '二段', rating: 1900, reward: 0 },

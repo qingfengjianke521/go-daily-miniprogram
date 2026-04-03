@@ -16,7 +16,7 @@
           </view>
           <view class="profile-info">
             <text class="profile-name" bindtap="onEditName">{{username || '围棋爱好者'}} ✏️</text>
-            <text class="profile-sub">棋力 {{rating}} · 🔥 {{streakDays}}天 · 💎 {{coins}}</text>
+            <text class="profile-sub">{{levelName}} · {{rating}}分 · 🔥 {{streakDays}}天 · 💎 {{coins}}</text>
           </view>
         </view>
       </view>

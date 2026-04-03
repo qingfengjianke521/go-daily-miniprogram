@@ -3,10 +3,10 @@ var api = apiModule.api
 var storage = require('../../utils/storage')
 
 var LEVELS = [
-  { name: '25级', label: '零基础', emoji: '🌱', desc: '我还不会下围棋', rating: 500 },
-  { name: '20级', label: '入门', emoji: '⭐', desc: '我知道基本规则，会吃子', rating: 700 },
-  { name: '10级', label: '有基础', emoji: '💪', desc: '我在学死活题和手筋', rating: 1100 },
-  { name: '1级', label: '高手', emoji: '🏆', desc: '我有业余段位', rating: 1600 },
+  { name: '25K', label: '零基础', emoji: '🌱', desc: '我还不会下围棋', rating: 0 },
+  { name: '20K', label: '入门', emoji: '⭐', desc: '我知道基本规则，会吃子', rating: 100 },
+  { name: '10K', label: '有基础', emoji: '💪', desc: '我在学死活题和手筋', rating: 360 },
+  { name: '1K', label: '高手', emoji: '🏆', desc: '我有业余段位', rating: 675 },
 ]
 
 Page({

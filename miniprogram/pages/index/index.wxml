@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">棋力 {{stats.rating || '--'}} · v3.3.0 · {{problemCount || '--'}}题</text>
+    <text class="hud-rating">{{stats.level_name || '--'}} · {{stats.rating || 0}}分 · {{problemCount || '--'}}题</text>
     <view class="hud-spacer"></view>
     <view class="ci-go-btn ci-green" bindtap="handleStart">
       <text class="ci-go-txt">{{checkedIn ? '继续' : completedCount > 0 ? '继续' : '开始'}}</text>
