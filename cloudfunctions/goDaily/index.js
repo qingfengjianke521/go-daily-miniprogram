@@ -85,15 +85,38 @@ function recentAccuracy(attempts) {
   return correct / attempts.length
 }
 
-// 出题策略（参照完整方案 3.1）
+// 出题策略（参照完整方案 3.1 + 3.2 错题本）
 // 70% 同级题（±30），20% 挑战题（+30~+90），10% 简单题（-30~-90）
-async function selectProblemsFromDB(userRating, recentIds) {
+// 优先出错题本中到期的题
+async function selectProblemsFromDB(userRating, recentIds, openid) {
   var exclude = {}
   if (recentIds) {
     for (var i = 0; i < recentIds.length; i++) exclude[recentIds[i]] = true
   }
 
-  // 按方案的 70/20/10 分配3道题：2道同级 + 1道挑战（或简单）
+  var selected = []
+
+  // 先从错题本中选到期的题（最多1道）
+  try {
+    var wrongRes = await db.collection('wrong_book').where({
+      _openid: openid,
+      next_review: _.lte(new Date()),
+    }).orderBy('next_review', 'asc').limit(3).get()
+
+    for (var wi = 0; wi < wrongRes.data.length && selected.length < 1; wi++) {
+      var wPid = wrongRes.data[wi].problem_id
+      if (exclude[wPid]) continue
+      var wProbRes = await db.collection('problems').where({ problem_id: wPid }).limit(1).get()
+      if (wProbRes.data.length > 0) {
+        selected.push(wProbRes.data[0])
+        exclude[wPid] = true
+      }
+    }
+  } catch (e) {
+    // wrong_book 集合可能不存在，忽略
+  }
+
+  // 按方案的 70/20/10 分配剩余题：同级 + 挑战/简单
   var tiers = [
     [Math.max(0, userRating - 30), userRating + 30],  // 同级题1
     [Math.max(0, userRating - 30), userRating + 30],  // 同级题2
@@ -104,8 +127,7 @@ async function selectProblemsFromDB(userRating, recentIds) {
     tiers[2] = [Math.max(0, userRating - 90), Math.max(0, userRating - 30)]
   }
 
-  var selected = []
-  for (var i = 0; i < tiers.length; i++) {
+  for (var i = 0; i < tiers.length && selected.length < 3; i++) {
     var p = await pickFromDB(tiers[i][0], tiers[i][1], exclude)
     if (p) selected.push(p)
   }
@@ -413,7 +435,7 @@ async function getDaily(openid) {
   var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(90).get()
   var recentIds = recentRes.data.map(function(a) { return a.problem_id })
   var recentAttempts = recentRes.data.slice(0, 20) // last 20 for accuracy calc
-  var selectedProblems = await selectProblemsFromDB(user.rating, recentIds, recentAttempts)
+  var selectedProblems = await selectProblemsFromDB(user.rating, recentIds, openid)
   var problemIds = selectedProblems.map(function(p) { return p.problem_id })
 
   await db.collection('daily_sessions').add({
@@ -445,11 +467,10 @@ async function submitAnswer(openid, event) {
 
   var problemRating = event.problem_rating || user.rating
   var result = calculateRating(
-    user.rating, user.rating_deviation || 350, problemRating,
-    event.is_correct, event.time_spent_ms, event.expected_time_ms || 60000
+    user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(100, user.rating + result.change)
+  var newRating = Math.max(0, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡
@@ -470,6 +491,31 @@ async function submitAnswer(openid, event) {
       attempted_at: new Date(),
     }
   })
+
+  // 错题本：做错记录到 wrong_book（间隔重复：1天→3天→7天）
+  if (!event.is_correct) {
+    var existWrong = await db.collection('wrong_book').where({
+      _openid: openid, problem_id: event.problem_id
+    }).get()
+    if (existWrong.data.length > 0) {
+      var wb = existWrong.data[0]
+      var wrongCount = (wb.wrong_count || 1) + 1
+      var intervalDays = wrongCount <= 2 ? 1 : wrongCount <= 3 ? 3 : 7
+      var nextReview = new Date(Date.now() + intervalDays * 86400000)
+      await db.collection('wrong_book').doc(wb._id).update({
+        wrong_count: wrongCount, next_review: nextReview, last_wrong: new Date()
+      })
+    } else {
+      await db.collection('wrong_book').add({ data: {
+        _openid: openid, problem_id: event.problem_id,
+        wrong_count: 1, next_review: new Date(Date.now() + 86400000),
+        last_wrong: new Date(), created: new Date(),
+      }})
+    }
+  } else {
+    // 做对了，从错题本移除
+    try { await db.collection('wrong_book').where({ _openid: openid, problem_id: event.problem_id }).remove() } catch(e) {}
+  }
 
   await db.collection('users').where({ _openid: openid }).update({
     data: {
