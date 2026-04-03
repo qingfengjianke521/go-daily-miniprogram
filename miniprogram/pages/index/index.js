@@ -3,9 +3,10 @@ var api = apiModule.api
 var app = getApp()
 
 // 天梯节点（对照完整方案 25K=0 到 5D=950）
-// 13个节点，从底到顶：25K→20K→18K→15K→13K→10K→8K→5K→3K→1K→初段→三段→五段
+// 16个节点，完整顺序
 var TIERS = [
   { name: '25K', rating: 0, reward: 0 },
+  { name: '22K', rating: 60, reward: 0 },
   { name: '20K', rating: 100, reward: 5 },
   { name: '18K', rating: 150, reward: 0 },
   { name: '15K', rating: 225, reward: 5 },
@@ -15,12 +16,14 @@ var TIERS = [
   { name: '5K', rating: 520, reward: 10 },
   { name: '3K', rating: 595, reward: 0 },
   { name: '1K', rating: 675, reward: 15 },
-  { name: '初段', rating: 720, reward: 20 },
-  { name: '三段', rating: 825, reward: 25 },
-  { name: '五段', rating: 950, reward: 30 },
+  { name: '1D', rating: 720, reward: 20 },
+  { name: '2D', rating: 770, reward: 0 },
+  { name: '3D', rating: 825, reward: 25 },
+  { name: '4D', rating: 885, reward: 0 },
+  { name: '5D', rating: 950, reward: 30 },
 ]
 
-var DAN_START_INDEX = 10 // 初段的index
+var DAN_START_INDEX = 11 // 1D的index
 
 function getLevelColor(name) {
   if (!name) return '#CCC'
@@ -114,21 +117,24 @@ Page({
         // 节点坐标（百分比，对齐背景图上的小路 S 形）
         // 图片是从底部草地到顶部星空
         // Y: 0%=顶部(星空), 100%=底部(草地)
+        // 16 个节点坐标，S形排列
         var NODE_POSITIONS = [
-          // 25K(底部) → 5D(顶部)，13个节点
-          { x: 30, y: 84 }, // 25K
-          { x: 65, y: 77 }, // 20K
-          { x: 35, y: 70 }, // 18K
-          { x: 60, y: 63 }, // 15K
-          { x: 30, y: 56 }, // 13K
-          { x: 65, y: 49 }, // 10K
-          { x: 35, y: 42 }, // 8K
-          { x: 60, y: 35 }, // 5K
-          { x: 30, y: 28 }, // 3K
-          { x: 65, y: 21 }, // 1K
-          { x: 35, y: 14 }, // 1D
-          { x: 60, y: 7 },  // 3D
-          { x: 45, y: 2 },  // 5D
+          { x: 30, y: 88 }, // 25K
+          { x: 65, y: 83 }, // 22K
+          { x: 30, y: 78 }, // 20K
+          { x: 65, y: 73 }, // 18K
+          { x: 30, y: 68 }, // 15K
+          { x: 65, y: 63 }, // 13K
+          { x: 30, y: 58 }, // 10K
+          { x: 65, y: 53 }, // 8K
+          { x: 30, y: 48 }, // 5K
+          { x: 65, y: 43 }, // 3K
+          { x: 30, y: 38 }, // 1K
+          { x: 65, y: 33 }, // 1D
+          { x: 30, y: 28 }, // 2D
+          { x: 65, y: 22 }, // 3D
+          { x: 30, y: 14 }, // 4D
+          { x: 55, y: 5 },  // 5D
         ]
 
         var nodes = []

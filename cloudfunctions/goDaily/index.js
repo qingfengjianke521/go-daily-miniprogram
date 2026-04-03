@@ -266,9 +266,9 @@ async function initUser(openid) {
       user: {
         openid: openid,
         username: u.username || '',
-        rating: u.rating || 100,
+        rating: typeof u.rating === 'number' ? u.rating : 0,
         rating_deviation: u.rating_deviation || 350,
-        level_name: u.level_name || '20K',
+        level_name: u.level_name || '25K',
         streak_days: u.streak_days || 0,
         total_solved: u.total_solved || 0,
         total_correct: u.total_correct || 0,
