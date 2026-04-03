@@ -44,7 +44,7 @@ Page({
         var userInfo = storage.getUserInfo() || {}
         userInfo.level_set = true
         userInfo.level_name = selected
-        if (res.user && res.user.rating) {
+        if (res.user && typeof res.user.rating === 'number') {
           userInfo.rating = res.user.rating
         }
         storage.setUserInfo(userInfo)

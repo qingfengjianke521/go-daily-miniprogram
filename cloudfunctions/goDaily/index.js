@@ -310,10 +310,11 @@ async function initUser(openid) {
 
 async function setLevel(openid, levelName) {
   var LEVEL_RATINGS = {
-    '25级': 500, '20级': 700, '15级': 900, '10级': 1100,
-    '5级': 1200, '1级': 1400, '初段': 1600, '二段': 1750, '三段': 1950
+    '25K': 0, '20K': 100, '10K': 360, '1K': 675,
+    // 兼容旧格式
+    '25级': 0, '20级': 100, '10级': 360, '1级': 675,
   }
-  var rating = LEVEL_RATINGS[levelName] || 1200
+  var rating = typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
 
   await db.collection('users').where({ _openid: openid }).update({
     data: { level_name: levelName, rating: rating, level_set: true }
