@@ -17,15 +17,25 @@ function sgf2xy(s) {
   return [x, y]
 }
 
-// 难度映射
+// 难度映射 — 对照完整方案.md 的等级分表
+// cho_elementary: 100-360 (20K-10K)
+// cho_intermediate: 360-675 (10K-1K)
+// cho_advanced: 675-820 (1K-3D)
+// gokyo_shumyo: 555-820 (5K-3D)
+// tesuji: 360-720 (10K-1D)
 function getDifficulty(dirPath) {
   const lc = dirPath.toLowerCase()
-  if (lc.includes('elementary') || lc.includes('basic')) return { rating: 800, cat: '死活' }
-  if (lc.includes('intermediate') || lc.includes('10k-5k') || lc.includes('kyu')) return { rating: 1050, cat: '死活' }
-  if (lc.includes('advanced') || lc.includes('1k-1d') || lc.includes('dan')) return { rating: 1350, cat: '死活' }
-  if (lc.includes('tesuji')) return { rating: 1150, cat: '手筋' }
-  if (lc.includes('endgame')) return { rating: 1100, cat: '官子' }
-  return { rating: 1000, cat: '死活' }
+  if (lc.includes('elementary') || lc.includes('basic')) return { rating: 100, range: 260, cat: '死活' }
+  if (lc.includes('10k-5k')) return { rating: 360, range: 160, cat: '死活' }
+  if (lc.includes('1k-5k') || lc.includes('1-8k') || lc.includes('kyu')) return { rating: 420, range: 255, cat: '死活' }
+  if (lc.includes('intermediate')) return { rating: 360, range: 315, cat: '死活' }
+  if (lc.includes('1k-1d') || lc.includes('shodan')) return { rating: 635, range: 85, cat: '死活' }
+  if (lc.includes('advanced') || lc.includes('dan level')) return { rating: 675, range: 150, cat: '死活' }
+  if (lc.includes('high dan') || lc.includes('pro')) return { rating: 825, range: 125, cat: '死活' }
+  if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { rating: 360, range: 160, cat: '手筋' }
+  if (lc.includes('tesuji') || lc.includes('splitting') || lc.includes('shape') || lc.includes('attack') || lc.includes('escape')) return { rating: 450, range: 270, cat: '手筋' }
+  if (lc.includes('endgame')) return { rating: 485, range: 190, cat: '官子' }
+  return { rating: 360, range: 200, cat: '死活' }
 }
 
 // 解析 sanderland JSON 文件
@@ -72,7 +82,7 @@ function parseFile(filePath, parentDir) {
     correct_first_move: solutions[0][0],
     full_solution: solutions[0],
     all_solutions: solutions,
-    difficulty_rating: diff.rating + (parseInt(probName.replace(/[^0-9]/g,'')) || 0) % 200,
+    difficulty_rating: Math.round(diff.rating + ((parseInt(probName.replace(/[^0-9]/g,'')) || 0) % 100) / 100 * (diff.range || 200)),
     view_region: {
       x1: Math.max(0, x1-2), y1: Math.max(0, y1-2),
       x2: Math.min(boardSize-1, x2+2), y2: Math.min(boardSize-1, y2+2)

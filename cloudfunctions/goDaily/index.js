@@ -10,19 +10,22 @@ const _ = db.command
 
 // ========== 工具函数 ==========
 
+// 完整30级等级分表（参照完整方案.md）
 var LEVEL_TIERS = [
-  [600, '25级'], [700, '22级'], [800, '20级'], [900, '18级'],
-  [1000, '15级'], [1100, '12级'], [1200, '10级'], [1300, '8级'],
-  [1400, '6级'], [1500, '4级'], [1600, '2级'], [1700, '1级'],
-  [1800, '初段'], [1900, '二段'], [2000, '三段'], [2200, '四段'],
-  [2400, '五段'], [99999, '六段以上'],
+  [0, '25K'], [20, '24K'], [40, '23K'], [60, '22K'], [80, '21K'],
+  [100, '20K'], [125, '19K'], [150, '18K'], [175, '17K'], [200, '16K'],
+  [225, '15K'], [250, '14K'], [275, '13K'], [300, '12K'], [330, '11K'],
+  [360, '10K'], [390, '9K'], [420, '8K'], [450, '7K'], [485, '6K'],
+  [520, '5K'], [555, '4K'], [595, '3K'], [635, '2K'], [675, '1K'],
+  [720, '1D'], [770, '2D'], [825, '3D'], [885, '4D'], [950, '5D'],
 ]
 
 function getLevelName(rating) {
-  for (var i = 0; i < LEVEL_TIERS.length; i++) {
-    if (rating < LEVEL_TIERS[i][0]) return LEVEL_TIERS[i][1]
+  if (rating < 0) return '25K'
+  for (var i = LEVEL_TIERS.length - 1; i >= 0; i--) {
+    if (rating >= LEVEL_TIERS[i][0]) return LEVEL_TIERS[i][1]
   }
-  return '六段以上'
+  return '25K'
 }
 
 function getTodayDate() {
@@ -31,29 +34,23 @@ function getTodayDate() {
   return utc8.toISOString().slice(0, 10)
 }
 
-function calculateRating(userRating, userRD, problemRating, isCorrect, timeSpentMs, expectedTimeMs) {
+function calculateRating(userRating, userRD, problemRating, isCorrect) {
+  // 简化ELO: K=10, 无时间系数, 无RD
+  var K = 10
   var expected = 1 / (1 + Math.pow(10, (problemRating - userRating) / 400))
-  var K = userRD > 300 ? 64 : userRD > 200 ? 40 : userRD > 100 ? 24 : 16
   var actual = isCorrect ? 1.0 : 0.0
-  var baseChange = K * (actual - expected)
-  var timeRatio = timeSpentMs / (expectedTimeMs || 60000)
-  var timeFactor
-  if (isCorrect) {
-    timeFactor = timeRatio < 0.5 ? 1.5 : timeRatio < 1.0 ? 1.2 : timeRatio < 2.0 ? 1.0 : 0.6
-  } else {
-    timeFactor = timeRatio < 0.3 ? 0.5 : timeRatio < 1.0 ? 1.0 : 1.3
-  }
-  var change = Math.round(Math.max(-60, Math.min(60, baseChange * timeFactor)))
-  var newRD = Math.max(50, Math.round(userRD * 0.95))
-  return { change: change, newRD: newRD }
+  var change = Math.round(K * (actual - expected))
+  // 等级分最低为0
+  if (userRating + change < 0) change = -userRating
+  return { change: change, newRD: userRD || 350 }
 }
 
 // 根据用户rating获取对应的level_tier
 function getUserLevelTier(rating) {
-  if (rating < 800) return 'beginner'
-  if (rating < 1200) return 'elementary'
-  if (rating < 1600) return 'intermediate'
-  return 'advanced'
+  if (rating < 360) return 'beginner'    // 25K-10K
+  if (rating < 675) return 'elementary'  // 10K-1K
+  if (rating < 825) return 'intermediate' // 1K-3D
+  return 'advanced'                       // 3D+
 }
 
 // Pick one random problem from a rating range, excluding used IDs
@@ -268,9 +265,9 @@ async function initUser(openid) {
       user: {
         openid: openid,
         username: u.username || '',
-        rating: u.rating || 800,
+        rating: u.rating || 100,
         rating_deviation: u.rating_deviation || 350,
-        level_name: u.level_name || '20级',
+        level_name: u.level_name || '20K',
         streak_days: u.streak_days || 0,
         total_solved: u.total_solved || 0,
         total_correct: u.total_correct || 0,
@@ -284,9 +281,9 @@ async function initUser(openid) {
     data: {
       _openid: openid,
       username: '',
-      rating: 800,
+      rating: 100,
       rating_deviation: 350,
-      level_name: '20级',
+      level_name: '20K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -300,9 +297,9 @@ async function initUser(openid) {
     user: {
       openid: openid,
       username: '',
-      rating: 800,
+      rating: 100,
       rating_deviation: 350,
-      level_name: '20级',
+      level_name: '20K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
