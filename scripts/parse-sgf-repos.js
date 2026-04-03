@@ -7,11 +7,15 @@ const fs = require('fs')
 const path = require('path')
 
 // ========== SGF 坐标 ==========
+// sanderland/tsumego 的坐标系: sgf2ix = (col, boardSize - 1 - row)
+// 参见 move.py: return SGF_COORD.index(sgfmove[0]), board_size - SGF_COORD.index(sgfmove[1]) - 1
+var _currentBoardSize = 19 // 会在解析每道题时更新
 function sgf2xy(s) {
   if (!s || s.length < 2) return null
   const x = s.charCodeAt(0) - 97
-  const y = s.charCodeAt(1) - 97
-  if (x < 0 || x > 18 || y < 0 || y > 18) return null
+  const rawY = s.charCodeAt(1) - 97
+  if (x < 0 || x > 18 || rawY < 0 || rawY > 18) return null
+  const y = _currentBoardSize - 1 - rawY // Y轴翻转！
   return [x, y]
 }
 
@@ -87,9 +91,10 @@ function getDifficulty(dirName) {
 // ========== 解析 sanderland JSON ==========
 function parseSanderlandJSON(filePath, dirName) {
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+  const size = parseInt(data.SZ) || 19
+  _currentBoardSize = size // 必须在 sgf2xy 之前设置！
   const blacks = (data.AB || []).map(sgf2xy).filter(Boolean)
   const whites = (data.AW || []).map(sgf2xy).filter(Boolean)
-  const size = parseInt(data.SZ) || 19
 
   if (blacks.length === 0 && whites.length === 0) return null
 
