@@ -282,9 +282,9 @@ async function initUser(openid) {
     data: {
       _openid: openid,
       username: '',
-      rating: 100,
+      rating: 0,
       rating_deviation: 350,
-      level_name: '20K',
+      level_name: '25K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -298,9 +298,9 @@ async function initUser(openid) {
     user: {
       openid: openid,
       username: '',
-      rating: 100,
+      rating: 0,
       rating_deviation: 350,
-      level_name: '20K',
+      level_name: '25K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
