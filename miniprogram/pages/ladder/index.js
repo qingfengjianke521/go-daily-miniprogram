@@ -47,8 +47,8 @@ Page({
   _loadData: function () {
     var that = this
     api.getStats().then(function (stats) {
-      var rating = stats.rating || 1200
-      var levelName = stats.level_name || '18级'
+      var rating = typeof stats.rating === 'number' ? stats.rating : 100
+      var levelName = stats.level_name || '20K'
 
       // 找当前所在的 tier
       var currentIdx = 0
