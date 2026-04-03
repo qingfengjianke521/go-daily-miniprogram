@@ -114,10 +114,15 @@ function parseSanderlandJSON(filePath, dirName) {
   // Spread rating within book: +0 to +200 based on problem number
   const adjustedRating = diff.rating + Math.min(Math.floor(probNum / 5), 200)
 
+  // 用目录缩写+文件名生成唯一ID (避免不同目录同名文件冲突)
+  const relPath = filePath.replace('/tmp/tsumego-repo/problems/', '')
+  const dirShort = (dirName || 'x').replace(/[^a-zA-Z0-9]/g, '').substring(0, 40).toLowerCase()
+  const fileName = path.basename(filePath, '.json')
+
   return {
-    id: 'sl_' + path.basename(filePath, '.json'),
+    id: 'sl_' + dirShort + '_' + fileName,
     source: 'sanderland/tsumego',
-    source_file: filePath.replace('/tmp/tsumego-repo/', ''),
+    source_file: relPath,
     category: diff.cat,
     board_size: size,
     initial_stones: { black: blacks, white: whites },
