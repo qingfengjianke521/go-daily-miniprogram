@@ -3,10 +3,10 @@ var api = apiModule.api
 var storage = require('../../utils/storage')
 
 var LEVELS = [
-  { name: '25K', label: '零基础', emoji: '🌱', desc: '我还不会下围棋', rating: 0 },
-  { name: '20K', label: '入门', emoji: '⭐', desc: '我知道基本规则，会吃子', rating: 100 },
-  { name: '10K', label: '有基础', emoji: '💪', desc: '我在学死活题和手筋', rating: 360 },
-  { name: '1K', label: '高手', emoji: '🏆', desc: '我有业余段位', rating: 675 },
+  { name: '25K', oldName: '25级', label: '零基础', emoji: '🌱', desc: '我还不会下围棋', rating: 0 },
+  { name: '20K', oldName: '20级', label: '入门', emoji: '⭐', desc: '我知道基本规则，会吃子', rating: 100 },
+  { name: '10K', oldName: '10级', label: '有基础', emoji: '💪', desc: '我在学死活题和手筋', rating: 360 },
+  { name: '1K', oldName: '1级', label: '高手', emoji: '🏆', desc: '我有业余段位', rating: 675 },
 ]
 
 Page({
@@ -43,25 +43,34 @@ Page({
     for (var i = 0; i < LEVELS.length; i++) {
       if (LEVELS[i].name === selected) { selectedRating = LEVELS[i].rating; break }
     }
-    api.setLevel(selected, selectedRating)
-      .then(function (res) {
-        // Update local userInfo with new level
-        var userInfo = storage.getUserInfo() || {}
-        userInfo.level_set = true
-        userInfo.level_name = selected
-        if (res.user && typeof res.user.rating === 'number') {
-          userInfo.rating = res.user.rating
-        }
-        storage.setUserInfo(userInfo)
 
-        that.setData({ loading: false })
-        wx.switchTab({ url: '/pages/index/index' })
+    // 1. 调云函数 setLevel（设 level_set=true, level_name）
+    // 2. 然后前端直接更新数据库 rating（绕过旧云函数的错误映射）
+    var db = wx.cloud.database()
+
+    wx.cloud.callFunction({
+      name: 'goDaily',
+      data: { action: 'setLevel', level_name: selected, rating: selectedRating }
+    }).then(function () {
+      // 前端直接改数据库的 rating（微信云开发允许前端更新自己的记录）
+      return db.collection('users').where({}).update({
+        data: { rating: selectedRating, level_name: selected }
       })
-      .catch(function () {
-        // Fallback: go home anyway
-        that.setData({ loading: false })
-        wx.switchTab({ url: '/pages/index/index' })
-      })
+    }).catch(function () {
+      // 即使出错也尝试直接更新
+      return db.collection('users').where({}).update({
+        data: { rating: selectedRating, level_name: selected }
+      }).catch(function(){})
+    }).then(function () {
+      var userInfo = storage.getUserInfo() || {}
+      userInfo.level_set = true
+      userInfo.level_name = selected
+      userInfo.rating = selectedRating
+      storage.setUserInfo(userInfo)
+
+      that.setData({ loading: false })
+      wx.switchTab({ url: '/pages/index/index' })
+    })
   },
 
   _getBadgeText: function (name) {
