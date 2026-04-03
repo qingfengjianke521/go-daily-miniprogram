@@ -387,21 +387,21 @@ Page({
     wx.vibrateLong().catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
 
-    // 在棋盘上显示错误落子
-    var wrongStone = { x: x, y: y, color: color }
-    var currentStones = that.data.stones.slice()
-    currentStones.push(wrongStone)
-
-    // 标出正确位置（绿色闪烁点）
+    // 标出正确位置：把正解作为黑1落到棋盘上
     var expected = that._seq[that.data.currentStep]
-    var highlight = expected ? [{ x: expected[0], y: expected[1] }] : []
+    var currentStones = that.data.stones.slice()
+    if (expected) {
+      currentStones.push({ x: expected[0], y: expected[1], color: color })
+    }
 
     that.setData({
       stones: currentStones,
-      lastMove: { x: x, y: y },
+      lastMove: expected ? { x: expected[0], y: expected[1] } : null,
+      moveHistory: expected ? [{ x: expected[0], y: expected[1], color: color }] : [],
+      showMoveNumbers: true,
       interactive: false,
       isWrong: true,
-      highlightPoints: highlight,
+      highlightPoints: [],
     })
 
     // 提交错误结果
@@ -466,7 +466,7 @@ Page({
       feedbackType: type,
       feedbackText: text,
       feedbackScore: score,
-      feedbackCanContinue: type !== 'wrong', // 答错要等正解播完
+      feedbackCanContinue: true, // 直接显示继续按钮
       feedbackButtonText: buttonText,
     })
   },
