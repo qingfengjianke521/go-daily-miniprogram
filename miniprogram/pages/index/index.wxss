@@ -5,8 +5,7 @@
 /* ===== HUD ===== */
 .hud {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(0,0,0,0.25);
-  backdrop-filter: blur(8px);
+  background: transparent;
 }
 .hud-row {
   height: 44px; padding: 0 24rpx;
@@ -18,14 +17,14 @@
 }
 .hud-fire { background: rgba(255,150,0,0.25); }
 .hud-coin { background: rgba(124,58,237,0.25); }
-.hud-val { font-weight: 700; color: white; }
+.hud-val { font-weight: 700; color: white; text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3); }
 .hud-level {
   padding: 6rpx 24rpx; border-radius: 20rpx;
   background: linear-gradient(135deg, #FFD54F, #FFB300);
   box-shadow: 0 3rpx 0 #E65100;
 }
 .hud-level-txt { font-size: 22rpx; font-weight: 700; color: #5D4037; }
-.hud-rating { font-size: 22rpx; color: rgba(255,255,255,0.7); font-weight: 600; }
+.hud-rating { font-size: 22rpx; color: rgba(255,255,255,0.85); font-weight: 600; text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3); }
 .hud-spacer { flex: 1; }
 
 /* 打卡条 */

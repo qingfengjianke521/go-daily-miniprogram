@@ -3,6 +3,6 @@
   width: 100%;
 }
 
-#goboard {
+.goboard-canvas {
   display: block;
 }

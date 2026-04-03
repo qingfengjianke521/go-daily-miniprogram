@@ -3,6 +3,7 @@ var api = apiModule.api
 var app = getApp()
 
 // 天梯节点（对照完整方案 25K=0 到 5D=950）
+// 13个节点，从底到顶：25K→20K→18K→15K→13K→10K→8K→5K→3K→1K→初段→三段→五段
 var TIERS = [
   { name: '25K', rating: 0, reward: 0 },
   { name: '20K', rating: 100, reward: 5 },
@@ -14,18 +15,12 @@ var TIERS = [
   { name: '5K', rating: 520, reward: 10 },
   { name: '3K', rating: 595, reward: 0 },
   { name: '1K', rating: 675, reward: 15 },
-  { name: '1D', rating: 720, reward: 20 },
-  { name: '3D', rating: 825, reward: 25 },
-  { name: '5D', rating: 950, reward: 30 },
-  // -- 段位分界线 --
-  { name: '初段', rating: 1800, reward: 50 },
-  { name: '二段', rating: 1900, reward: 0 },
-  { name: '三段', rating: 2000, reward: 50 },
-  { name: '四段', rating: 2200, reward: 0 },
-  { name: '五段', rating: 2400, reward: 100 },
+  { name: '初段', rating: 720, reward: 20 },
+  { name: '三段', rating: 825, reward: 25 },
+  { name: '五段', rating: 950, reward: 30 },
 ]
 
-var DAN_START_INDEX = 13 // 初段的index
+var DAN_START_INDEX = 10 // 初段的index
 
 function getLevelColor(name) {
   if (!name) return '#CCC'

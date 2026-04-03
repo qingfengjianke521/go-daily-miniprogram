@@ -63,6 +63,7 @@ Page({
     progressPercent: 0,
     showHint: false,
     isWrong: false,
+    freePlay: false,
     showingSolution: false,
     // 反馈面板
     feedbackVisible: false,
@@ -194,6 +195,7 @@ Page({
       progressPercent: this._calcProgress(0, false),
       showHint: false,
       isWrong: false,
+      freePlay: false,
       showingSolution: false,
       feedbackVisible: false,
       feedbackType: '',
@@ -295,6 +297,11 @@ Page({
   },
 
   onBoardMove: function (e) {
+    // 自由推演模式：答对后可以继续落子
+    if (this.data.freePlay) {
+      this._freePlayMove(e)
+      return
+    }
     if (this.data.advancing || this.data.isDone || this.data.feedbackVisible) return
     var step = this.data.currentStep
     if (step >= this.data.totalMoves || step % 2 !== 0) return
@@ -350,8 +357,9 @@ Page({
       that.setData({
         ratingChange: res.rating_change || 0,
         isDone: true,
-        interactive: false,
+        interactive: true,  // 答对后保持可交互，进入自由推演模式
         submitting: false,
+        freePlay: true,     // 标记自由对弈模式
         progressPercent: that._calcProgress(that.data.totalMoves, true),
       })
       // 检测段位变化
@@ -408,6 +416,30 @@ Page({
     }, 2000)
 
     // 不立即提交错误、不播放正解 — 让用户看到提示后重新尝试
+  },
+
+  // ========== 自由推演模式 ==========
+
+  _freePlayMove: function (e) {
+    var detail = e.detail
+    var x = detail.x, y = detail.y
+    var that = this
+
+    // 交替黑白落子
+    var color = that._freeColor || (that._uc === 'black' ? 'white' : 'black')
+    var result = goLogic.playMove(that._board, x, y, color)
+    if (!result || !result.isValid) return
+
+    that._board = result.newBoard
+    that._freeColor = color === 'black' ? 'white' : 'black'
+
+    that.setData({
+      stones: boardToStones(that._board),
+      lastMove: { x: x, y: y },
+      currentColor: that._freeColor,
+    })
+
+    try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
   },
 
   // ========== 反馈面板 ==========
