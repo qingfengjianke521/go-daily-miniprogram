@@ -382,6 +382,7 @@ Page({
   _showWrongMove: function (x, y) {
     var that = this
     var color = that._uc
+    var problem = that._problem
 
     wx.vibrateLong().catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
@@ -403,19 +404,18 @@ Page({
       highlightPoints: highlight,
     })
 
-    // 2秒后恢复交互，让用户重新点
-    setTimeout(function () {
-      var p = that._problem
-      var origStones = p && p.initial_stones ? [].concat(p.initial_stones) : []
-      that.setData({
-        stones: origStones,
-        lastMove: null,
-        interactive: true,
-        isWrong: false,
-      })
-    }, 2000)
-
-    // 不立即提交错误、不播放正解 — 让用户看到提示后重新尝试
+    // 提交错误结果
+    var timeSpentMs = Date.now() - that._startTime
+    api.submitAnswer(
+      problem.problem_id, [], timeSpentMs, false,
+      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+    ).then(function (res) {
+      that.setData({ ratingChange: res.rating_change || 0, isDone: true })
+      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), res.rating_change || 0)
+    }).catch(function () {
+      that.setData({ isDone: true })
+      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
+    })
   },
 
   // ========== 自由推演模式 ==========
