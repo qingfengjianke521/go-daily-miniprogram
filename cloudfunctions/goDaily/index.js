@@ -638,7 +638,7 @@ async function getLeaderboard(type) {
         rank: i + 1,
         openid: u._openid,
         username: u.username || '匿名棋手',
-        rating: u.rating || 1200,
+        rating: u.rating || 0,
         level_name: u.level_name || '',
         streak_days: u.streak_days || 0,
         total_solved: u.total_solved || 0,
