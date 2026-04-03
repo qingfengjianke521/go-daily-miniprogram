@@ -395,16 +395,15 @@ Page({
       highlightPoints: highlight,
     })
 
-    // 2秒后恢复交互，让用户重新点（去掉错误标记，保留绿色提示）
+    // 2秒后恢复交互，让用户重新点
     setTimeout(function () {
-      // 恢复棋盘到原始状态（去掉错误落子）
-      var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
+      var p = that._problem
+      var origStones = p && p.initial_stones ? [].concat(p.initial_stones) : []
       that.setData({
         stones: origStones,
         lastMove: null,
         interactive: true,
         isWrong: false,
-        // 保留绿色高亮提示正确位置
       })
     }, 2000)
 
