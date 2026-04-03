@@ -5,7 +5,8 @@
 /* ===== HUD ===== */
 .hud {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: transparent;
+  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+  padding-bottom: 20rpx;
 }
 .hud-row {
   height: 44px; padding: 0 24rpx;
