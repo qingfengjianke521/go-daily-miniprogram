@@ -13,8 +13,9 @@ var wrongAudio = wx.createInnerAudioContext()
 wrongAudio.src = '/audio/wrong.mp3'
 
 // 随机鼓励语
-var CORRECT_TEXTS = ['妙手！', '完美！', '好眼力！', '太棒了！', '正确！', '一步到位！']
-var WRONG_TEXTS = ['不对哦', '差一点', '再看看', '这步有问题']
+var CORRECT_TEXTS = ['一步到位！', '秒杀！', '厉害了！', '这都能看到？', '妙手！', '读棋高手！', '准确！', '小黑佩服！']
+var WRONG_TEXTS = ['没关系，看看正解~', '差一点点！', '这题确实有点难', '别灰心，下一题！', '想想再试试？']
+var STREAK_MSGS = { 2: '连对2题！', 3: '连对3题！', 5: '🔥 火力全开！', 10: '🔥🔥 无人能挡！' }
 
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -368,9 +369,16 @@ Page({
         setTimeout(function () { that.setData({ showLevelUp: false }) }, 3000)
       }
 
+      // 连对计数
+      that._consecutiveCorrect = (that._consecutiveCorrect || 0) + 1
+      var cc = that._consecutiveCorrect
+      var text = pickRandom(CORRECT_TEXTS)
+      // 连对加成文案
+      if (STREAK_MSGS[cc]) text = STREAK_MSGS[cc]
+
       // 播放答对音效 + 显示绿色反馈面板
       try { correctAudio.stop(); correctAudio.play() } catch (e) {}
-      that._showFeedback('correct', pickRandom(CORRECT_TEXTS), res.rating_change || 0)
+      that._showFeedback('correct', text, res.rating_change || 0)
     }).catch(function () {
       that.setData({ isDone: true, interactive: false, submitting: false })
       that._showFeedback('correct', '完成！', 0)
@@ -384,6 +392,7 @@ Page({
     var color = that._uc
     var problem = that._problem
 
+    that._consecutiveCorrect = 0 // 重置连对
     wx.vibrateLong().catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
 

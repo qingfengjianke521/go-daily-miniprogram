@@ -54,23 +54,11 @@ function getUserLevelTier(rating) {
 }
 
 // Pick one random problem from a rating range, excluding used IDs
-// opts.levelTier: 优先匹配该等级的题目
-async function pickFromDB(minR, maxR, exclude, opts) {
+// 从指定 rating 范围随机选1题（排除已做过的）
+async function pickFromDB(minR, maxR, exclude) {
   var where = { difficulty_rating: _.gte(minR).and(_.lte(maxR)) }
-  // 如果指定了level_tier, 优先选该tier的题
-  if (opts && opts.levelTier) {
-    where.level_tier = opts.levelTier
-  }
-
   var countRes = await db.collection('problems').where(where).count()
   var total = countRes.total
-
-  // 如果按tier筛选没有结果, 退回到仅按rating筛选
-  if (total === 0 && opts && opts.levelTier) {
-    delete where.level_tier
-    countRes = await db.collection('problems').where(where).count()
-    total = countRes.total
-  }
   if (total === 0) return null
 
   for (var attempt = 0; attempt < 3; attempt++) {
@@ -97,72 +85,60 @@ function recentAccuracy(attempts) {
   return correct / attempts.length
 }
 
-// Select 3 problems with accuracy-aware difficulty tiers
-async function selectProblemsFromDB(userRating, recentIds, recentAttempts) {
+// 出题策略（参照完整方案 3.1）
+// 70% 同级题（±30），20% 挑战题（+30~+90），10% 简单题（-30~-90）
+async function selectProblemsFromDB(userRating, recentIds) {
   var exclude = {}
   if (recentIds) {
     for (var i = 0; i < recentIds.length; i++) exclude[recentIds[i]] = true
   }
 
-  var acc = recentAccuracy(recentAttempts)
-  var tiers
-  if (acc > 0.7) {
-    // Pushing harder
-    tiers = [
-      [userRating + 50, userRating + 150],
-      [userRating + 100, userRating + 250],
-      [userRating + 150, userRating + 300],
-    ]
-  } else if (acc >= 0.4) {
-    // Balanced
-    tiers = [
-      [userRating - 100, userRating + 50],
-      [userRating, userRating + 150],
-      [userRating - 50, userRating + 100],
-    ]
-  } else {
-    // Build confidence
-    tiers = [
-      [userRating - 200, userRating - 50],
-      [userRating - 150, userRating],
-      [userRating - 100, userRating + 50],
-    ]
+  // 按方案的 70/20/10 分配3道题：2道同级 + 1道挑战（或简单）
+  var tiers = [
+    [Math.max(0, userRating - 30), userRating + 30],  // 同级题1
+    [Math.max(0, userRating - 30), userRating + 30],  // 同级题2
+    [userRating + 30, userRating + 90],                // 挑战题
+  ]
+  // 随机决定第3题是挑战还是简单（80%挑战 20%简单）
+  if (Math.random() < 0.3) {
+    tiers[2] = [Math.max(0, userRating - 90), Math.max(0, userRating - 30)]
   }
 
-  var userTier = getUserLevelTier(userRating)
   var selected = []
   for (var i = 0; i < tiers.length; i++) {
-    var p = await pickFromDB(tiers[i][0], tiers[i][1], exclude, { levelTier: userTier })
+    var p = await pickFromDB(tiers[i][0], tiers[i][1], exclude)
     if (p) selected.push(p)
   }
 
-  // Fallback: widen range if not enough
-  while (selected.length < 3) {
-    var pFall = await pickFromDB(userRating - 300, userRating + 300, exclude, { levelTier: userTier })
-    if (pFall) { selected.push(pFall); continue }
-    var pFall2 = await pickFromDB(400, 2100, exclude)
-    if (pFall2) { selected.push(pFall2); continue }
-    break
+  // Fallback: 如果题不够，逐步放宽范围
+  var fallbackRanges = [
+    [Math.max(0, userRating - 60), userRating + 60],
+    [Math.max(0, userRating - 120), userRating + 120],
+    [0, 950],
+  ]
+  var fi = 0
+  while (selected.length < 3 && fi < fallbackRanges.length) {
+    var p = await pickFromDB(fallbackRanges[fi][0], fallbackRanges[fi][1], exclude)
+    if (p) { selected.push(p); continue }
+    fi++
   }
 
   return selected
 }
 
-// Pick a single problem for continuation practice
+// Pick a single problem for continuation practice (同级±30)
 async function pickContinueProblem(userRating, excludeIds) {
   var exclude = {}
   if (excludeIds) {
     for (var i = 0; i < excludeIds.length; i++) exclude[excludeIds[i]] = true
   }
-  // Match around current rating, progressively wider
-  var userTier = getUserLevelTier(userRating)
-  var p = await pickFromDB(userRating - 200, userRating + 200, exclude, { levelTier: userTier })
+  var p = await pickFromDB(Math.max(0, userRating - 30), userRating + 30, exclude)
   if (p) return p
-  p = await pickFromDB(userRating - 400, userRating + 400, exclude, { levelTier: userTier })
+  p = await pickFromDB(Math.max(0, userRating - 60), userRating + 60, exclude)
   if (p) return p
-  p = await pickFromDB(userRating - 600, userRating + 600, exclude)
+  p = await pickFromDB(Math.max(0, userRating - 120), userRating + 120, exclude)
   if (p) return p
-  return await pickFromDB(400, 2100, exclude)
+  return await pickFromDB(0, 950, exclude)
 }
 
 // Format a problem from DB for client response
