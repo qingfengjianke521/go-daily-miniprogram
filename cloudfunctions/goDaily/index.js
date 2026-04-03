@@ -198,6 +198,7 @@ exports.main = async function(event, context) {
       var sample = await db.collection('problems').limit(1).get()
       var sCount = await db.collection('daily_sessions').count()
       return {
+        version: 'v4.0.5_20260403',
         problems_count: pCount.total,
         sessions_count: sCount.total,
         sample_problem: sample.data.length > 0 ? {
@@ -224,7 +225,7 @@ exports.main = async function(event, context) {
     if (action === 'initUser') {
       return await initUser(openid)
     } else if (action === 'setLevel') {
-      return await setLevel(openid, event.level_name)
+      return await setLevel(openid, event.level_name, event.rating)
     } else if (action === 'getDaily') {
       return await getDaily(openid)
     } else if (action === 'submitAnswer') {
@@ -308,13 +309,14 @@ async function initUser(openid) {
   }
 }
 
-async function setLevel(openid, levelName) {
+async function setLevel(openid, levelName, clientRating) {
+  // 优先用前端传来的 rating（因为云函数部署可能有延迟）
   var LEVEL_RATINGS = {
     '25K': 0, '20K': 100, '10K': 360, '1K': 675,
-    // 兼容旧格式
     '25级': 0, '20级': 100, '10级': 360, '1级': 675,
   }
-  var rating = typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
+  var rating = typeof clientRating === 'number' ? clientRating :
+               typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
 
   await db.collection('users').where({ _openid: openid }).update({
     data: { level_name: levelName, rating: rating, level_set: true }

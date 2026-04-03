@@ -38,7 +38,12 @@ Page({
 
     this.setData({ loading: true })
 
-    api.setLevel(selected)
+    // 从 LEVELS 找到对应的 rating
+    var selectedRating = 100
+    for (var i = 0; i < LEVELS.length; i++) {
+      if (LEVELS[i].name === selected) { selectedRating = LEVELS[i].rating; break }
+    }
+    api.setLevel(selected, selectedRating)
       .then(function (res) {
         // Update local userInfo with new level
         var userInfo = storage.getUserInfo() || {}

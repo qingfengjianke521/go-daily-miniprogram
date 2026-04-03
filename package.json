@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@cloudbase/cli": "^3.0.1",
     "@sabaki/sgf": "^3.4.7"
   }
 }

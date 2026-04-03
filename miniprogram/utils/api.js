@@ -22,9 +22,9 @@ var api = {
     return callCloud('setUsername', { username: username })
   },
 
-  // Set level (one-time)
-  setLevel: function(levelName) {
-    return callCloud('setLevel', { level_name: levelName })
+  // Set level (one-time) — 前端传 rating 因为云函数部署问题
+  setLevel: function(levelName, rating) {
+    return callCloud('setLevel', { level_name: levelName, rating: rating })
   },
 
   // Get today's 3 problems (returns problem IDs + session info)
