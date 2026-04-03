@@ -134,3 +134,6 @@
 .levelup-emoji { font-size: 120rpx; }
 .levelup-title { font-size: 36rpx; font-weight: 700; color: #FFB300; }
 .levelup-name { font-size: 56rpx; font-weight: 700; color: #4B4B4B; }
+.debug-row { text-align: center; padding: 4rpx 0; }
+.debug-text { font-size: 20rpx; color: #AFAFAF; }
+.hint-text { text-align: center; font-size: 26rpx; color: #999; padding: 16rpx 0; }

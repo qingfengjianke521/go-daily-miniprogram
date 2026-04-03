@@ -18,6 +18,9 @@
     <text wx:if="{{goalHint}}" class="goal-hint">· {{goalHint}}</text>
     <text class="category-tag {{categoryClass}}">{{category}}</text>
   </view>
+  <view class="debug-row">
+    <text class="debug-text">{{debugInfo}}</text>
+  </view>
 
   <!-- Status line -->
   <view class="status-line">
@@ -43,18 +46,9 @@
     />
   </view>
 
-  <!-- Controls: 做题中 (不显示反馈面板时) -->
+  <!-- Controls: 做题中 -->
   <view wx:if="{{!isDone && !feedbackVisible}}" class="controls-row">
-    <button
-      class="btn btn-secondary btn-md flex-1 rounded-xl"
-      disabled="{{currentStep === 0}}"
-      bindtap="handleReset"
-    >重置</button>
-    <button
-      class="btn btn-primary btn-md flex-1 rounded-xl"
-      disabled="{{advancing || !interactive}}"
-      bindtap="handleAdvance"
-    >下一步 →</button>
+    <view class="hint-text">点击棋盘上正确的位置</view>
   </view>
 </view>
 

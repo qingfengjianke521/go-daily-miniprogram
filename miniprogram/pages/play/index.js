@@ -140,6 +140,42 @@ Page({
       goalHint: problem.hint || '',
       category: cat,
       categoryClass: categoryClass,
+      debugInfo: (function() {
+        var sf = problem.source_file || ''
+        var src = '未知'
+        if (sf.indexOf('Elementary') !== -1) src = '赵治勋初级(20K-10K)'
+        else if (sf.indexOf('Intermediate') !== -1 && sf.indexOf('1b.') !== -1) src = '赵治勋中级(10K-1K)'
+        else if (sf.indexOf('Advanced') !== -1 || sf.indexOf('1c.') !== -1) src = '赵治勋高级(1K-3D)'
+        else if (sf.indexOf('Ishigure') !== -1 && sf.indexOf('Basic') !== -1) src = '石的基础123题(20K-10K)'
+        else if (sf.indexOf('Ishigure') !== -1) src = '石的初段(1K-1D)'
+        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('Elementary') !== -1) src = '藤泽初级(20K-10K)'
+        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('High') !== -1) src = '藤泽高段(3D-5D)'
+        else if (sf.indexOf('Fujisawa') !== -1) src = '藤泽秀行'
+        else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('10k') !== -1) src = '前田10K-5K'
+        else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('1k-5k') !== -1) src = '前田1K-5K'
+        else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('1k-1d') !== -1) src = '前田1K-1D'
+        else if (sf.indexOf('Maeda') !== -1) src = '前田诘棋'
+        else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('Kyu') !== -1) src = '石田级位(10K-1K)'
+        else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('High') !== -1) src = '石田高段(3D+)'
+        else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('Pro') !== -1) src = '石田职业(5D+)'
+        else if (sf.indexOf('Ishida') !== -1) src = '石田段位(1K-3D)'
+        else if (sf.indexOf('Yamada') !== -1 && sf.indexOf('Basic') !== -1) src = '山田基础(20K-10K)'
+        else if (sf.indexOf('Yamada') !== -1) src = '山田三段之路(1K-3D)'
+        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Elementary') !== -1) src = '桥本初级(20K-10K)'
+        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Intermediate') !== -1) src = '桥本中级(10K-1K)'
+        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Advanced') !== -1) src = '桥本高级(1K-3D)'
+        else if (sf.indexOf('Hashimoto') !== -1) src = '桥本宇太郎'
+        else if (sf.indexOf('Lee Changho') !== -1) src = '李昌镐手筋(10K-1K)'
+        else if (sf.indexOf('Tesuji Great') !== -1 || sf.indexOf('Great Tesuji') !== -1) src = '手筋大辞典(10K-1D)'
+        else if (sf.indexOf('Kobayashi') !== -1) src = '小林觉手筋(1K-3D)'
+        else if (sf.indexOf('Go Seigen') !== -1) src = '吴清源手筋(10K-1D)'
+        var r = problem.difficulty_rating || 0
+        // 等级名
+        var lvl = '25K'
+        var tiers = [[0,'25K'],[100,'20K'],[225,'15K'],[360,'10K'],[520,'5K'],[675,'1K'],[720,'1D'],[825,'3D'],[950,'5D']]
+        for (var i = tiers.length - 1; i >= 0; i--) { if (r >= tiers[i][0]) { lvl = tiers[i][1]; break } }
+        return '难度' + r + '(' + lvl + ') · ' + src
+      })(),
       boardSize: boardSize,
       stones: problem.initial_stones ? [].concat(problem.initial_stones) : [],
       viewRegion: problem.view_region || null,
@@ -359,24 +395,20 @@ Page({
       highlightPoints: highlight,
     })
 
-    // 提交错误结果
-    var timeSpentMs = Date.now() - that._startTime
-    var problem = that._problem
-    api.submitAnswer(
-      problem.problem_id, [], timeSpentMs, false,
-      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
-    ).then(function (res) {
-      that.setData({ ratingChange: res.rating_change || 0 })
-      // 显示红色反馈面板
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), res.rating_change || 0)
-    }).catch(function () {
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
-    })
-
-    // 1.5秒后自动播放正解
+    // 2秒后恢复交互，让用户重新点（去掉错误标记，保留绿色提示）
     setTimeout(function () {
-      that._playSolution()
-    }, 1500)
+      // 恢复棋盘到原始状态（去掉错误落子）
+      var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
+      that.setData({
+        stones: origStones,
+        lastMove: null,
+        interactive: true,
+        isWrong: false,
+        // 保留绿色高亮提示正确位置
+      })
+    }, 2000)
+
+    // 不立即提交错误、不播放正解 — 让用户看到提示后重新尝试
   },
 
   // ========== 反馈面板 ==========

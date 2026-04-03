@@ -63,6 +63,9 @@ Page({
   },
 
   onShow: function () {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 0 })
+    }
     if (!app.checkAuth()) return
     this._loadData()
   },
@@ -118,16 +121,16 @@ Page({
         // Y: 0%=顶部(星空), 100%=底部(草地)
         var NODE_POSITIONS = [
           // 25K(底部) → 5D(顶部)，13个节点
-          { x: 30, y: 92 }, // 25K
-          { x: 65, y: 84 }, // 20K
-          { x: 35, y: 76 }, // 18K
-          { x: 60, y: 68 }, // 15K
-          { x: 30, y: 60 }, // 13K
-          { x: 65, y: 52 }, // 10K
-          { x: 35, y: 44 }, // 8K
-          { x: 60, y: 36 }, // 5K
+          { x: 30, y: 84 }, // 25K
+          { x: 65, y: 77 }, // 20K
+          { x: 35, y: 70 }, // 18K
+          { x: 60, y: 63 }, // 15K
+          { x: 30, y: 56 }, // 13K
+          { x: 65, y: 49 }, // 10K
+          { x: 35, y: 42 }, // 8K
+          { x: 60, y: 35 }, // 5K
           { x: 30, y: 28 }, // 3K
-          { x: 65, y: 22 }, // 1K
+          { x: 65, y: 21 }, // 1K
           { x: 35, y: 14 }, // 1D
           { x: 60, y: 7 },  // 3D
           { x: 45, y: 2 },  // 5D
