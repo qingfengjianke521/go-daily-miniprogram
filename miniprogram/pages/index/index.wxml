@@ -7,8 +7,32 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.level_name || '--'}} · {{stats.rating || 0}}分 · {{problemCount || '--'}}题 · v3.3.6</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/{{dailyGoal}}题 · v3.3.7</text>
     <view class="hud-spacer"></view>
+    <view class="hud-pill hud-goal" bindtap="onTapGoal">
+      <text class="hud-val">🎯</text>
+    </view>
+  </view>
+</view>
+
+<!-- 每日目标选择弹窗 -->
+<view wx:if="{{showGoalPicker}}" class="goal-mask" bindtap="onCloseGoal">
+  <view class="goal-dialog" catchtap>
+    <text class="goal-title">每日目标</text>
+    <text class="goal-sub">选择你每天想做多少题</text>
+    <view class="goal-options">
+      <view
+        wx:for="{{goalOptions}}"
+        wx:key="value"
+        class="goal-opt {{dailyGoal === item.value ? 'goal-opt-on' : ''}}"
+        bindtap="onSelectGoal"
+        data-value="{{item.value}}"
+      >
+        <text class="goal-num">{{item.value}}</text>
+        <text class="goal-label">{{item.label}}</text>
+        <text class="goal-desc">{{item.desc}}</text>
+      </view>
+    </view>
   </view>
 </view>
 
