@@ -307,7 +307,9 @@ Page({
       this._freePlayMove(e)
       return
     }
-    if (this.data.advancing || this.data.isDone || this.data.feedbackVisible) return
+    if (this.data.advancing || this.data.isDone) return
+    // 答错面板显示时允许继续尝试
+    if (this.data.feedbackVisible && this.data.feedbackType !== 'wrong') return
     var step = this.data.currentStep
     if (step >= this.data.totalMoves || step % 2 !== 0) return
 
@@ -339,6 +341,10 @@ Page({
     }
 
     if (isCorrectMove) {
+      // 如果之前答错面板还在，先关掉
+      if (this.data.feedbackVisible) {
+        this.setData({ feedbackVisible: false })
+      }
       this.handleAdvance()
     } else {
       this._showWrongMove(x, y)
@@ -413,8 +419,12 @@ Page({
       isWrong: true,
     })
 
-    // 1秒后恢复棋盘 + 弹出底部面板
+    // 1秒后恢复棋盘，用户可以继续尝试 + 弹出底部面板（不挡棋盘）
     setTimeout(function () {
+      // 重置内部棋盘
+      var boardSize = problem.board_size || 13
+      that._board = goLogic.placeStones(goLogic.createBoard(boardSize), problem.initial_stones || [])
+
       var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
       that.setData({
         stones: origStones,
@@ -422,11 +432,11 @@ Page({
         moveHistory: [],
         showMoveNumbers: false,
         isWrong: false,
-        interactive: false,
-        isDone: true,
+        interactive: true,   // 保持可交互，允许继续尝试
+        isDone: false,        // 不标记完成
         wrongShowingSolution: false,
       })
-      // 弹出暖色反馈面板
+      // 弹出暖色反馈面板（overlay不挡棋盘）
       that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
     }, 1000)
   },
