@@ -500,10 +500,23 @@ Page({
     var history = that.data.moveHistory.slice()
     history.push({ x: x, y: y, color: color })
 
+    // 过滤：只保留棋盘上还存在的棋子的编号（提掉的子不显示编号）
+    var currentStones = boardToStones(that._board)
+    var stoneSet = {}
+    for (var si = 0; si < currentStones.length; si++) {
+      stoneSet[currentStones[si].x + ',' + currentStones[si].y] = true
+    }
+    var visibleHistory = []
+    for (var hi = 0; hi < history.length; hi++) {
+      if (stoneSet[history[hi].x + ',' + history[hi].y]) {
+        visibleHistory.push(history[hi])
+      }
+    }
+
     that.setData({
-      stones: boardToStones(that._board),
+      stones: currentStones,
       lastMove: { x: x, y: y },
-      moveHistory: history,
+      moveHistory: visibleHistory,
       showMoveNumbers: true,
       currentColor: that._freeColor,
     })
