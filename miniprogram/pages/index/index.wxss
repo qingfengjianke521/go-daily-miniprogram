@@ -5,8 +5,8 @@
 /* ===== HUD ===== */
 .hud {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
-  padding-bottom: 20rpx;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.1) 80%, transparent 100%);
+  padding-bottom: 30rpx;
 }
 .hud-row {
   height: 44px; padding: 0 24rpx;
@@ -25,7 +25,7 @@
   box-shadow: 0 3rpx 0 #E65100;
 }
 .hud-level-txt { font-size: 22rpx; font-weight: 700; color: #5D4037; }
-.hud-rating { font-size: 22rpx; color: rgba(255,255,255,0.85); font-weight: 600; text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3); }
+.hud-rating { font-size: 22rpx; color: #fff; font-weight: 600; text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.5); }
 .hud-spacer { flex: 1; }
 
 /* 打卡条 */
