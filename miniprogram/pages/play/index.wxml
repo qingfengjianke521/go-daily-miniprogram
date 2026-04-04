@@ -69,7 +69,7 @@
 </view>
 
 <!-- ========== 底部反馈面板 ========== -->
-<view class="feedback-overlay {{feedbackVisible ? 'show' : ''}}"></view>
+<view class="feedback-overlay {{feedbackVisible && !freePlay ? 'show' : ''}}"></view>
 <view class="feedback-panel {{feedbackVisible ? 'show' : ''}} feedback-{{feedbackType}}">
   <!-- 顶部行：吉祥物 + 文案 + 分数 -->
   <view class="flex items-center" style="margin-bottom:32rpx;">

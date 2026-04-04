@@ -440,7 +440,7 @@ Page({
     var x = detail.x, y = detail.y
     var that = this
 
-    // 交替黑白落子
+    // 交替黑白落子（白2、黑3、白4...）
     var color = that._freeColor || (that._uc === 'black' ? 'white' : 'black')
     var result = goLogic.playMove(that._board, x, y, color)
     if (!result || !result.isValid) return
@@ -448,9 +448,15 @@ Page({
     that._board = result.newBoard
     that._freeColor = color === 'black' ? 'white' : 'black'
 
+    // 追加到 moveHistory（编号递增）
+    var history = that.data.moveHistory.slice()
+    history.push({ x: x, y: y, color: color })
+
     that.setData({
       stones: boardToStones(that._board),
       lastMove: { x: x, y: y },
+      moveHistory: history,
+      showMoveNumbers: true,
       currentColor: that._freeColor,
     })
 
@@ -464,14 +470,10 @@ Page({
     var isContinue = playState.isContinueMode
     var isLastProblem = playState.currentIndex >= playState.problems.length - 1
 
-    var buttonText = '继续'
-    if (type === 'correct' || type === 'reveal') {
-      buttonText = '👆 自由探索'
-    } else if (type === 'wrong') {
-      buttonText = '继续'
-    } else if (isContinue) {
-      buttonText = '再来一题 →'
-    } else if (isLastProblem) {
+    var buttonText = '下一题 →'
+    if (type === 'wrong') {
+      buttonText = '下一题 →'
+    } else if (isLastProblem && !isContinue) {
       buttonText = '查看总结 →'
     }
 
@@ -506,16 +508,12 @@ Page({
   handleFeedbackContinue: function () {
     if (!this.data.feedbackCanContinue) return
 
-    // 隐藏面板
+    // 隐藏面板，跳下一题
     this.setData({
       feedbackVisible: false,
       highlightPoints: [],
     })
 
-    // 如果是自由探索模式，关闭面板后留在当前题（可继续落子）
-    if (this.data.freePlay) return
-
-    // 否则跳下一题
     var that = this
     setTimeout(function () {
       that._goToNext()
