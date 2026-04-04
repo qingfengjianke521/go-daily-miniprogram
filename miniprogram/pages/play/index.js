@@ -263,10 +263,8 @@ Page({
     try {
       if (result.captured && result.captured.length > 0) {
         captureAudio.stop(); captureAudio.play()
-        wx.vibrateShort({ type: 'medium' }).catch(function(){})
       } else {
         stoneAudio.stop(); stoneAudio.play()
-        wx.vibrateShort({ type: 'light' }).catch(function(){})
       }
     } catch (e) {}
 
@@ -283,7 +281,6 @@ Page({
 
       that._opponentTimer = setTimeout(function () {
         try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
-        wx.vibrateShort({ type: 'light' }).catch(function () {})
 
         var oppResult = that._placeStep(nextStep, that._board, that._playHistory)
         that._board = oppResult.newBoard
@@ -415,7 +412,6 @@ Page({
     var problem = that._problem
 
     that._consecutiveCorrect = 0
-    wx.vibrateShort({ type: 'light' }).catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
 
     // 显示错误落子（标记黑1）
@@ -517,7 +513,6 @@ Page({
     try {
       if (result.captured && result.captured.length > 0) {
         captureAudio.stop(); captureAudio.play()
-        wx.vibrateShort({ type: 'medium' }).catch(function(){})
       } else {
         stoneAudio.stop(); stoneAudio.play()
       }
