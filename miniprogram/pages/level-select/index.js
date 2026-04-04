@@ -44,33 +44,22 @@ Page({
       if (LEVELS[i].name === selected) { selectedRating = LEVELS[i].rating; break }
     }
 
-    // 1. 调云函数 setLevel（设 level_set=true, level_name）
-    // 2. 然后前端直接更新数据库 rating（绕过旧云函数的错误映射）
-    var db = wx.cloud.database()
+    // 调云函数 setLevel
+    api.setLevel(selected, selectedRating)
+      .then(function () {
+        var userInfo = storage.getUserInfo() || {}
+        userInfo.level_set = true
+        userInfo.level_name = selected
+        userInfo.rating = selectedRating
+        storage.setUserInfo(userInfo)
 
-    wx.cloud.callFunction({
-      name: 'goDaily',
-      data: { action: 'setLevel', level_name: selected, rating: selectedRating }
-    }).then(function () {
-      // 前端直接改数据库的 rating（微信云开发允许前端更新自己的记录）
-      return db.collection('users').where({}).update({
-        data: { rating: selectedRating, level_name: selected }
+        that.setData({ loading: false })
+        wx.switchTab({ url: '/pages/index/index' })
       })
-    }).catch(function () {
-      // 即使出错也尝试直接更新
-      return db.collection('users').where({}).update({
-        data: { rating: selectedRating, level_name: selected }
-      }).catch(function(){})
-    }).then(function () {
-      var userInfo = storage.getUserInfo() || {}
-      userInfo.level_set = true
-      userInfo.level_name = selected
-      userInfo.rating = selectedRating
-      storage.setUserInfo(userInfo)
-
-      that.setData({ loading: false })
-      wx.switchTab({ url: '/pages/index/index' })
-    })
+      .catch(function () {
+        that.setData({ loading: false })
+        wx.switchTab({ url: '/pages/index/index' })
+      })
   },
 
   _getBadgeText: function (name) {
