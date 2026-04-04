@@ -16,15 +16,6 @@
     "pages/fuseki/practice/index",
     "pages/admin/index"
   ],
-  "subpackages": [
-    {
-      "root": "learn",
-      "pages": [
-        "index",
-        "lesson"
-      ]
-    }
-  ],
   "tabBar": {
     "custom": true,
     "color": "#BBBBBB",
