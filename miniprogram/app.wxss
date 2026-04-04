@@ -197,8 +197,9 @@ page {
 }
 .feedback-panel.show { transform: translateY(0); }
 .feedback-correct { background: #D7FFB8; }
-.feedback-wrong { background: #FFDFE0; }
+.feedback-wrong { background: #FFF0E0; }
 .feedback-skip { background: #FFF4D6; }
+.feedback-reveal { background: #F0F4FF; }
 
 .feedback-icon {
   width: 64rpx; height: 64rpx;
@@ -214,11 +215,13 @@ page {
   font-size: 40rpx; font-weight: 700; margin-left: 20rpx;
 }
 .feedback-correct .feedback-title { color: #46A302; }
-.feedback-wrong .feedback-title { color: #CC3B3B; }
+.feedback-wrong .feedback-title { color: #E67E22; }
 .feedback-skip .feedback-title { color: #B87800; }
 
 .feedback-score {
   font-size: 36rpx; font-weight: 700; margin-left: auto;
 }
 .feedback-correct .feedback-score { color: #46A302; }
-.feedback-wrong .feedback-score { color: #CC3B3B; }
+.feedback-wrong .feedback-score { color: #999; }
+.feedback-reveal .feedback-title { color: #3B7DD8; }
+.feedback-reveal .feedback-score { color: #999; }

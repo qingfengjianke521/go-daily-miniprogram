@@ -46,6 +46,11 @@
     />
   </view>
 
+  <!-- 查看答案 -->
+  <view wx:if="{{!isDone && !feedbackVisible && !answerRevealed}}" class="reveal-row">
+    <text class="reveal-btn" bindtap="handleRevealAnswer">💡 查看答案</text>
+  </view>
+
   <!-- Controls -->
   <view wx:if="{{!feedbackVisible}}" class="controls-row">
     <button class="nav-btn" bindtap="handlePrevProblem" disabled="{{problemIndex <= 1}}">上一题</button>

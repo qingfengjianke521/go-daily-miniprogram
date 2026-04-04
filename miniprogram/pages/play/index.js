@@ -65,6 +65,7 @@ Page({
     showHint: false,
     isWrong: false,
     freePlay: false,
+    answerRevealed: false,
     showingSolution: false,
     // 反馈面板
     feedbackVisible: false,
@@ -197,6 +198,7 @@ Page({
       showHint: false,
       isWrong: false,
       freePlay: false,
+      answerRevealed: false,
       showingSolution: false,
       feedbackVisible: false,
       feedbackType: '',
@@ -622,6 +624,45 @@ Page({
     }
 
     setTimeout(playNext, 500)
+  },
+
+  handleRevealAnswer: function () {
+    var that = this
+    var problem = that._problem
+    if (!problem || that.data.answerRevealed) return
+
+    var expected = that._seq[0]
+    if (!expected) return
+
+    // 在棋盘上标记正确位置
+    var currentStones = that.data.stones.slice()
+    currentStones.push({ x: expected[0], y: expected[1], color: that._uc })
+
+    // 落到内部棋盘
+    var result = goLogic.playMove(that._board, expected[0], expected[1], that._uc)
+    if (result && result.isValid) that._board = result.newBoard
+
+    that.setData({
+      stones: boardToStones(that._board),
+      lastMove: { x: expected[0], y: expected[1] },
+      moveHistory: [{ x: expected[0], y: expected[1], color: that._uc }],
+      showMoveNumbers: true,
+      interactive: true,
+      isDone: true,
+      freePlay: true,
+      answerRevealed: true,
+    })
+    that._freeColor = that._uc === 'black' ? 'white' : 'black'
+
+    // 算做错处理（不扣分）
+    var timeSpentMs = Date.now() - that._startTime
+    api.submitAnswer(
+      problem.problem_id, [], timeSpentMs, false,
+      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+    ).catch(function () {})
+
+    var revealTexts = ['记住这个手筋哦~', '下次你一定行！', '学到了吧~', '看懂了就是进步！']
+    that._showFeedback('reveal', revealTexts[Math.floor(Math.random() * revealTexts.length)], 0)
   },
 
   handlePrevProblem: function () {
