@@ -46,9 +46,11 @@
     />
   </view>
 
-  <!-- Controls: 做题中 -->
-  <view wx:if="{{!isDone && !feedbackVisible}}" class="controls-row">
-    <view class="hint-text">点击棋盘上正确的位置</view>
+  <!-- Controls -->
+  <view wx:if="{{!feedbackVisible}}" class="controls-row">
+    <button class="nav-btn" bindtap="handlePrevProblem" disabled="{{problemIndex <= 1}}">上一题</button>
+    <view class="hint-text">{{problemIndex}}/{{totalProblems}}</view>
+    <button class="nav-btn nav-btn-primary" bindtap="handleNextProblem">下一题</button>
   </view>
 </view>
 

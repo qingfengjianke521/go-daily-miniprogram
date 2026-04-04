@@ -137,3 +137,13 @@
 .debug-row { text-align: center; padding: 4rpx 0; }
 .debug-text { font-size: 20rpx; color: #AFAFAF; }
 .hint-text { text-align: center; font-size: 26rpx; color: #999; padding: 16rpx 0; }
+
+/* 上一题/下一题 */
+.nav-btn {
+  flex: 1; height: 72rpx; line-height: 72rpx; text-align: center;
+  font-size: 28rpx; font-weight: 600; border-radius: 12rpx;
+  background: #f0f0f0; color: #666; border: none; padding: 0;
+}
+.nav-btn[disabled] { opacity: 0.4; }
+.nav-btn-primary { background: #58CC02; color: #fff; }
+.controls-row { display: flex; align-items: center; gap: 16rpx; padding: 16rpx 32rpx; }

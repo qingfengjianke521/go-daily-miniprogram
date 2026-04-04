@@ -624,6 +624,44 @@ Page({
     setTimeout(playNext, 500)
   },
 
+  handlePrevProblem: function () {
+    var playState = this._playState
+    if (playState.currentIndex <= 0) return
+    playState.currentIndex--
+    app.globalData.playState = playState
+    this._initProblem()
+  },
+
+  handleNextProblem: function () {
+    var playState = this._playState
+    if (!playState) return
+    // 如果当前题还没做完，跳过（不提交）
+    playState.currentIndex++
+    if (playState.currentIndex >= playState.problems.length) {
+      // 没有更多题了，请求新题
+      var that = this
+      wx.showLoading({ title: '选题中...' })
+      api.getContinueProblem().then(function (res) {
+        wx.hideLoading()
+        if (res.problem) {
+          playState.problems.push(res.problem)
+          app.globalData.playState = playState
+          that._initProblem()
+        } else {
+          wx.showToast({ title: '没有更多题了', icon: 'none' })
+          playState.currentIndex--
+        }
+      }).catch(function () {
+        wx.hideLoading()
+        wx.showToast({ title: '获取失败', icon: 'none' })
+        playState.currentIndex--
+      })
+      return
+    }
+    app.globalData.playState = playState
+    this._initProblem()
+  },
+
   handleReset: function () {
     if (this.data.feedbackVisible) return
     var problem = this._problem
