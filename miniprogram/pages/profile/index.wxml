@@ -37,6 +37,20 @@
         </view>
       </view>
 
+      <!-- 打卡日历 -->
+      <view class="section-card bg-white rounded-2xl shadow-sm">
+        <text class="section-title">本月打卡</text>
+        <view class="cal-header">
+          <text class="cal-day-name" wx:for="{{['一','二','三','四','五','六','日']}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="cal-grid">
+          <view wx:for="{{calendarDays}}" wx:key="index"
+            class="cal-cell {{item.empty ? 'cal-empty' : ''}} {{item.today ? 'cal-today' : ''}} {{item.done ? 'cal-done' : ''}}">
+            <text wx:if="{{!item.empty}}">{{item.done ? '✅' : item.day}}</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 棋力趋势图 -->
       <view class="section-card bg-white rounded-2xl shadow-sm" wx:if="{{ratingHistory.length > 1}}">
         <text class="section-title">棋力趋势</text>

@@ -27,6 +27,7 @@ Page({
     streakFreezes: 0,
     canBuyFreeze: false,
     isAdmin: false,
+    calendarDays: [],
     ratingHistory: [],
     categoryStats: [
       { name: '死活', rate: 0, barWidth: 3, color: '#1C94E0' },
@@ -75,6 +76,8 @@ Page({
       })
       // 加载棋力趋势
       self._loadRatingChart()
+      // 加载打卡日历
+      self._loadCalendar()
     }).catch(function () {})
   },
 
@@ -153,6 +156,55 @@ Page({
       ctx.textAlign = 'center'
       ctx.fillText(data[0].date.slice(5), toX(0), pad.top + ch + 15)
       ctx.fillText(data[data.length - 1].date.slice(5), toX(data.length - 1), pad.top + ch + 15)
+    })
+  },
+
+  _loadCalendar: function () {
+    var self = this
+    var now = new Date(Date.now() + 8 * 3600000) // UTC+8
+    var year = now.getUTCFullYear()
+    var month = now.getUTCMonth() // 0-based
+    var todayDate = now.getUTCDate()
+
+    // 本月第一天是周几（0=周日，转为周一=0）
+    var firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay()
+    var startOffset = firstDay === 0 ? 6 : firstDay - 1 // 周一=0
+    var daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+
+    // 从 daily_sessions 获取本月做题日期
+    var db = wx.cloud.database()
+    var monthStr = year + '-' + String(month + 1).padStart(2, '0')
+    db.collection('daily_sessions').where({
+      session_date: db.RegExp({ regexp: '^' + monthStr, options: 'i' }),
+      completed_count: db.command.gte(1),
+    }).field({ session_date: true }).get().then(function (res) {
+      var doneDates = {}
+      for (var i = 0; i < res.data.length; i++) {
+        var d = parseInt(res.data[i].session_date.split('-')[2])
+        doneDates[d] = true
+      }
+
+      var days = []
+      // 前面的空白
+      for (var s = 0; s < startOffset; s++) days.push({ empty: true })
+      // 每天
+      for (var d = 1; d <= daysInMonth; d++) {
+        days.push({
+          day: d,
+          today: d === todayDate,
+          done: !!doneDates[d],
+          empty: false,
+        })
+      }
+      self.setData({ calendarDays: days })
+    }).catch(function () {
+      // fallback: 无数据也显示空日历
+      var days = []
+      for (var s = 0; s < startOffset; s++) days.push({ empty: true })
+      for (var d = 1; d <= daysInMonth; d++) {
+        days.push({ day: d, today: d === todayDate, done: false, empty: false })
+      }
+      self.setData({ calendarDays: days })
     })
   },
 
