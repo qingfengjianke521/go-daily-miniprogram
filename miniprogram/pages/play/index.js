@@ -414,7 +414,7 @@ Page({
     that._consecutiveCorrect = 0
     try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
 
-    // 显示错误落子（标记黑1）
+    // 显示错误落子（标记黑1）+ 同时弹出面板
     var currentStones = that.data.stones.slice()
     currentStones.push({ x: x, y: y, color: color })
 
@@ -425,14 +425,16 @@ Page({
       showMoveNumbers: true,
       interactive: false,
       isWrong: true,
+      wrongShowingSolution: false,
     })
 
-    // 1秒后恢复棋盘，用户可以继续尝试 + 弹出底部面板（不挡棋盘）
+    // 同时弹出面板
+    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
+
+    // 1秒后恢复棋盘（面板保留），用户可继续尝试
     setTimeout(function () {
-      // 重置内部棋盘
       var boardSize = problem.board_size || 13
       that._board = goLogic.placeStones(goLogic.createBoard(boardSize), problem.initial_stones || [])
-
       var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
       that.setData({
         stones: origStones,
@@ -440,12 +442,9 @@ Page({
         moveHistory: [],
         showMoveNumbers: false,
         isWrong: false,
-        interactive: true,   // 保持可交互，允许继续尝试
-        isDone: false,        // 不标记完成
-        wrongShowingSolution: false,
+        interactive: true,
+        isDone: false,
       })
-      // 弹出暖色反馈面板（overlay不挡棋盘）
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
     }, 1000)
   },
 
