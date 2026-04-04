@@ -393,8 +393,12 @@ Page({
     var problem = that._problem
 
     that._consecutiveCorrect = 0
-    wx.vibrateLong().catch(function () {})
+    wx.vibrateShort({ type: 'light' }).catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
+
+    // 温柔的提示语（随机）
+    var hints = ['没关系，再试试~', '差一点点！', '这题确实有点难', '想想再试试？', '别灰心~']
+    var hint = hints[Math.floor(Math.random() * hints.length)]
 
     // 显示错误落子（标记黑1）
     var currentStones = that.data.stones.slice()
@@ -407,6 +411,8 @@ Page({
       showMoveNumbers: true,
       interactive: false,
       isWrong: true,
+      showHint: true,
+      hintMsg: hint,
     })
 
     // 1秒后恢复棋盘，让用户继续本题
@@ -419,6 +425,8 @@ Page({
         showMoveNumbers: false,
         interactive: true,
         isWrong: false,
+        showHint: false,
+        hintMsg: '',
       })
     }, 1000)
   },

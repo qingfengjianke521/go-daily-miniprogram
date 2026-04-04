@@ -24,7 +24,7 @@
 
   <!-- Status line -->
   <view class="status-line">
-    <text wx:if="{{showHint}}" class="status-text animate-pulse" style="color:#FF4B4B;">{{hintMsg}}</text>
+    <text wx:if="{{showHint}}" class="status-text" style="color:#888;">{{hintMsg}}</text>
     <text wx:elif="{{showingSolution}}" class="status-text" style="color:#58CC02;">正解演示中...</text>
     <text wx:elif="{{interactive && !advancing}}" class="status-text text-999">点击棋盘上正确的位置</text>
     <text wx:elif="{{advancing}}" class="status-text text-999">对方应手中...</text>
