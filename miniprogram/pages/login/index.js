@@ -32,11 +32,33 @@ Page({
     if (that.data.loading) return
 
     that.setData({ loading: true, error: '' })
-    console.log('[login] Calling initUser...')
+
+    // 先尝试获取微信昵称
+    var wxNickname = ''
+    try {
+      wx.getUserProfile({
+        desc: '用于显示你的围棋昵称',
+        success: function (profileRes) {
+          wxNickname = profileRes.userInfo.nickName || ''
+          that._doLogin(wxNickname)
+        },
+        fail: function () {
+          // 用户拒绝授权，用默认名
+          that._doLogin('')
+        }
+      })
+    } catch (e) {
+      // 旧版本不支持 getUserProfile
+      that._doLogin('')
+    }
+  },
+
+  _doLogin: function (wxNickname) {
+    var that = this
 
     wx.cloud.callFunction({
       name: 'goDaily',
-      data: { action: 'initUser' },
+      data: { action: 'initUser', wx_nickname: wxNickname },
       success: function (res) {
         console.log('[login] Full result:', JSON.stringify(res.result))
 

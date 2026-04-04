@@ -222,7 +222,7 @@ exports.main = async function(event, context) {
 
   try {
     if (action === 'initUser') {
-      return await initUser(openid)
+      return await initUser(openid, event.wx_nickname)
     } else if (action === 'setLevel') {
       return await setLevel(openid, event.level_name, event.rating)
     } else if (action === 'getDaily') {
@@ -256,15 +256,20 @@ exports.main = async function(event, context) {
 
 // ========== 各 action 处理 ==========
 
-async function initUser(openid) {
+async function initUser(openid, wxNickname) {
   var res = await db.collection('users').where({ _openid: openid }).get()
 
   if (res.data.length > 0) {
     var u = res.data[0]
+    // 如果用户还没设昵称但传了微信昵称，自动设置
+    if (!u.username && wxNickname) {
+      await db.collection('users').where({ _openid: openid }).update({ data: { username: wxNickname } })
+      u.username = wxNickname
+    }
     return {
       user: {
         openid: openid,
-        username: u.username || '',
+        username: u.username || wxNickname || '',
         rating: typeof u.rating === 'number' ? u.rating : 100,
         rating_deviation: u.rating_deviation || 350,
         level_name: u.level_name || '25K',
@@ -277,10 +282,11 @@ async function initUser(openid) {
   }
 
   // 新用户
+  var defaultName = wxNickname || ''
   await db.collection('users').add({
     data: {
       _openid: openid,
-      username: '',
+      username: defaultName,
       rating: 100,
       rating_deviation: 350,
       level_name: '25K',
@@ -296,7 +302,7 @@ async function initUser(openid) {
   return {
     user: {
       openid: openid,
-      username: '',
+      username: defaultName,
       rating: 100,
       rating_deviation: 350,
       level_name: '25K',
