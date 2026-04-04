@@ -10,14 +10,15 @@ const _ = db.command
 
 // ========== 工具函数 ==========
 
-// 完整30级等级分表（参照完整方案.md）
+// 等级分表：起点=100（题库最低rating），每级间距20-65
+// 25K=100, 20K=200, 15K=325, 10K=460, 5K=620, 1K=775, 1D=820, 5D=1050
 var LEVEL_TIERS = [
-  [0, '25K'], [20, '24K'], [40, '23K'], [60, '22K'], [80, '21K'],
-  [100, '20K'], [125, '19K'], [150, '18K'], [175, '17K'], [200, '16K'],
-  [225, '15K'], [250, '14K'], [275, '13K'], [300, '12K'], [330, '11K'],
-  [360, '10K'], [390, '9K'], [420, '8K'], [450, '7K'], [485, '6K'],
-  [520, '5K'], [555, '4K'], [595, '3K'], [635, '2K'], [675, '1K'],
-  [720, '1D'], [770, '2D'], [825, '3D'], [885, '4D'], [950, '5D'],
+  [100, '25K'], [120, '24K'], [140, '23K'], [160, '22K'], [180, '21K'],
+  [200, '20K'], [225, '19K'], [250, '18K'], [275, '17K'], [300, '16K'],
+  [325, '15K'], [350, '14K'], [375, '13K'], [400, '12K'], [430, '11K'],
+  [460, '10K'], [490, '9K'], [520, '8K'], [550, '7K'], [585, '6K'],
+  [620, '5K'], [655, '4K'], [695, '3K'], [735, '2K'], [775, '1K'],
+  [820, '1D'], [870, '2D'], [925, '3D'], [985, '4D'], [1050, '5D'],
 ]
 
 function getLevelName(rating) {
@@ -264,7 +265,7 @@ async function initUser(openid) {
       user: {
         openid: openid,
         username: u.username || '',
-        rating: typeof u.rating === 'number' ? u.rating : 0,
+        rating: typeof u.rating === 'number' ? u.rating : 100,
         rating_deviation: u.rating_deviation || 350,
         level_name: u.level_name || '25K',
         streak_days: u.streak_days || 0,
@@ -280,7 +281,7 @@ async function initUser(openid) {
     data: {
       _openid: openid,
       username: '',
-      rating: 0,
+      rating: 100,
       rating_deviation: 350,
       level_name: '25K',
       streak_days: 0,
@@ -296,7 +297,7 @@ async function initUser(openid) {
     user: {
       openid: openid,
       username: '',
-      rating: 0,
+      rating: 100,
       rating_deviation: 350,
       level_name: '25K',
       streak_days: 0,
@@ -470,7 +471,7 @@ async function submitAnswer(openid, event) {
     user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(0, user.rating + result.change)
+  var newRating = Math.max(100, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡
