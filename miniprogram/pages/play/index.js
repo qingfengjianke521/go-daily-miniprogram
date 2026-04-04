@@ -382,6 +382,7 @@ Page({
       })
       // 答对后下一步是对方（白棋）
       that._freeColor = that._uc === 'black' ? 'white' : 'black'
+      that._fullHistory = that.data.moveHistory.slice()
       // 检测段位变化
       if (res.level_changed && res.new_level) {
         that.setData({ levelUpName: res.new_level, showLevelUp: true })
@@ -469,6 +470,7 @@ Page({
       feedbackButtonText: '下一题 →',
     })
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
+      that._fullHistory = that.data.moveHistory.slice()
 
     // 提交错误结果
     var problem = that._problem
@@ -496,28 +498,16 @@ Page({
     that._board = result.newBoard
     that._freeColor = color === 'black' ? 'white' : 'black'
 
-    // 追加到 moveHistory（编号递增）
-    var history = that.data.moveHistory.slice()
-    history.push({ x: x, y: y, color: color })
-
-    // 过滤：只保留棋盘上还存在的棋子的编号（提掉的子不显示编号）
-    var currentStones = boardToStones(that._board)
-    var stoneSet = {}
-    for (var si = 0; si < currentStones.length; si++) {
-      stoneSet[currentStones[si].x + ',' + currentStones[si].y] = true
-    }
-    var visibleHistory = []
-    for (var hi = 0; hi < history.length; hi++) {
-      if (stoneSet[history[hi].x + ',' + history[hi].y]) {
-        visibleHistory.push(history[hi])
-      }
-    }
+    // 追加到完整 moveHistory（编号=数组索引+1，不跳号）
+    // go-board 组件的 moveHistory 模式会自动跳过被提的棋子
+    if (!that._fullHistory) that._fullHistory = that.data.moveHistory.slice()
+    that._fullHistory.push({ x: x, y: y, color: color })
 
     that.setData({
-      stones: currentStones,
+      stones: boardToStones(that._board),
       lastMove: { x: x, y: y },
-      moveHistory: visibleHistory,
-      showMoveNumbers: true,
+      moveHistory: that._fullHistory,
+      showMoveNumbers: false,  // 用 moveHistory 模式，保持编号不跳
       currentColor: that._freeColor,
     })
 
@@ -728,6 +718,7 @@ Page({
       answerRevealed: true,
     })
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
+      that._fullHistory = that.data.moveHistory.slice()
 
     // 算做错处理（不扣分）
     var timeSpentMs = Date.now() - that._startTime
