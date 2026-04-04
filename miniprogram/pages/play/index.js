@@ -66,6 +66,7 @@ Page({
     isWrong: false,
     freePlay: false,
     answerRevealed: false,
+    wrongShowingSolution: false,
     showingSolution: false,
     // 反馈面板
     feedbackVisible: false,
@@ -199,6 +200,7 @@ Page({
       isWrong: false,
       freePlay: false,
       answerRevealed: false,
+      wrongShowingSolution: false,
       showingSolution: false,
       feedbackVisible: false,
       feedbackType: '',
@@ -398,10 +400,6 @@ Page({
     wx.vibrateShort({ type: 'light' }).catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
 
-    // 温柔的提示语（随机）
-    var hints = ['没关系，再试试~', '差一点点！', '这题确实有点难', '想想再试试？', '别灰心~']
-    var hint = hints[Math.floor(Math.random() * hints.length)]
-
     // 显示错误落子（标记黑1）
     var currentStones = that.data.stones.slice()
     currentStones.push({ x: x, y: y, color: color })
@@ -413,11 +411,9 @@ Page({
       showMoveNumbers: true,
       interactive: false,
       isWrong: true,
-      showHint: true,
-      hintMsg: hint,
     })
 
-    // 1秒后恢复棋盘，让用户继续本题
+    // 1秒后恢复棋盘 + 弹出底部面板
     setTimeout(function () {
       var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
       that.setData({
@@ -425,12 +421,47 @@ Page({
         lastMove: null,
         moveHistory: [],
         showMoveNumbers: false,
-        interactive: true,
         isWrong: false,
-        showHint: false,
-        hintMsg: '',
+        interactive: false,
+        isDone: true,
+        wrongShowingSolution: false,
       })
+      // 弹出暖色反馈面板
+      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
     }, 1000)
+  },
+
+  // 查看正解按钮（答错面板里）
+  handleShowSolution: function () {
+    var that = this
+    var expected = that._seq[0]
+    if (!expected) return
+
+    // 在棋盘上标记正解
+    var result = goLogic.playMove(that._board, expected[0], expected[1], that._uc)
+    if (result && result.isValid) that._board = result.newBoard
+
+    that.setData({
+      stones: boardToStones(that._board),
+      lastMove: { x: expected[0], y: expected[1] },
+      moveHistory: [{ x: expected[0], y: expected[1], color: that._uc }],
+      showMoveNumbers: true,
+      interactive: true,
+      freePlay: true,
+      wrongShowingSolution: true,
+      feedbackButtonText: '下一题 →',
+    })
+    that._freeColor = that._uc === 'black' ? 'white' : 'black'
+
+    // 提交错误结果
+    var problem = that._problem
+    var timeSpentMs = Date.now() - that._startTime
+    api.submitAnswer(
+      problem.problem_id, [], timeSpentMs, false,
+      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+    ).then(function (res) {
+      that.setData({ ratingChange: res.rating_change || 0, feedbackScore: res.rating_change || 0 })
+    }).catch(function () {})
   },
 
   // ========== 自由推演模式 ==========
@@ -472,7 +503,7 @@ Page({
 
     var buttonText = '下一题 →'
     if (type === 'wrong') {
-      buttonText = '下一题 →'
+      buttonText = '💡 查看正解'
     } else if (isLastProblem && !isContinue) {
       buttonText = '查看总结 →'
     }
@@ -508,10 +539,17 @@ Page({
   handleFeedbackContinue: function () {
     if (!this.data.feedbackCanContinue) return
 
+    // 答错且还没看正解 → 显示正解
+    if (this.data.feedbackType === 'wrong' && !this.data.wrongShowingSolution) {
+      this.handleShowSolution()
+      return
+    }
+
     // 隐藏面板，跳下一题
     this.setData({
       feedbackVisible: false,
       highlightPoints: [],
+      freePlay: false,
     })
 
     var that = this

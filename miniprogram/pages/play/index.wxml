@@ -90,14 +90,9 @@
     </text>
   </view>
 
-  <!-- 正解说明（答错时） -->
-  <text wx:if="{{feedbackType === 'wrong' && showingSolution}}" class="text-sm" style="color:#CC3B3B;margin-bottom:24rpx;display:block;">
-    正解演示中...
-  </text>
-
   <!-- 继续按钮 -->
   <button
-    class="btn {{feedbackType === 'correct' ? 'btn-primary' : feedbackType === 'wrong' ? 'btn-danger' : 'btn-primary'}} btn-lg w-full rounded-xl"
+    class="btn {{feedbackType === 'wrong' ? 'btn-orange' : 'btn-primary'}} btn-lg w-full rounded-xl"
     wx:if="{{feedbackCanContinue}}"
     bindtap="handleFeedbackContinue"
   >{{feedbackButtonText}}</button>

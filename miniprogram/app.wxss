@@ -197,7 +197,7 @@ page {
 }
 .feedback-panel.show { transform: translateY(0); }
 .feedback-correct { background: #D7FFB8; }
-.feedback-wrong { background: #FFF0E0; }
+.feedback-wrong { background: #FFF0E0; border-top: 6rpx solid #FF9500; }
 .feedback-skip { background: #FFF4D6; }
 .feedback-reveal { background: #F0F4FF; }
 

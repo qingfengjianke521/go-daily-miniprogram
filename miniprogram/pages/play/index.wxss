@@ -151,3 +151,6 @@
 /* 查看答案 */
 .reveal-row { text-align: center; padding: 8rpx 0; }
 .reveal-btn { font-size: 26rpx; color: #999; }
+
+/* 橙色按钮 */
+.btn-orange { background: #FF9500 !important; color: #fff !important; border: none !important; }
