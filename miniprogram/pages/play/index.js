@@ -412,7 +412,7 @@ Page({
     var problem = that._problem
 
     that._consecutiveCorrect = 0
-    try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
+    try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
 
     // 显示错误落子（标记黑1）
     var currentStones = that.data.stones.slice()

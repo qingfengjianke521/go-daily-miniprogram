@@ -2,5 +2,8 @@
   "dependencies": {
     "@cloudbase/cli": "^3.0.1",
     "@sabaki/sgf": "^3.4.7"
+  },
+  "devDependencies": {
+    "miniprogram-ci": "^1.9.8"
   }
 }
