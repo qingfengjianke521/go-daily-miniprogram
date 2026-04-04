@@ -11,6 +11,8 @@ var correctAudio = wx.createInnerAudioContext()
 correctAudio.src = '/audio/correct.mp3'
 var wrongAudio = wx.createInnerAudioContext()
 wrongAudio.src = '/audio/wrong.mp3'
+var captureAudio = wx.createInnerAudioContext()
+captureAudio.src = '/audio/capture.mp3'
 
 // 随机鼓励语
 var CORRECT_TEXTS = ['一步到位！', '秒杀！', '厉害了！', '这都能看到？', '妙手！', '读棋高手！', '准确！', '小黑佩服！']
@@ -227,7 +229,7 @@ Page({
     var color = stepIdx % 2 === 0 ? this._uc : this._oc
     var result = goLogic.playMove(currentBoard, coord[0], coord[1], color)
     var newHistory = currentHistory.concat([{ x: coord[0], y: coord[1], color: color }])
-    return { newBoard: result.newBoard, newHistory: newHistory }
+    return { newBoard: result.newBoard, newHistory: newHistory, captured: result.captured || [] }
   },
 
   // ========== 用户操作 ==========
@@ -257,8 +259,16 @@ Page({
       progressPercent: that._calcProgress(nextStep, false),
     })
 
-    try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
-    wx.vibrateShort({ type: 'light' }).catch(function () {})
+    // 音效：提子用提子音效
+    try {
+      if (result.captured && result.captured.length > 0) {
+        captureAudio.stop(); captureAudio.play()
+        wx.vibrateShort({ type: 'medium' }).catch(function(){})
+      } else {
+        stoneAudio.stop(); stoneAudio.play()
+        wx.vibrateShort({ type: 'light' }).catch(function(){})
+      }
+    } catch (e) {}
 
     // 所有步骤完成
     if (nextStep >= that.data.totalMoves) {
@@ -503,7 +513,15 @@ Page({
       currentColor: that._freeColor,
     })
 
-    try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
+    // 音效：提子用提子音效，普通落子用落子音效
+    try {
+      if (result.captured && result.captured.length > 0) {
+        captureAudio.stop(); captureAudio.play()
+        wx.vibrateShort({ type: 'medium' }).catch(function(){})
+      } else {
+        stoneAudio.stop(); stoneAudio.play()
+      }
+    } catch (e) {}
   },
 
   // ========== 反馈面板 ==========
