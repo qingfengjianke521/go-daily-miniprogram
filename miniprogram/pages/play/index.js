@@ -368,11 +368,13 @@ Page({
       that.setData({
         ratingChange: res.rating_change || 0,
         isDone: true,
-        interactive: true,  // 答对后保持可交互，进入自由推演模式
+        interactive: true,
         submitting: false,
-        freePlay: true,     // 标记自由对弈模式
+        freePlay: true,
         progressPercent: that._calcProgress(that.data.totalMoves, true),
       })
+      // 答对后下一步是对方（白棋）
+      that._freeColor = that._uc === 'black' ? 'white' : 'black'
       // 检测段位变化
       if (res.level_changed && res.new_level) {
         that.setData({ levelUpName: res.new_level, showLevelUp: true })
