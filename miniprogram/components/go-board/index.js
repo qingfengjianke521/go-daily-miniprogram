@@ -340,11 +340,20 @@ Component({
       }
 
       // 10. Move history sequence numbers (only for non-captured stones)
+      // 同一位置只画最后一个编号（提子后再落子的情况）
       if (moveHistory && moveHistory.length > 0 && !showMoveNumbers) {
+        // 先找每个位置最后出现的 moveHistory 索引
+        const lastAtPos = new Map()
+        for (let i = 0; i < moveHistory.length; i++) {
+          const s = moveHistory[i]
+          lastAtPos.set(`${s.x},${s.y}`, i)
+        }
+
         for (let i = 0; i < moveHistory.length; i++) {
           const s = moveHistory[i]
           if (s.x < region.x1 || s.x > region.x2 || s.y < region.y1 || s.y > region.y2) continue
           if (!stoneMap.has(`${s.x},${s.y}`)) continue // captured stone, skip
+          if (lastAtPos.get(`${s.x},${s.y}`) !== i) continue // 同位置只画最后一个
 
           const num = i + 1
           const fontSize = stoneRadius * (num >= 10 ? 0.8 : 1.0)
