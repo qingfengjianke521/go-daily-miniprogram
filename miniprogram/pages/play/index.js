@@ -392,63 +392,35 @@ Page({
     var color = that._uc
     var problem = that._problem
 
-    that._consecutiveCorrect = 0 // 重置连对
+    that._consecutiveCorrect = 0
     wx.vibrateLong().catch(function () {})
     try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
 
-    // 1. 在棋盘上显示用户的错误落子
+    // 显示错误落子（标记黑1）
     var currentStones = that.data.stones.slice()
     currentStones.push({ x: x, y: y, color: color })
-
-    // 2. 在棋盘上显示正确位置（用黑棋+序号标记）
-    var expected = that._seq[that.data.currentStep]
-    var history = [{ x: x, y: y, color: color }]  // 用户落子=第1手
-    if (expected) {
-      currentStones.push({ x: expected[0], y: expected[1], color: color })
-      history.push({ x: expected[0], y: expected[1], color: color })  // 正解=第2手(显示为X)
-    }
-
-    // 把正解落到内部棋盘上（用于后续自由推演）
-    if (expected) {
-      var result = goLogic.playMove(that._board, expected[0], expected[1], color)
-      if (result && result.isValid) {
-        that._board = result.newBoard
-      }
-    }
 
     that.setData({
       stones: currentStones,
       lastMove: { x: x, y: y },
-      moveHistory: history,
+      moveHistory: [{ x: x, y: y, color: color }],
       showMoveNumbers: true,
       interactive: false,
       isWrong: true,
-      highlightPoints: expected ? [{ x: expected[0], y: expected[1] }] : [],
     })
 
-    // 提交错误结果，然后进入自由推演模式
-    var timeSpentMs = Date.now() - that._startTime
-    api.submitAnswer(
-      problem.problem_id, [], timeSpentMs, false,
-      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
-    ).then(function (res) {
+    // 1秒后恢复棋盘，让用户继续本题
+    setTimeout(function () {
+      var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
       that.setData({
-        ratingChange: res.rating_change || 0,
-        isDone: true,
+        stones: origStones,
+        lastMove: null,
+        moveHistory: [],
+        showMoveNumbers: false,
         interactive: true,
-        freePlay: true,
+        isWrong: false,
       })
-      that._freeColor = color === 'black' ? 'white' : 'black'
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), res.rating_change || 0)
-    }).catch(function () {
-      that.setData({
-        isDone: true,
-        interactive: true,
-        freePlay: true,
-      })
-      that._freeColor = color === 'black' ? 'white' : 'black'
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
-    })
+    }, 1000)
   },
 
   // ========== 自由推演模式 ==========
