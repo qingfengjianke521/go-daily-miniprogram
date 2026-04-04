@@ -465,15 +465,14 @@ Page({
     var isLastProblem = playState.currentIndex >= playState.problems.length - 1
 
     var buttonText = '继续'
-    if (type === 'wrong') {
-      // 答错时等正解播完才能继续
+    if (type === 'correct' || type === 'reveal') {
+      buttonText = '👆 自由探索'
+    } else if (type === 'wrong') {
       buttonText = '继续'
     } else if (isContinue) {
       buttonText = '再来一题 →'
     } else if (isLastProblem) {
       buttonText = '查看总结 →'
-    } else {
-      buttonText = '继续'
     }
 
     this.setData({
@@ -513,7 +512,10 @@ Page({
       highlightPoints: [],
     })
 
-    // 延迟一下让动画完成
+    // 如果是自由探索模式，关闭面板后留在当前题（可继续落子）
+    if (this.data.freePlay) return
+
+    // 否则跳下一题
     var that = this
     setTimeout(function () {
       that._goToNext()
