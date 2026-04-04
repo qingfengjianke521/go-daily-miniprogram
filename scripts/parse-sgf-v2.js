@@ -17,25 +17,43 @@ function sgf2xy(s) {
   return [x, y]
 }
 
-// 难度映射 — 对照完整方案.md 的等级分表
-// cho_elementary: 100-360 (20K-10K)
-// cho_intermediate: 360-675 (10K-1K)
-// cho_advanced: 675-820 (1K-3D)
-// gokyo_shumyo: 555-820 (5K-3D)
-// tesuji: 360-720 (10K-1D)
+// 难度映射 — 网络公认难度标准
+// cho_elementary: 360-520 (10K-5K) — 赵治勋初级实际是10K-5K水平
+// cho_intermediate: 520-720 (5K-1D)
+// cho_advanced: 720-900 (1D-5D)
+// ishigure_basic: 300-420 (12K-8K)
+// yamada_basic: 300-360 (12K-10K)
 function getDifficulty(dirPath) {
   const lc = dirPath.toLowerCase()
-  if (lc.includes('elementary') || lc.includes('basic')) return { rating: 100, range: 260, cat: '死活' }
-  if (lc.includes('10k-5k')) return { rating: 360, range: 160, cat: '死活' }
-  if (lc.includes('1k-5k') || lc.includes('1-8k') || lc.includes('kyu')) return { rating: 420, range: 255, cat: '死活' }
-  if (lc.includes('intermediate')) return { rating: 360, range: 315, cat: '死活' }
-  if (lc.includes('1k-1d') || lc.includes('shodan')) return { rating: 635, range: 85, cat: '死活' }
-  if (lc.includes('advanced') || lc.includes('dan level')) return { rating: 675, range: 150, cat: '死活' }
+  // 入门级 (12K-8K, rating 300-420)
+  if (lc.includes('ishigure') && lc.includes('basic')) return { rating: 300, range: 120, cat: '死活' }
+  if (lc.includes('yamada') && lc.includes('basic')) return { rating: 300, range: 60, cat: '死活' }
+  if (lc.includes('hashimoto') && lc.includes('elementary')) return { rating: 300, range: 120, cat: '死活' }
+  // 初级 (10K-5K, rating 360-520)
+  if (lc.includes('elementary') && !lc.includes('hashimoto')) return { rating: 360, range: 160, cat: '死活' }
+  if (lc.includes('fujisawa') && lc.includes('elementary')) return { rating: 360, range: 90, cat: '死活' }
+  // 中级 (5K-1K, rating 520-720)
+  if (lc.includes('10k-5k')) return { rating: 460, range: 120, cat: '死活' }
+  if (lc.includes('1k-5k') || lc.includes('1-8k') || lc.includes('kyu')) return { rating: 520, range: 200, cat: '死活' }
+  if (lc.includes('intermediate')) return { rating: 520, range: 200, cat: '死活' }
+  if (lc.includes('hashimoto') && lc.includes('intermediate')) return { rating: 520, range: 150, cat: '死活' }
+  // 上级 (1K-1D, rating 675-820)
+  if (lc.includes('1k-1d') || lc.includes('shodan')) return { rating: 675, range: 100, cat: '死活' }
+  if (lc.includes('hashimoto') && lc.includes('advanced')) return { rating: 675, range: 100, cat: '死活' }
+  // 高级 (1D-3D, rating 720-900)
+  if (lc.includes('advanced') || lc.includes('dan level')) return { rating: 720, range: 180, cat: '死活' }
+  if (lc.includes('yamada') && lc.includes('3 dan')) return { rating: 720, range: 130, cat: '死活' }
+  // 高段 (3D+, rating 825-950)
   if (lc.includes('high dan') || lc.includes('pro')) return { rating: 825, range: 125, cat: '死活' }
-  if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { rating: 360, range: 160, cat: '手筋' }
-  if (lc.includes('tesuji') || lc.includes('splitting') || lc.includes('shape') || lc.includes('attack') || lc.includes('escape')) return { rating: 450, range: 270, cat: '手筋' }
-  if (lc.includes('endgame')) return { rating: 485, range: 190, cat: '官子' }
-  return { rating: 360, range: 200, cat: '死活' }
+  // 手筋 (10K-1D, rating 360-720)
+  if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { rating: 360, range: 120, cat: '手筋' }
+  if (lc.includes('lee changho')) return { rating: 460, range: 200, cat: '手筋' }
+  if (lc.includes('kobayashi')) return { rating: 675, range: 100, cat: '手筋' }
+  if (lc.includes('tesuji') || lc.includes('splitting') || lc.includes('shape') || lc.includes('attack') || lc.includes('escape')) return { rating: 520, range: 200, cat: '手筋' }
+  // 官子 (5K-1D, rating 520-720)
+  if (lc.includes('endgame')) return { rating: 520, range: 200, cat: '官子' }
+  // 默认 (10K)
+  return { rating: 460, range: 200, cat: '死活' }
 }
 
 // 解析 sanderland JSON 文件

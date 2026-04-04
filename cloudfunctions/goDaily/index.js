@@ -270,7 +270,7 @@ async function initUser(openid, wxNickname) {
       user: {
         openid: openid,
         username: u.username || wxNickname || '',
-        rating: typeof u.rating === 'number' ? u.rating : 100,
+        rating: typeof u.rating === 'number' ? u.rating : 300,
         rating_deviation: u.rating_deviation || 350,
         level_name: u.level_name || '25K',
         streak_days: u.streak_days || 0,
@@ -287,9 +287,9 @@ async function initUser(openid, wxNickname) {
     data: {
       _openid: openid,
       username: defaultName,
-      rating: 100,
+      rating: 300,
       rating_deviation: 350,
-      level_name: '25K',
+      level_name: '16K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -303,9 +303,9 @@ async function initUser(openid, wxNickname) {
     user: {
       openid: openid,
       username: defaultName,
-      rating: 100,
+      rating: 300,
       rating_deviation: 350,
-      level_name: '25K',
+      level_name: '16K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
@@ -477,7 +477,7 @@ async function submitAnswer(openid, event) {
     user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(100, user.rating + result.change)
+  var newRating = Math.max(300, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡
