@@ -44,7 +44,9 @@ function getDifficulty(dirPath) {
   if (lc.includes('advanced') || lc.includes('dan level')) return { rating: 720, range: 180, cat: '死活' }
   if (lc.includes('yamada') && lc.includes('3 dan')) return { rating: 720, range: 130, cat: '死活' }
   // 高段 (3D+, rating 825-950)
-  if (lc.includes('high dan') || lc.includes('pro')) return { rating: 825, range: 125, cat: '死活' }
+  if (lc.includes('high dan') || lc.includes('pro level') || lc.includes('professional')) return { rating: 825, range: 125, cat: '死活' }
+  // 手筋大辞典 - 综合性，10K-3D，按题号递增难度
+  if (lc.includes('great tesuji') || (lc.includes('problems') && lc.match(/\d+-\d+/))) return { rating: 360, range: 360, cat: '手筋' }
   // 手筋 (10K-1D, rating 360-720)
   if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { rating: 360, range: 120, cat: '手筋' }
   if (lc.includes('lee changho')) return { rating: 460, range: 200, cat: '手筋' }
@@ -100,6 +102,7 @@ function parseFile(filePath, parentDir) {
     correct_first_move: solutions[0][0],
     full_solution: solutions[0],
     all_solutions: solutions,
+    description: '黑先 ' + diff.cat,
     difficulty_rating: Math.round(diff.rating + ((parseInt(probName.replace(/[^0-9]/g,'')) || 0) % 100) / 100 * (diff.range || 200)),
     view_region: {
       x1: Math.max(0, x1-2), y1: Math.max(0, y1-2),
