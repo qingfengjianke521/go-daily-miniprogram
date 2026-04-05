@@ -473,7 +473,7 @@ async function submitAnswer(openid, event) {
     user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(300, user.rating + result.change)
+  var newRating = Math.max(0, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡
