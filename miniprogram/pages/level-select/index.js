@@ -6,7 +6,7 @@ var LEVELS = [
   { name: '15K', oldName: '15级', label: '15级', emoji: '🌱', desc: '入门，了解基本规则', rating: 300 },
   { name: '8K', oldName: '8级', label: '8级', emoji: '⭐', desc: '有基础，在学死活手筋', rating: 420 },
   { name: '1D', oldName: '初段', label: '初段', emoji: '💪', desc: '业余初段水平', rating: 820 },
-  { name: '5D', oldName: '五段', label: '五段', emoji: '🏆', desc: '业余高段位', rating: 1050 },
+  { name: '3D', oldName: '三段', label: '三段', emoji: '🏆', desc: '业余高段位', rating: 925 },
 ]
 
 Page({
