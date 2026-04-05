@@ -38,8 +38,8 @@ function calculateRating(userRating, userRD, problemRating, isCorrect) {
   var expected = 1 / (1 + Math.pow(10, (problemRating - userRating) / 400))
   var actual = isCorrect ? 1.0 : 0.0
   var change = Math.round(K * (actual - expected))
-  // 等级分最低为0
-  if (userRating + change < 0) change = -userRating
+  // 等级分最低为280（15K）
+  if (userRating + change < 280) change = 280 - userRating
   return { change: change, newRD: userRD || 350 }
 }
 
@@ -474,7 +474,7 @@ async function submitAnswer(openid, event) {
     user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(0, user.rating + result.change)
+  var newRating = Math.max(280, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡
