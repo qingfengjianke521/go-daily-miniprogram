@@ -126,6 +126,19 @@ Page({
     this._oc = oc
 
     var seq = (problem.correct_sequences && problem.correct_sequences[0]) || []
+    // 校验多步答案：如果后续步骤在view_region外，截断为1步题
+    var vr = problem.view_region
+    if (vr && seq.length > 1) {
+      var pad = 1
+      for (var si = 1; si < seq.length; si++) {
+        var mx = seq[si][0], my = seq[si][1]
+        if (mx < vr.x1 - pad || mx > vr.x2 + pad || my < vr.y1 - pad || my > vr.y2 + pad) {
+          console.log('[play] 截断多步答案: step' + si + ' (' + mx + ',' + my + ') 超出view_region')
+          seq = seq.slice(0, si)
+          break
+        }
+      }
+    }
     this._seq = seq
     var totalMoves = seq.length
     var boardSize = problem.board_size || 13
@@ -134,6 +147,7 @@ Page({
     this._board = initBoard
     this._playHistory = []
     this._startTime = Date.now()
+    this._wrongSubmitted = false
 
     var cat = problem.category || ''
     var catMap = { '死活': 'tag-life', '手筋': 'tag-tesuji', '官子': 'tag-endgame', '入门': 'tag-beginner', '定式': 'tag-joseki', '中盘': 'tag-middle' }
@@ -177,11 +191,12 @@ Page({
         else if (sf.indexOf('Go Seigen') !== -1) src = '吴清源手筋(5K-1D)'
         var r = problem.difficulty_rating || 0
         // 等级名
-        var lvl = '25K'
+        var lvl = '15K'
         var tiers = [
-          [0,'25K'],[60,'22K'],[100,'20K'],[150,'18K'],[225,'15K'],
-          [275,'13K'],[360,'10K'],[420,'8K'],[520,'5K'],[595,'3K'],
-          [675,'1K'],[720,'1D'],[770,'2D'],[825,'3D'],[885,'4D'],[950,'5D'],
+          [280,'15K'],[310,'14K'],[340,'13K'],[370,'12K'],[400,'11K'],
+          [435,'10K'],[470,'9K'],[505,'8K'],[540,'7K'],[575,'6K'],
+          [615,'5K'],[655,'4K'],[695,'3K'],[740,'2K'],[785,'1K'],
+          [840,'1D'],[900,'2D'],[960,'3D'],[1030,'4D'],[1100,'5D'],
         ]
         for (var i = tiers.length - 1; i >= 0; i--) { if (r >= tiers[i][0]) { lvl = tiers[i][1]; break } }
         return '难度' + r + '(' + lvl + ') · ' + src
@@ -436,19 +451,48 @@ Page({
       wrongShowingSolution: false,
     })
 
-    // 同时弹出面板
-    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), 0)
+    // 提交错误结果获取扣分
+    if (!that._wrongSubmitted) {
+      that._wrongSubmitted = true
+      var timeSpentMs = Date.now() - that._startTime
+      api.submitAnswer(
+        problem.problem_id, [], timeSpentMs, false,
+        problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+      ).then(function (res) {
+        var score = res.rating_change || 0
+        that.setData({ ratingChange: score, feedbackScore: score })
+      }).catch(function () {})
+    }
 
-    // 1秒后恢复棋盘（面板保留），用户可继续尝试
+    // 同时弹出面板（分数后续异步更新）
+    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that.data.ratingChange || 0)
+
+    // 1秒后恢复棋盘到当前正确步骤的状态（保留之前的黑1白2等）
     setTimeout(function () {
       var boardSize = problem.board_size || 13
-      that._board = goLogic.placeStones(goLogic.createBoard(boardSize), problem.initial_stones || [])
-      var origStones = problem.initial_stones ? [].concat(problem.initial_stones) : []
+      var board = goLogic.placeStones(goLogic.createBoard(boardSize), problem.initial_stones || [])
+      var history = []
+
+      // 重放已走过的正确步骤
+      var step = that.data.currentStep
+      var seq = that._seq
+      for (var i = 0; i < step; i++) {
+        var coord = seq[i]
+        if (!coord) break
+        var c = i % 2 === 0 ? that._uc : that._oc
+        var r = goLogic.playMove(board, coord[0], coord[1], c)
+        if (r && r.isValid) board = r.newBoard
+        history.push({ x: coord[0], y: coord[1], color: c })
+      }
+
+      that._board = board
+      that._playHistory = history
+
       that.setData({
-        stones: origStones,
-        lastMove: null,
-        moveHistory: [],
-        showMoveNumbers: false,
+        stones: boardToStones(board),
+        lastMove: history.length > 0 ? { x: history[history.length-1].x, y: history[history.length-1].y } : null,
+        moveHistory: history,
+        showMoveNumbers: history.length > 0,
         isWrong: false,
         interactive: true,
         isDone: false,
@@ -483,15 +527,18 @@ Page({
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
 
-    // 提交错误结果
-    var problem = that._problem
-    var timeSpentMs = Date.now() - that._startTime
-    api.submitAnswer(
-      problem.problem_id, [], timeSpentMs, false,
-      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
-    ).then(function (res) {
-      that.setData({ ratingChange: res.rating_change || 0, feedbackScore: res.rating_change || 0 })
-    }).catch(function () {})
+    // 如果还没提交过错误结果，现在提交
+    if (!that._wrongSubmitted) {
+      that._wrongSubmitted = true
+      var problem = that._problem
+      var timeSpentMs = Date.now() - that._startTime
+      api.submitAnswer(
+        problem.problem_id, [], timeSpentMs, false,
+        problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+      ).then(function (res) {
+        that.setData({ ratingChange: res.rating_change || 0, feedbackScore: res.rating_change || 0 })
+      }).catch(function () {})
+    }
   },
 
   // ========== 自由推演模式 ==========
@@ -735,12 +782,15 @@ Page({
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
 
-    // 算做错处理（不扣分）
-    var timeSpentMs = Date.now() - that._startTime
-    api.submitAnswer(
-      problem.problem_id, [], timeSpentMs, false,
-      problem.difficulty_rating || 0, problem.expected_time_ms || 60000
-    ).catch(function () {})
+    // 如果还没提交过错误结果，现在提交
+    if (!that._wrongSubmitted) {
+      that._wrongSubmitted = true
+      var timeSpentMs = Date.now() - that._startTime
+      api.submitAnswer(
+        problem.problem_id, [], timeSpentMs, false,
+        problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+      ).catch(function () {})
+    }
 
     var revealTexts = ['记住这个手筋哦~', '下次你一定行！', '学到了吧~', '看懂了就是进步！']
     that._showFeedback('reveal', revealTexts[Math.floor(Math.random() * revealTexts.length)], 0)

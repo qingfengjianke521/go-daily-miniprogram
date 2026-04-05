@@ -2,28 +2,31 @@ var apiModule = require('../../utils/api')
 var api = apiModule.api
 var app = getApp()
 
-// 天梯节点（对照完整方案 25K=0 到 5D=950）
-// 16个节点，完整顺序
+// 天梯节点（20级，15K=280 到 5D=1100）
 var TIERS = [
-  { name: '25K', rating: 0, reward: 0 },
-  { name: '22K', rating: 60, reward: 0 },
-  { name: '20K', rating: 100, reward: 5 },
-  { name: '18K', rating: 150, reward: 0 },
-  { name: '15K', rating: 225, reward: 5 },
-  { name: '13K', rating: 275, reward: 0 },
-  { name: '10K', rating: 360, reward: 10 },
-  { name: '8K', rating: 420, reward: 0 },
-  { name: '5K', rating: 520, reward: 10 },
-  { name: '3K', rating: 595, reward: 0 },
-  { name: '1K', rating: 675, reward: 15 },
-  { name: '1D', rating: 720, reward: 20 },
-  { name: '2D', rating: 770, reward: 0 },
-  { name: '3D', rating: 825, reward: 25 },
-  { name: '4D', rating: 885, reward: 0 },
-  { name: '5D', rating: 950, reward: 30 },
+  { name: '15K', rating: 280, reward: 0 },
+  { name: '14K', rating: 310, reward: 0 },
+  { name: '13K', rating: 340, reward: 0 },
+  { name: '12K', rating: 370, reward: 5 },
+  { name: '11K', rating: 400, reward: 0 },
+  { name: '10K', rating: 435, reward: 10 },
+  { name: '9K',  rating: 470, reward: 0 },
+  { name: '8K',  rating: 505, reward: 0 },
+  { name: '7K',  rating: 540, reward: 5 },
+  { name: '6K',  rating: 575, reward: 0 },
+  { name: '5K',  rating: 615, reward: 10 },
+  { name: '4K',  rating: 655, reward: 0 },
+  { name: '3K',  rating: 695, reward: 0 },
+  { name: '2K',  rating: 740, reward: 5 },
+  { name: '1K',  rating: 785, reward: 15 },
+  { name: '1D',  rating: 840, reward: 20 },
+  { name: '2D',  rating: 900, reward: 0 },
+  { name: '3D',  rating: 960, reward: 25 },
+  { name: '4D',  rating: 1030, reward: 0 },
+  { name: '5D',  rating: 1100, reward: 30 },
 ]
 
-var DAN_START_INDEX = 11 // 1D的index
+var DAN_START_INDEX = 15 // 1D的index
 
 function getLevelColor(name) {
   if (!name) return '#CCC'
@@ -134,24 +137,28 @@ Page({
         // 节点坐标（百分比，对齐背景图上的小路 S 形）
         // 图片是从底部草地到顶部星空
         // Y: 0%=顶部(星空), 100%=底部(草地)
-        // 16 个节点坐标，S形排列
+        // 20 个节点坐标，S形排列
         var NODE_POSITIONS = [
-          { x: 30, y: 88 }, // 25K
-          { x: 65, y: 83 }, // 22K
-          { x: 30, y: 78 }, // 20K
-          { x: 65, y: 73 }, // 18K
-          { x: 30, y: 68 }, // 15K
-          { x: 65, y: 63 }, // 13K
-          { x: 30, y: 58 }, // 10K
-          { x: 65, y: 53 }, // 8K
-          { x: 30, y: 48 }, // 5K
-          { x: 65, y: 43 }, // 3K
-          { x: 30, y: 38 }, // 1K
-          { x: 65, y: 33 }, // 1D
-          { x: 30, y: 28 }, // 2D
-          { x: 65, y: 22 }, // 3D
-          { x: 30, y: 14 }, // 4D
-          { x: 55, y: 5 },  // 5D
+          { x: 30, y: 92 }, // 15K
+          { x: 65, y: 88 }, // 14K
+          { x: 30, y: 84 }, // 13K
+          { x: 65, y: 80 }, // 12K
+          { x: 30, y: 76 }, // 11K
+          { x: 65, y: 72 }, // 10K
+          { x: 30, y: 68 }, // 9K
+          { x: 65, y: 64 }, // 8K
+          { x: 30, y: 60 }, // 7K
+          { x: 65, y: 56 }, // 6K
+          { x: 30, y: 52 }, // 5K
+          { x: 65, y: 48 }, // 4K
+          { x: 30, y: 44 }, // 3K
+          { x: 65, y: 40 }, // 2K
+          { x: 30, y: 36 }, // 1K
+          { x: 65, y: 30 }, // 1D
+          { x: 30, y: 24 }, // 2D
+          { x: 65, y: 18 }, // 3D
+          { x: 30, y: 11 }, // 4D
+          { x: 55, y: 4 },  // 5D
         ]
 
         var nodes = []
