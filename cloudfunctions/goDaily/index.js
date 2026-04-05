@@ -171,7 +171,7 @@ function formatProblem(p) {
     expected_time_ms: p.expected_time_ms,
     initial_stones: p.initial_stones,
     view_region: p.view_region,
-    correct_sequences: p.correct_sequences,
+    correct_sequences: p.correct_sequences || p.all_solutions || [],
     level_tier: p.level_tier || getUserLevelTier(p.difficulty_rating),
     steps: p.steps || 0,
     hint: p.hint || '',
