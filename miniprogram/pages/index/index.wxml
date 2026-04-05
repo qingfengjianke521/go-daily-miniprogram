@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/{{dailyGoal}}题 · v3.4.5</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/{{dailyGoal}}题 · v3.4.6</text>
     <view class="hud-spacer"></view>
     <view class="hud-pill hud-goal" bindtap="onTapGoal">
       <text class="hud-val">🎯</text>

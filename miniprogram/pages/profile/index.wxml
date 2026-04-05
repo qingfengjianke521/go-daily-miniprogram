@@ -59,15 +59,7 @@
 
       <!-- 操作列表 -->
       <view class="action-list">
-        <view class="action-item" bindtap="onTapShare">
-          <text>📤 分享给朋友</text>
-          <text class="action-arrow">›</text>
-        </view>
-        <view class="action-item" bindtap="onTapSettings">
-          <text>⚙️ 设置</text>
-          <text class="action-arrow">›</text>
-        </view>
-        <view class="action-item" bindtap="onTapAdjustLevel">
+<view class="action-item" bindtap="onTapAdjustLevel">
           <text>🎯 重新定级</text>
           <text class="action-arrow">›</text>
         </view>
