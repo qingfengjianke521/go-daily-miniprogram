@@ -23,7 +23,7 @@ function getLevelName(rating) {
   for (var i = LEVEL_TIERS.length - 1; i >= 0; i--) {
     if (rating >= LEVEL_TIERS[i][0]) return LEVEL_TIERS[i][1]
   }
-  return '25K'
+  return '15K'
 }
 
 function getTodayDate() {
@@ -269,7 +269,7 @@ async function initUser(openid, wxNickname) {
         username: u.username || wxNickname || '',
         rating: typeof u.rating === 'number' ? u.rating : 300,
         rating_deviation: u.rating_deviation || 350,
-        level_name: u.level_name || '25K',
+        level_name: u.level_name || '15K',
         streak_days: u.streak_days || 0,
         total_solved: u.total_solved || 0,
         total_correct: u.total_correct || 0,
@@ -284,9 +284,9 @@ async function initUser(openid, wxNickname) {
     data: {
       _openid: openid,
       username: defaultName,
-      rating: 0,
+      rating: 280,
       rating_deviation: 350,
-      level_name: '25K',
+      level_name: '15K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -300,9 +300,9 @@ async function initUser(openid, wxNickname) {
     user: {
       openid: openid,
       username: defaultName,
-      rating: 0,
+      rating: 280,
       rating_deviation: 350,
-      level_name: '25K',
+      level_name: '15K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
@@ -314,8 +314,8 @@ async function initUser(openid, wxNickname) {
 async function setLevel(openid, levelName, clientRating) {
   // 优先用前端传来的 rating（因为云函数部署可能有延迟）
   var LEVEL_RATINGS = {
-    '25K': 0, '20K': 100, '10K': 360, '1K': 675,
-    '25级': 0, '20级': 100, '10级': 360, '1级': 675,
+    '15K': 280, '10K': 435, '5K': 615, '1K': 785,
+    '15级': 280, '10级': 435, '5级': 615, '1级': 785,
   }
   var rating = typeof clientRating === 'number' ? clientRating :
                typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
