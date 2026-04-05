@@ -54,7 +54,8 @@
   <!-- Controls (始终显示) -->
   <view class="controls-row">
     <button class="nav-btn" bindtap="handlePrevProblem" disabled="{{problemIndex <= 1}}">上一题</button>
-    <view class="hint-text">{{problemIndex}}/{{totalProblems}}</view>
+    <button wx:if="{{isDone || answerRevealed}}" class="nav-btn" bindtap="handleRetry">重做</button>
+    <view wx:else class="hint-text">{{problemIndex}}/{{totalProblems}}</view>
     <button class="nav-btn nav-btn-primary" bindtap="handleNextProblem">下一题</button>
   </view>
 </view>

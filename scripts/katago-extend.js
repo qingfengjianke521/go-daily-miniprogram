@@ -4,7 +4,7 @@
  * 输入: problems_all.json (只有第1手)
  * 输出: problems_extended.json (3-5步完整序列)
  *
- * 用法: node scripts/katago-extend.js [start] [count]
+ * 用法: node scripts/katago-extend.js [start] [count] [--output file] [--config cfg]
  */
 var fs = require('fs')
 var cp = require('child_process')
@@ -12,6 +12,14 @@ var path = require('path')
 
 var MODEL = '/opt/homebrew/Cellar/katago/1.16.4/share/katago/g170e-b20c256x2-s5303129600-d1228401921.bin.gz'
 var CONFIG = '/opt/homebrew/Cellar/katago/1.16.4/share/katago/configs/gtp_example.cfg'
+
+// 支持 --output 和 --config 参数
+var args = process.argv.slice(2)
+for (var ai = 0; ai < args.length; ai++) {
+  if (args[ai] === '--output' && args[ai+1]) { process.env.OUTPUT_FILE = args[ai+1]; args.splice(ai, 2); ai-- }
+  else if (args[ai] === '--config' && args[ai+1]) { CONFIG = args[ai+1]; args.splice(ai, 2); ai-- }
+}
+process.argv = process.argv.slice(0, 2).concat(args)
 
 var COLS = 'ABCDEFGHJKLMNOPQRST' // 围棋列名 (跳过I)
 
@@ -84,6 +92,12 @@ async function extendProblem(katago, problem) {
     await katago.send('play white ' + xyToGTP(w[0], w[1], size))
   }
 
+  // 计算棋子局部区域（答案必须在此范围内±3）
+  var allPts = problem.initial_stones.black.concat(problem.initial_stones.white).concat([firstMove])
+  var x1=99,y1=99,x2=0,y2=0
+  for (var pt of allPts){x1=Math.min(x1,pt[0]);y1=Math.min(y1,pt[1]);x2=Math.max(x2,pt[0]);y2=Math.max(y2,pt[1])}
+  var PAD = 3
+
   // 下第1手 (已知正解)
   await katago.send('play black ' + xyToGTP(firstMove[0], firstMove[1], size))
   var sequence = [firstMove]
@@ -99,6 +113,14 @@ async function extendProblem(katago, problem) {
 
     var xy = gtpToXY(move, size)
     if (!xy) break
+
+    // 检查是否在局部区域内
+    if (xy[0] < x1 - PAD || xy[0] > x2 + PAD || xy[1] < y1 - PAD || xy[1] > y2 + PAD) {
+      // KataGo 跑到了远处，停止扩展
+      await katago.send('undo')
+      break
+    }
+
     sequence.push(xy)
   }
 
@@ -109,7 +131,7 @@ async function main() {
   var startIdx = parseInt(process.argv[2]) || 0
   var count = parseInt(process.argv[3]) || 100
   var inputFile = path.join(__dirname, '..', 'problems_all.json')
-  var outputFile = path.join(__dirname, '..', 'problems_extended.json')
+  var outputFile = process.env.OUTPUT_FILE || path.join(__dirname, '..', 'problems_extended.json')
 
   var problems = JSON.parse(fs.readFileSync(inputFile, 'utf8'))
   console.log('总题数:', problems.length)

@@ -147,6 +147,7 @@
 .nav-btn[disabled] { opacity: 0.4; }
 .nav-btn-primary { background: #58CC02; color: #fff; }
 .controls-row { display: flex; align-items: center; gap: 16rpx; padding: 16rpx 32rpx; }
+.retry-btn { font-size: 36rpx; padding: 8rpx 16rpx; color: #999; }
 
 /* 查看答案 */
 .reveal-row { text-align: center; padding: 8rpx 0; }

@@ -32,7 +32,7 @@
             <text class="podium-initial">{{topThree[1].initial}}</text>
           </view>
           <text class="podium-name">{{topThree[1].username}}</text>
-          <text class="podium-score">{{topThree[1].rating}}</text>
+          <text class="podium-score">{{topThree[1].level_name}}</text>
           <view class="podium-stand stand-2"></view>
         </view>
         <!-- 第1名 中 -->
@@ -42,7 +42,7 @@
             <text class="podium-initial">{{topThree[0].initial}}</text>
           </view>
           <text class="podium-name">{{topThree[0].username}}</text>
-          <text class="podium-score podium-score-1">{{topThree[0].rating}}</text>
+          <text class="podium-score podium-score-1">{{topThree[0].level_name}}</text>
           <view class="podium-stand stand-1"></view>
         </view>
         <!-- 第3名 右 -->
@@ -52,7 +52,7 @@
             <text class="podium-initial">{{topThree[2].initial}}</text>
           </view>
           <text class="podium-name">{{topThree[2].username}}</text>
-          <text class="podium-score">{{topThree[2].rating}}</text>
+          <text class="podium-score">{{topThree[2].level_name}}</text>
           <view class="podium-stand stand-3"></view>
         </view>
       </view>
@@ -68,7 +68,7 @@
             <text class="rank-name">{{item.username}}</text>
             <text class="rank-sub">{{item.level_name}}</text>
           </view>
-          <text class="rank-score">{{item.rating}}</text>
+          <text class="rank-score">{{item.level_name}}</text>
         </view>
       </view>
     </block>
