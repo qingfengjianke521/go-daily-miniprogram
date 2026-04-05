@@ -45,7 +45,7 @@ async function uploadMiniProgram() {
     var result = await ci.upload({
       project: project,
       version: '4.5.0',
-      desc: '等级分表统一+rating下限0+description字段',
+      desc: '20级天梯+rating280起点+formatProblem兼容',
       setting: {
         es6: true,
         es7: true,
