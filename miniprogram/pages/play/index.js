@@ -149,36 +149,40 @@ Page({
       debugInfo: (function() {
         var sf = problem.source_file || ''
         var src = '未知'
-        if (sf.indexOf('Elementary') !== -1) src = '赵治勋初级(20K-10K)'
-        else if (sf.indexOf('Intermediate') !== -1 && sf.indexOf('1b.') !== -1) src = '赵治勋中级(10K-1K)'
-        else if (sf.indexOf('Advanced') !== -1 || sf.indexOf('1c.') !== -1) src = '赵治勋高级(1K-3D)'
-        else if (sf.indexOf('Ishigure') !== -1 && sf.indexOf('Basic') !== -1) src = '石的基础123题(20K-10K)'
-        else if (sf.indexOf('Ishigure') !== -1) src = '石的初段(1K-1D)'
-        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('Elementary') !== -1) src = '藤泽初级(20K-10K)'
-        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('High') !== -1) src = '藤泽高段(3D-5D)'
-        else if (sf.indexOf('Fujisawa') !== -1) src = '藤泽秀行'
+        if (sf.indexOf('Ishigure') !== -1 && sf.indexOf('Basic') !== -1) src = '石榑基础(16K-11K)'
+        else if (sf.indexOf('Yamada') !== -1 && sf.indexOf('Basic') !== -1) src = '山田基础(16K-14K)'
+        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Elementary') !== -1) src = '桥本初级(16K-11K)'
+        else if (sf.indexOf('Elementary') !== -1) src = '赵治勋初级(10K-5K)'
+        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('Elementary') !== -1) src = '藤泽初级(10K-5K)'
+        else if (sf.indexOf('Intermediate') !== -1 && sf.indexOf('1b.') !== -1) src = '赵治勋中级(5K-1K)'
+        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Intermediate') !== -1) src = '桥本中级(5K-1K)'
         else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('10k') !== -1) src = '前田10K-5K'
         else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('1k-5k') !== -1) src = '前田1K-5K'
         else if (sf.indexOf('Maeda') !== -1 && sf.indexOf('1k-1d') !== -1) src = '前田1K-1D'
         else if (sf.indexOf('Maeda') !== -1) src = '前田诘棋'
-        else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('Kyu') !== -1) src = '石田级位(10K-1K)'
+        else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('Kyu') !== -1) src = '石田级位(5K-1K)'
         else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('High') !== -1) src = '石田高段(3D+)'
         else if (sf.indexOf('Ishida') !== -1 && sf.indexOf('Pro') !== -1) src = '石田职业(5D+)'
         else if (sf.indexOf('Ishida') !== -1) src = '石田段位(1K-3D)'
-        else if (sf.indexOf('Yamada') !== -1 && sf.indexOf('Basic') !== -1) src = '山田基础(20K-10K)'
-        else if (sf.indexOf('Yamada') !== -1) src = '山田三段之路(1K-3D)'
-        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Elementary') !== -1) src = '桥本初级(20K-10K)'
-        else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Intermediate') !== -1) src = '桥本中级(10K-1K)'
+        else if (sf.indexOf('Ishigure') !== -1) src = '石榑初段(1K-1D)'
+        else if (sf.indexOf('Advanced') !== -1 || sf.indexOf('1c.') !== -1) src = '赵治勋高级(1D-3D)'
         else if (sf.indexOf('Hashimoto') !== -1 && sf.indexOf('Advanced') !== -1) src = '桥本高级(1K-3D)'
+        else if (sf.indexOf('Fujisawa') !== -1 && sf.indexOf('High') !== -1) src = '藤泽高段(3D-5D)'
+        else if (sf.indexOf('Fujisawa') !== -1) src = '藤泽秀行'
         else if (sf.indexOf('Hashimoto') !== -1) src = '桥本宇太郎'
+        else if (sf.indexOf('Yamada') !== -1) src = '山田三段之路(1D-3D)'
         else if (sf.indexOf('Lee Changho') !== -1) src = '李昌镐手筋(10K-1K)'
-        else if (sf.indexOf('Tesuji Great') !== -1 || sf.indexOf('Great Tesuji') !== -1) src = '手筋大辞典(10K-1D)'
+        else if (sf.indexOf('Tesuji Great') !== -1 || sf.indexOf('Great Tesuji') !== -1) src = '手筋大辞典(5K-1D)'
         else if (sf.indexOf('Kobayashi') !== -1) src = '小林觉手筋(1K-3D)'
-        else if (sf.indexOf('Go Seigen') !== -1) src = '吴清源手筋(10K-1D)'
+        else if (sf.indexOf('Go Seigen') !== -1) src = '吴清源手筋(5K-1D)'
         var r = problem.difficulty_rating || 0
         // 等级名
         var lvl = '25K'
-        var tiers = [[0,'25K'],[100,'20K'],[225,'15K'],[360,'10K'],[520,'5K'],[675,'1K'],[720,'1D'],[825,'3D'],[950,'5D']]
+        var tiers = [
+          [0,'25K'],[60,'22K'],[100,'20K'],[150,'18K'],[225,'15K'],
+          [275,'13K'],[360,'10K'],[420,'8K'],[520,'5K'],[595,'3K'],
+          [675,'1K'],[720,'1D'],[770,'2D'],[825,'3D'],[885,'4D'],[950,'5D'],
+        ]
         for (var i = tiers.length - 1; i >= 0; i--) { if (r >= tiers[i][0]) { lvl = tiers[i][1]; break } }
         return '难度' + r + '(' + lvl + ') · ' + src
       })(),
@@ -414,6 +418,9 @@ Page({
 
     that._consecutiveCorrect = 0
     try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
+    setTimeout(function () {
+      try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
+    }, 300)
 
     // 显示错误落子（标记黑1）+ 同时弹出面板
     var currentStones = that.data.stones.slice()
@@ -454,6 +461,10 @@ Page({
     var that = this
     var expected = that._seq[0]
     if (!expected) return
+
+    // 落子音效
+    stoneAudio.stop()
+    stoneAudio.play()
 
     // 在棋盘上标记正解
     var result = goLogic.playMove(that._board, expected[0], expected[1], that._uc)
@@ -699,6 +710,10 @@ Page({
     var expected = that._seq[0]
     if (!expected) return
 
+    // 落子音效
+    stoneAudio.stop()
+    stoneAudio.play()
+
     // 在棋盘上标记正确位置
     var currentStones = that.data.stones.slice()
     currentStones.push({ x: expected[0], y: expected[1], color: that._uc })
@@ -771,6 +786,14 @@ Page({
 
   handleReset: function () {
     if (this.data.feedbackVisible) return
+    this._doRetry()
+  },
+
+  handleRetry: function () {
+    this._doRetry()
+  },
+
+  _doRetry: function () {
     var problem = this._problem
     if (!problem) return
 
@@ -778,6 +801,9 @@ Page({
     var initBoard = goLogic.placeStones(goLogic.createBoard(boardSize), problem.initial_stones || [])
     this._board = initBoard
     this._playHistory = []
+    // 重置答案序列
+    var seq = (problem.correct_sequences && problem.correct_sequences[0]) || []
+    this._seq = seq
 
     this.setData({
       stones: problem.initial_stones ? [].concat(problem.initial_stones) : [],
@@ -787,9 +813,15 @@ Page({
       currentStep: 0,
       isDone: false,
       advancing: false,
+      freePlay: false,
+      answerRevealed: false,
+      isWrong: false,
+      wrongShowingSolution: false,
+      feedbackVisible: false,
+      submitting: false,
       hintMsg: '',
       showHint: false,
-      interactive: this._seq.length > 0,
+      interactive: seq.length > 0,
       progressPercent: this._calcProgress(0, false),
     })
   },

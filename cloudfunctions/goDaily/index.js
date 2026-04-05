@@ -10,15 +10,11 @@ const _ = db.command
 
 // ========== 工具函数 ==========
 
-// 等级分表：起点=100（题库最低rating），每级间距20-65
-// 25K=100, 20K=200, 15K=325, 10K=460, 5K=620, 1K=775, 1D=820, 5D=1050
+// 等级分表（前后端统一）
 var LEVEL_TIERS = [
-  [100, '25K'], [120, '24K'], [140, '23K'], [160, '22K'], [180, '21K'],
-  [200, '20K'], [225, '19K'], [250, '18K'], [275, '17K'], [300, '16K'],
-  [325, '15K'], [350, '14K'], [375, '13K'], [400, '12K'], [430, '11K'],
-  [460, '10K'], [490, '9K'], [520, '8K'], [550, '7K'], [585, '6K'],
-  [620, '5K'], [655, '4K'], [695, '3K'], [735, '2K'], [775, '1K'],
-  [820, '1D'], [870, '2D'], [925, '3D'], [985, '4D'], [1050, '5D'],
+  [0, '25K'], [60, '22K'], [100, '20K'], [150, '18K'], [225, '15K'],
+  [275, '13K'], [360, '10K'], [420, '8K'], [520, '5K'], [595, '3K'],
+  [675, '1K'], [720, '1D'], [770, '2D'], [825, '3D'], [885, '4D'], [950, '5D'],
 ]
 
 function getLevelName(rating) {
@@ -54,24 +50,23 @@ function getUserLevelTier(rating) {
   return 'advanced'                       // 3D+
 }
 
-// Pick one random problem from a rating range, excluding used IDs
 // 从指定 rating 范围随机选1题（排除已做过的）
+// 优化：不做count，直接随机skip+limit
 async function pickFromDB(minR, maxR, exclude) {
   var where = { difficulty_rating: _.gte(minR).and(_.lte(maxR)) }
-  var countRes = await db.collection('problems').where(where).count()
-  var total = countRes.total
-  if (total === 0) return null
-
-  for (var attempt = 0; attempt < 3; attempt++) {
-    var skip = Math.floor(Math.random() * Math.max(0, total - 5))
-    var res = await db.collection('problems').where(where)
-      .skip(skip).limit(10).get()
-    var cands = res.data.filter(function(p) { return !exclude[p.problem_id] })
-    if (cands.length > 0) {
-      var picked = cands[Math.floor(Math.random() * cands.length)]
-      exclude[picked.problem_id] = true
-      return picked
-    }
+  // 直接随机 skip，假设每个范围不超过5000题
+  var skip = Math.floor(Math.random() * 2000)
+  var res = await db.collection('problems').where(where)
+    .skip(skip).limit(20).get()
+  // 如果 skip 太大没数据，从头取
+  if (res.data.length === 0) {
+    res = await db.collection('problems').where(where).limit(20).get()
+  }
+  var cands = res.data.filter(function(p) { return !exclude[p.problem_id] })
+  if (cands.length > 0) {
+    var picked = cands[Math.floor(Math.random() * cands.length)]
+    exclude[picked.problem_id] = true
+    return picked
   }
   return null
 }
@@ -179,6 +174,7 @@ function formatProblem(p) {
     level_tier: p.level_tier || getUserLevelTier(p.difficulty_rating),
     steps: p.steps || 0,
     hint: p.hint || '',
+    source_file: p.source_file || '',
   }
 }
 
@@ -197,7 +193,7 @@ exports.main = async function(event, context) {
       var sample = await db.collection('problems').limit(1).get()
       var sCount = await db.collection('daily_sessions').count()
       return {
-        version: 'v4.0.5_20260403',
+        version: 'v4.1.1_20260404',
         problems_count: pCount.total,
         sessions_count: sCount.total,
         sample_problem: sample.data.length > 0 ? {
@@ -287,9 +283,9 @@ async function initUser(openid, wxNickname) {
     data: {
       _openid: openid,
       username: defaultName,
-      rating: 300,
+      rating: 0,
       rating_deviation: 350,
-      level_name: '16K',
+      level_name: '25K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -303,9 +299,9 @@ async function initUser(openid, wxNickname) {
     user: {
       openid: openid,
       username: defaultName,
-      rating: 300,
+      rating: 0,
       rating_deviation: 350,
-      level_name: '16K',
+      level_name: '25K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
