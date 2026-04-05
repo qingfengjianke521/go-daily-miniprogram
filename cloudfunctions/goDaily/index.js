@@ -193,7 +193,7 @@ exports.main = async function(event, context) {
       var sample = await db.collection('problems').limit(1).get()
       var sCount = await db.collection('daily_sessions').count()
       return {
-        version: 'v4.1.1_20260404',
+        version: 'v4.5.0_20260405',
         problems_count: pCount.total,
         sessions_count: sCount.total,
         sample_problem: sample.data.length > 0 ? {
