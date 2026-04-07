@@ -1072,6 +1072,16 @@ function generateSnapbackApply() {
       ans: [0,6],
       rating: 378
     },
+    // Center pair: White (5,5)(6,5), Black (4,5)(5,4)(6,4)(7,5). Lib at (5,6) or (6,6).
+    // (5,5) nbrs: (4,5)=B,(6,5)=W,(5,4)=B,(5,6)=empty -> lib (5,6)
+    // (6,5) nbrs: (5,5)=W,(7,5)=B,(6,4)=B,(6,6)=empty -> lib (6,6)
+    // 2 libs. Play (5,6) to reduce to 1.
+    {
+      b: [[4,5],[5,4],[6,4],[7,5],[6,6]],
+      w: [[5,5],[6,5]],
+      ans: [5,6],
+      rating: 382
+    },
   ];
 
   var count = 0;

@@ -81,11 +81,11 @@ Page({
     if (app.globalData.latestRating !== undefined) {
       this._cachedRating = app.globalData.latestRating
       this._cachedLevel = app.globalData.latestLevel
-      // 立即更新显示
-      var s = this.data.stats || {}
-      s.rating = this._cachedRating
-      s.level_name = this._cachedLevel || s.level_name
-      this.setData({ stats: s })
+      // 用路径更新，确保触发渲染
+      this.setData({
+        'stats.rating': this._cachedRating,
+        'stats.level_name': this._cachedLevel || (this.data.stats && this.data.stats.level_name) || '7K',
+      })
       app.globalData.latestRating = undefined
       app.globalData.latestLevel = undefined
     } else {
@@ -115,6 +115,8 @@ Page({
         if (cachedRating !== undefined) {
           stats.rating = cachedRating
           stats.level_name = cachedLevel || stats.level_name
+          that._cachedRating = undefined
+          that._cachedLevel = undefined
         }
         var completedCount = daily.completed_count || 0
         var checkedIn = completedCount >= 3

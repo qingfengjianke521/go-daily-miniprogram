@@ -1,0 +1,59 @@
+<view class="page">
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner" style="height: {{navBarHeight}}px;">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-arrow"></text>
+      </view>
+      <text class="nav-title">{{nodeName}}</text>
+      <view class="nav-placeholder"></view>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="content" style="top: {{statusBarHeight + navBarHeight}}px;">
+    <view class="inner-content">
+      <view class="node-header" style="background-color: {{nodeColor}};">
+        <text class="header-icon">{{nodeIcon}}</text>
+        <text class="header-name">{{nodeName}}</text>
+        <text class="header-desc">{{nodeDescription}}</text>
+      </view>
+
+      <view class="level-list">
+        <view wx:for="{{levels}}" wx:key="level"
+          class="level-card {{item.status}}"
+          hover-class="{{item.status !== 'locked' ? 'level-card-hover' : ''}}"
+          bindtap="onTapLevel"
+          data-tag="{{item.tag}}"
+          data-level="{{item.level}}"
+          data-status="{{item.status}}">
+
+          <view class="level-num" style="background-color: {{item.status === 'locked' ? '#E0E0E0' : nodeColor}};">
+            <text class="level-num-text">{{item.level}}</text>
+          </view>
+
+          <view class="level-body">
+            <text class="level-name">{{item.name}}</text>
+            <text class="level-info">{{item.count}} 道题</text>
+            <view wx:if="{{item.status === 'completed'}}" class="star-row">
+              <text class="star {{item.stars >= 1 ? 'star-on' : ''}}">★</text>
+              <text class="star {{item.stars >= 2 ? 'star-on' : ''}}">★</text>
+              <text class="star {{item.stars >= 3 ? 'star-on' : ''}}">★</text>
+              <text class="score-text">{{item.score}}/{{item.count}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{item.status === 'locked'}}" class="level-lock">
+            <text>🔒</text>
+          </view>
+          <view wx:elif="{{item.status === 'available'}}" class="level-play">
+            <text class="play-text">开始</text>
+          </view>
+          <view wx:elif="{{item.status === 'completed'}}" class="level-redo">
+            <text class="redo-text">重做</text>
+          </view>
+        </view>
+      </view>
+
+      <view style="height: 100rpx;"></view>
+    </view>
+  </scroll-view>
+</view>

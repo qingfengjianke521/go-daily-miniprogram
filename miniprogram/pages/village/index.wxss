@@ -1,0 +1,197 @@
+.page {
+  min-height: 100vh;
+  background-color: #F7F7F7;
+}
+
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: #FFFFFF;
+}
+
+.nav-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.content {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.inner-content {
+  padding: 0 32rpx;
+}
+
+.header {
+  padding: 32rpx 0 16rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 16rpx;
+  background: #E8E8E8;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #58CC02, #7FD534);
+  border-radius: 8rpx;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 16rpx;
+  min-width: 64rpx;
+  text-align: right;
+}
+
+.skill-node {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  margin-top: 20rpx;
+}
+
+.skill-node.locked {
+  opacity: 0.55;
+}
+
+.skill-node-hover {
+  background: #F5F5F5;
+}
+
+.node-icon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.node-icon-text {
+  font-size: 44rpx;
+}
+
+.node-body {
+  flex: 1;
+  min-width: 0;
+  margin-left: 28rpx;
+}
+
+.node-name-row {
+  display: flex;
+  align-items: center;
+}
+
+.node-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.node-badge {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 100rpx;
+  margin-left: 12rpx;
+}
+
+.completed-badge {
+  background: #E8F5E9;
+  color: #4CAF50;
+}
+
+.progress-badge {
+  background: #FFF3E0;
+  color: #FF9800;
+}
+
+.node-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.level-dots {
+  display: flex;
+  margin-top: 12rpx;
+  gap: 8rpx;
+}
+
+.level-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #E0E0E0;
+}
+
+.level-dot.done {
+  /* color set inline via style */
+}
+
+.level-dot.current {
+  background: #FFD54F;
+  box-shadow: 0 0 4rpx #FFD54F;
+}
+
+.node-lock {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.lock-text {
+  font-size: 32rpx;
+}
+
+.node-arrow {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 4rpx solid #CCC;
+  border-right: 4rpx solid #CCC;
+  transform: rotate(45deg);
+}

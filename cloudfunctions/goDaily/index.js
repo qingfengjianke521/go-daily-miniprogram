@@ -217,6 +217,8 @@ exports.main = async function(event, context) {
       return await setUsername(openid, event.username)
     } else if (action === 'getRatingHistory') {
       return await getRatingHistory(openid)
+    } else if (action === 'getCalendar') {
+      return await getCalendar(openid, event.month)
     } else {
       return { error: '未知操作' }
     }
@@ -688,4 +690,23 @@ async function getRatingHistory(openid) {
   if (points.length > 30) points = points.slice(points.length - 30)
 
   return { history: points }
+}
+
+async function getCalendar(openid, month) {
+  // month = "2026-04"
+  if (!month) return { dates: [] }
+  var startDate = month + '-01'
+  var parts = month.split('-')
+  var y = parseInt(parts[0]), m = parseInt(parts[1])
+  var endDate = m < 12
+    ? y + '-' + String(m + 1).padStart(2, '0') + '-01'
+    : (y + 1) + '-01-01'
+
+  var res = await db.collection('daily_sessions').where({
+    _openid: openid,
+    session_date: _.gte(startDate).and(_.lt(endDate)),
+    completed_count: _.gte(1),
+  }).field({ session_date: true }).limit(31).get()
+
+  return { dates: res.data.map(function(d) { return d.session_date }) }
 }

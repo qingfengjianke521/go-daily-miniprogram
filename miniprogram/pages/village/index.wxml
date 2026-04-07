@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-bar-inner" style="height: {{navBarHeight}}px;">
+      <text class="nav-title">新手村</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="content" style="top: {{statusBarHeight + navBarHeight}}px;">
+    <view class="inner-content">
+      <view class="header">
+        <text class="page-title">新手村</text>
+        <text class="page-subtitle">从零开始，一步步成为围棋高手</text>
+        <view class="progress-bar-wrap">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{overallProgress}}%;"></view>
+          </view>
+          <text class="progress-text">{{overallProgress}}%</text>
+        </view>
+      </view>
+
+      <view wx:for="{{nodes}}" wx:key="id"
+        class="skill-node {{item.status}}"
+        hover-class="{{item.status !== 'locked' ? 'skill-node-hover' : ''}}"
+        bindtap="onTapNode"
+        data-id="{{item.id}}"
+        data-status="{{item.status}}">
+
+        <view class="node-icon" style="background-color: {{item.status === 'locked' ? '#E0E0E0' : item.color}};">
+          <text class="node-icon-text">{{item.icon}}</text>
+        </view>
+
+        <view class="node-body">
+          <view class="node-name-row">
+            <text class="node-name">{{item.name}}</text>
+            <text wx:if="{{item.status === 'completed'}}" class="node-badge completed-badge">已完成</text>
+            <text wx:elif="{{item.status === 'in_progress'}}" class="node-badge progress-badge">{{item.completedLevel}}/{{item.totalLevels}}</text>
+          </view>
+          <text class="node-desc">{{item.description}}</text>
+          <view class="level-dots">
+            <view wx:for="{{item.levelDots}}" wx:for-item="dot" wx:key="level"
+              class="level-dot {{dot.status}}"
+              style="background-color: {{dot.status === 'done' ? item.color : ''}};">
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.status === 'locked'}}" class="node-lock">
+          <text class="lock-text">🔒</text>
+        </view>
+        <view wx:else class="node-arrow"></view>
+      </view>
+
+      <view style="height: 180rpx;"></view>
+    </view>
+  </scroll-view>
+</view>

@@ -14,7 +14,9 @@
     "pages/joseki/practice/index",
     "pages/fuseki/list/index",
     "pages/fuseki/practice/index",
-    "pages/admin/index"
+    "pages/admin/index",
+    "pages/village/index",
+    "pages/village/node/index"
   ],
   "tabBar": {
     "custom": true,
@@ -28,6 +30,12 @@
         "text": "首页",
         "iconPath": "images/tab-home.png",
         "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/village/index",
+        "text": "学习",
+        "iconPath": "images/tab-learn.png",
+        "selectedIconPath": "images/tab-learn-active.png"
       },
       {
         "pagePath": "pages/ranking/index",

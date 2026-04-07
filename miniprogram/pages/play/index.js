@@ -84,6 +84,9 @@ Page({
     // 段位升级
     showLevelUp: false,
     levelUpName: '',
+    // 新手村模式
+    isVillageMode: false,
+    villageNodeName: '',
   },
 
   _board: null,
@@ -107,6 +110,8 @@ Page({
     }
 
     this._playState = playState
+    this._isVillageMode = !!playState.isVillageMode
+    this._villageCorrect = 0
 
     // 加载用户等级和每日进度
     var dailyDone = playState.completedCount || 0
@@ -115,6 +120,8 @@ Page({
       userRating: playState.userRating || 520,
       dailyDone: dailyDone,
       dailyProgress: Math.min(100, Math.round(dailyDone / 3 * 100)),
+      isVillageMode: this._isVillageMode,
+      villageNodeName: playState.villageNodeName || '',
     })
 
     this._initProblem()
@@ -418,6 +425,10 @@ Page({
     }
 
     that._answerSubmitted = true
+    // 新手村模式下也计数
+    if (that._isVillageMode) {
+      that._villageCorrect = (that._villageCorrect || 0) + 1
+    }
     api.submitAnswer(
       problem.problem_id, that._seq, timeSpentMs, true,
       problem.difficulty_rating || 0, problem.expected_time_ms || 60000

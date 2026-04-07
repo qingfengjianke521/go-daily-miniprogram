@@ -171,20 +171,16 @@ Page({
     var startOffset = firstDay === 0 ? 6 : firstDay - 1 // 周一=0
     var daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
 
-    // 从 daily_sessions 获取本月做题日期（用范围查询代替正则，避免索引警告）
-    var db = wx.cloud.database()
-    var _ = db.command
+    // 用云函数查打卡日期（避免前端直接查数据库的索引/超时问题）
     var monthStr = year + '-' + String(month + 1).padStart(2, '0')
-    var nextMonth = month + 2 <= 12
-      ? year + '-' + String(month + 2).padStart(2, '0')
-      : (year + 1) + '-01'
-    db.collection('daily_sessions').where({
-      session_date: _.gte(monthStr + '-01').and(_.lt(nextMonth + '-01')),
-      completed_count: _.gte(1),
-    }).field({ session_date: true }).get().then(function (res) {
+    wx.cloud.callFunction({
+      name: 'goDaily',
+      data: { action: 'getCalendar', month: monthStr },
+    }).then(function (callRes) {
+      var dates = (callRes.result && callRes.result.dates) || []
       var doneDates = {}
-      for (var i = 0; i < res.data.length; i++) {
-        var d = parseInt(res.data[i].session_date.split('-')[2])
+      for (var i = 0; i < dates.length; i++) {
+        var d = parseInt(dates[i].split('-')[2])
         doneDates[d] = true
       }
 

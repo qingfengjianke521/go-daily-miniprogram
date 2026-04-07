@@ -5588,6 +5588,74 @@
     "skill_node": "snapback_apply"
   },
   {
+    "id": "gen_snapback_apply_008",
+    "source": "generated",
+    "source_file": "beginner/snapback",
+    "category": "入门",
+    "board_size": 9,
+    "initial_stones": {
+      "black": [
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          6,
+          6
+        ]
+      ],
+      "white": [
+        [
+          5,
+          5
+        ],
+        [
+          6,
+          5
+        ]
+      ]
+    },
+    "correct_first_move": [
+      5,
+      6
+    ],
+    "full_solution": [
+      [
+        5,
+        6
+      ]
+    ],
+    "all_solutions": [
+      [
+        [
+          5,
+          6
+        ]
+      ]
+    ],
+    "description": "黑先 倒扑",
+    "difficulty_rating": 382,
+    "view_region": {
+      "x1": 2,
+      "y1": 2,
+      "x2": 8,
+      "y2": 8
+    },
+    "skill_node": "snapback_apply"
+  },
+  {
     "id": "gen_snapback_mixed_001",
     "source": "generated",
     "source_file": "beginner/snapback",
