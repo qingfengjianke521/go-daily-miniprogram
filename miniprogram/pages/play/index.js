@@ -435,6 +435,8 @@ Page({
         dailyDone: newDone,
         dailyProgress: Math.min(100, Math.round(newDone / 3 * 100)),
       })
+      app.globalData.latestRating = res.new_rating || that.data.userRating
+      app.globalData.latestLevel = res.new_level || that.data.userLevel
       // 答对后下一步是对方（白棋）
       that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
@@ -497,12 +499,11 @@ Page({
         problem.difficulty_rating || 0, problem.expected_time_ms || 60000
       ).then(function (res) {
         var score = res.rating_change || 0
-        that.setData({
-          ratingChange: score,
-          feedbackScore: score,
-          userRating: res.new_rating || that.data.userRating,
-          userLevel: res.new_level || that.data.userLevel,
-        })
+        var nr = res.new_rating || that.data.userRating
+        var nl = res.new_level || that.data.userLevel
+        that.setData({ ratingChange: score, feedbackScore: score, userRating: nr, userLevel: nl })
+        app.globalData.latestRating = nr
+        app.globalData.latestLevel = nl
       }).catch(function () {})
     }
 
@@ -516,6 +517,8 @@ Page({
       that._wrongScore = estScore
       var estNewRating = Math.max(520, that.data.userRating + estScore)
       that.setData({ userRating: estNewRating })
+      app.globalData.latestRating = estNewRating
+      app.globalData.latestLevel = that.data.userLevel
       that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
     }
 

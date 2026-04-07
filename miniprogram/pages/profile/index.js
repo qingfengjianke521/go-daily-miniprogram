@@ -171,12 +171,16 @@ Page({
     var startOffset = firstDay === 0 ? 6 : firstDay - 1 // 周一=0
     var daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
 
-    // 从 daily_sessions 获取本月做题日期
+    // 从 daily_sessions 获取本月做题日期（用范围查询代替正则，避免索引警告）
     var db = wx.cloud.database()
+    var _ = db.command
     var monthStr = year + '-' + String(month + 1).padStart(2, '0')
+    var nextMonth = month + 2 <= 12
+      ? year + '-' + String(month + 2).padStart(2, '0')
+      : (year + 1) + '-01'
     db.collection('daily_sessions').where({
-      session_date: db.RegExp({ regexp: '^' + monthStr, options: 'i' }),
-      completed_count: db.command.gte(1),
+      session_date: _.gte(monthStr + '-01').and(_.lt(nextMonth + '-01')),
+      completed_count: _.gte(1),
     }).field({ session_date: true }).get().then(function (res) {
       var doneDates = {}
       for (var i = 0; i < res.data.length; i++) {

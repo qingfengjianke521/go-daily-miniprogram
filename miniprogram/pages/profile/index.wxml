@@ -59,7 +59,7 @@
 
       <!-- 操作列表 -->
       <view class="action-list">
-<view class="action-item" bindtap="onTapAdjustLevel">
+<view class="action-item" bindtap="onTapAdjustLevel" wx:if="{{isAdmin}}">
           <text>🎯 重新定级</text>
           <text class="action-arrow">›</text>
         </view>
