@@ -77,14 +77,20 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     if (!app.checkAuth()) return
-    // 先用做题页传回的最新分数立即更新
+    // 做题页传回的最新分数
     if (app.globalData.latestRating !== undefined) {
+      this._cachedRating = app.globalData.latestRating
+      this._cachedLevel = app.globalData.latestLevel
+      // 立即更新显示
       var s = this.data.stats || {}
-      s.rating = app.globalData.latestRating
-      s.level_name = app.globalData.latestLevel || s.level_name
+      s.rating = this._cachedRating
+      s.level_name = this._cachedLevel || s.level_name
       this.setData({ stats: s })
       app.globalData.latestRating = undefined
       app.globalData.latestLevel = undefined
+    } else {
+      this._cachedRating = undefined
+      this._cachedLevel = undefined
     }
     this._loadData()
   },
@@ -98,9 +104,18 @@ Page({
     var that = this
     that.setData({ loading: true })
 
+    // 记住做题页传回的分数（防止被云函数旧数据覆盖）
+    var cachedRating = that._cachedRating
+    var cachedLevel = that._cachedLevel
+
     // 一次调用拿 stats + daily
     api.getHome().then(function (home) {
         var daily = home.daily, stats = home.stats
+        // 如果做题页传回了更新的分数，用它覆盖云函数返回值
+        if (cachedRating !== undefined) {
+          stats.rating = cachedRating
+          stats.level_name = cachedLevel || stats.level_name
+        }
         var completedCount = daily.completed_count || 0
         var checkedIn = completedCount >= 3
         var problemList = daily.problems || []
