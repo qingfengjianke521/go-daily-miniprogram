@@ -43,6 +43,10 @@ function boardToStones(board) {
 Page({
   data: {
     statusBarHeight: 20,
+    userLevel: '15K',
+    userRating: 280,
+    dailyDone: 0,
+    dailyProgress: 0,
     problemIndex: 0,
     totalProblems: 0,
     description: '',
@@ -103,6 +107,16 @@ Page({
     }
 
     this._playState = playState
+
+    // 加载用户等级和每日进度
+    var dailyDone = playState.completedCount || 0
+    this.setData({
+      userLevel: playState.userLevel || '15K',
+      userRating: playState.userRating || 280,
+      dailyDone: dailyDone,
+      dailyProgress: Math.min(100, Math.round(dailyDone / 3 * 100)),
+    })
+
     this._initProblem()
   },
 
@@ -148,6 +162,7 @@ Page({
     this._playHistory = []
     this._startTime = Date.now()
     this._wrongSubmitted = false
+    this._userRating = (app.globalData.userInfo && app.globalData.userInfo.rating) || wx.getStorageSync('userRating') || 280
 
     var cat = problem.category || ''
     var catMap = { '死活': 'tag-life', '手筋': 'tag-tesuji', '官子': 'tag-endgame', '入门': 'tag-beginner', '定式': 'tag-joseki', '中盘': 'tag-middle' }
@@ -391,6 +406,7 @@ Page({
       problem.problem_id, that._seq, timeSpentMs, true,
       problem.difficulty_rating || 0, problem.expected_time_ms || 60000
     ).then(function (res) {
+      var newDone = that.data.dailyDone + 1
       that.setData({
         ratingChange: res.rating_change || 0,
         isDone: true,
@@ -398,6 +414,10 @@ Page({
         submitting: false,
         freePlay: true,
         progressPercent: that._calcProgress(that.data.totalMoves, true),
+        userRating: res.new_rating || that.data.userRating,
+        userLevel: res.new_level || that.data.userLevel,
+        dailyDone: newDone,
+        dailyProgress: Math.min(100, Math.round(newDone / 3 * 100)),
       })
       // 答对后下一步是对方（白棋）
       that._freeColor = that._uc === 'black' ? 'white' : 'black'
@@ -464,8 +484,10 @@ Page({
       }).catch(function () {})
     }
 
-    // 同时弹出面板（分数后续异步更新）
-    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that.data.ratingChange || 0)
+    // 先用本地估算的扣分显示（不等异步）
+    var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 280)) / 400))
+    var estScore = Math.round(10 * (0 - estExpected))
+    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
 
     // 1秒后恢复棋盘到当前正确步骤的状态（保留之前的黑1白2等）
     setTimeout(function () {

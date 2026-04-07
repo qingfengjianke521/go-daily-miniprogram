@@ -82,64 +82,52 @@ function recentAccuracy(attempts) {
   return correct / attempts.length
 }
 
-// 出题策略（参照完整方案 3.1 + 3.2 错题本）
-// 70% 同级题（±30），20% 挑战题（+30~+90），10% 简单题（-30~-90）
-// 优先出错题本中到期的题
+// 出题策略（优化版：1次查询选3题）
+// 一次性查出 rating±90 范围内的题，在内存中分配
 async function selectProblemsFromDB(userRating, recentIds, openid) {
   var exclude = {}
   if (recentIds) {
     for (var i = 0; i < recentIds.length; i++) exclude[recentIds[i]] = true
   }
 
-  var selected = []
+  // 1次查询：拿 rating±90 范围内的20题
+  var minR = Math.max(0, userRating - 90)
+  var maxR = userRating + 90
+  var skip = Math.floor(Math.random() * 500)
+  var res = await db.collection('problems').where({
+    difficulty_rating: _.gte(minR).and(_.lte(maxR))
+  }).skip(skip).limit(20).get()
 
-  // 先从错题本中选到期的题（最多1道）
-  try {
-    var wrongRes = await db.collection('wrong_book').where({
-      _openid: openid,
-      next_review: _.lte(new Date()),
-    }).orderBy('next_review', 'asc').limit(3).get()
+  // 如果 skip 太大没数据，从头取
+  if (res.data.length === 0) {
+    res = await db.collection('problems').where({
+      difficulty_rating: _.gte(minR).and(_.lte(maxR))
+    }).limit(20).get()
+  }
 
-    for (var wi = 0; wi < wrongRes.data.length && selected.length < 1; wi++) {
-      var wPid = wrongRes.data[wi].problem_id
-      if (exclude[wPid]) continue
-      var wProbRes = await db.collection('problems').where({ problem_id: wPid }).limit(1).get()
-      if (wProbRes.data.length > 0) {
-        selected.push(wProbRes.data[0])
-        exclude[wPid] = true
-      }
+  // 过滤掉最近做过的
+  var cands = res.data.filter(function(p) { return !exclude[p.problem_id] })
+
+  // 打乱顺序
+  for (var i = cands.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1))
+    var tmp = cands[i]; cands[i] = cands[j]; cands[j] = tmp
+  }
+
+  // 取前3题
+  var selected = cands.slice(0, 3)
+
+  // 如果不够3题，放宽范围再查一次
+  if (selected.length < 3) {
+    var res2 = await db.collection('problems').where({
+      difficulty_rating: _.gte(Math.max(0, userRating - 200)).and(_.lte(userRating + 200))
+    }).limit(20).get()
+    var more = res2.data.filter(function(p) {
+      return !exclude[p.problem_id] && selected.every(function(s) { return s.problem_id !== p.problem_id })
+    })
+    for (var k = 0; k < more.length && selected.length < 3; k++) {
+      selected.push(more[k])
     }
-  } catch (e) {
-    // wrong_book 集合可能不存在，忽略
-  }
-
-  // 按方案的 70/20/10 分配剩余题：同级 + 挑战/简单
-  var tiers = [
-    [Math.max(0, userRating - 30), userRating + 30],  // 同级题1
-    [Math.max(0, userRating - 30), userRating + 30],  // 同级题2
-    [userRating + 30, userRating + 90],                // 挑战题
-  ]
-  // 随机决定第3题是挑战还是简单（80%挑战 20%简单）
-  if (Math.random() < 0.3) {
-    tiers[2] = [Math.max(0, userRating - 90), Math.max(0, userRating - 30)]
-  }
-
-  for (var i = 0; i < tiers.length && selected.length < 3; i++) {
-    var p = await pickFromDB(tiers[i][0], tiers[i][1], exclude)
-    if (p) selected.push(p)
-  }
-
-  // Fallback: 如果题不够，逐步放宽范围
-  var fallbackRanges = [
-    [Math.max(0, userRating - 60), userRating + 60],
-    [Math.max(0, userRating - 120), userRating + 120],
-    [0, 950],
-  ]
-  var fi = 0
-  while (selected.length < 3 && fi < fallbackRanges.length) {
-    var p = await pickFromDB(fallbackRanges[fi][0], fallbackRanges[fi][1], exclude)
-    if (p) { selected.push(p); continue }
-    fi++
   }
 
   return selected

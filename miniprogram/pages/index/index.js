@@ -97,9 +97,12 @@ Page({
     var that = this
     that.setData({ loading: true })
 
-    // 并行加载，不再 resetSession（避免3次云函数调用导致慢）
-    Promise.all([api.getDaily(), api.getStats()])
-      .then(function (res) {
+    // 串行加载：先getStats（快），再getDaily（慢，要选题）
+    api.getStats().then(function (stats) {
+      return api.getDaily().then(function (daily) {
+        return [daily, stats]
+      })
+    }).then(function (res) {
         var daily = res[0], stats = res[1]
         var completedCount = daily.completed_count || 0
         var checkedIn = completedCount >= 3
@@ -248,6 +251,9 @@ Page({
           app.globalData.playState = {
             problems: [res.problem], currentIndex: 0,
             resultsAccumulated: [], isContinueMode: true,
+            userLevel: (that.data.stats && that.data.stats.level_name) || '15K',
+            userRating: (that.data.stats && that.data.stats.rating) || 280,
+            completedCount: that.data.completedCount || 0,
           }
           wx.navigateTo({ url: '/pages/play/index' })
         } else {
@@ -265,6 +271,9 @@ Page({
     app.globalData.playState = {
       problems: daily.problems, currentIndex: idx,
       resultsAccumulated: daily.results || [], isContinueMode: false,
+      userLevel: (this.data.stats && this.data.stats.level_name) || '15K',
+      userRating: (this.data.stats && this.data.stats.rating) || 280,
+      completedCount: this.data.completedCount || 0,
     }
     wx.navigateTo({ url: '/pages/play/index' })
   },

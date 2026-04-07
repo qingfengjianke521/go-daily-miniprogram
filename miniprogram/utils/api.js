@@ -3,6 +3,7 @@ function callCloud(action, data) {
   return wx.cloud.callFunction({
     name: 'goDaily',
     data: Object.assign({ action: action }, data || {}),
+    timeout: 15000,
   }).then(function(res) {
     if (res.result && res.result.error) {
       throw new Error(res.result.error)

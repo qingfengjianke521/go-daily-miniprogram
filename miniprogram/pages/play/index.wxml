@@ -1,13 +1,15 @@
-<!-- Duolingo-style top bar: ✕ + progress bar + counter -->
+<!-- 顶部栏：✕ + 等级 + 分数 + 进度条(x/3) -->
 <view class="top-bar" style="padding-top:{{statusBarHeight}}px;">
   <view class="top-bar-inner">
     <view class="close-btn" bindtap="handleBack">
       <text class="close-icon">✕</text>
     </view>
+    <text class="top-level">{{userLevel}}</text>
+    <text class="top-rating">{{userRating}}分</text>
     <view class="top-progress-track">
-      <view class="top-progress-fill" style="width:{{progressPercent}}%;"></view>
+      <view class="top-progress-fill" style="width:{{dailyProgress}}%;"></view>
     </view>
-    <text class="top-counter">{{problemIndex}}/{{totalProblems}}</text>
+    <text class="top-counter">{{dailyDone}}/3</text>
   </view>
 </view>
 
