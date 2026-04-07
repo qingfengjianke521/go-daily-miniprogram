@@ -10,20 +10,19 @@ const _ = db.command
 
 // ========== 工具函数 ==========
 
-// 等级分表（前后端统一，20级）
+// 等级分表（前后端统一，12级）
 var LEVEL_TIERS = [
-  [280, '15K'], [310, '14K'], [340, '13K'], [370, '12K'], [400, '11K'],
-  [435, '10K'], [470, '9K'],  [505, '8K'],  [540, '7K'],  [575, '6K'],
-  [615, '5K'],  [655, '4K'],  [695, '3K'],  [740, '2K'],  [785, '1K'],
-  [840, '1D'],  [900, '2D'],  [960, '3D'],  [1030, '4D'], [1100, '5D'],
+  [520, '7K'],  [560, '6K'],  [600, '5K'],  [645, '4K'],  [695, '3K'],
+  [745, '2K'],  [795, '1K'],
+  [845, '1D'],  [900, '2D'],  [960, '3D'],  [1020, '4D'], [1080, '5D'],
 ]
 
 function getLevelName(rating) {
-  if (rating < 280) return '15K'
+  if (rating < 520) return '7K'
   for (var i = LEVEL_TIERS.length - 1; i >= 0; i--) {
     if (rating >= LEVEL_TIERS[i][0]) return LEVEL_TIERS[i][1]
   }
-  return '15K'
+  return '7K'
 }
 
 function getTodayDate() {
@@ -38,8 +37,8 @@ function calculateRating(userRating, userRD, problemRating, isCorrect) {
   var expected = 1 / (1 + Math.pow(10, (problemRating - userRating) / 400))
   var actual = isCorrect ? 1.0 : 0.0
   var change = Math.round(K * (actual - expected))
-  // 等级分最低为280（15K）
-  if (userRating + change < 280) change = 280 - userRating
+  // 等级分最低为520（7K）
+  if (userRating + change < 520) change = 520 - userRating
   return { change: change, newRD: userRD || 350 }
 }
 
@@ -245,7 +244,7 @@ async function initUser(openid, wxNickname) {
         username: u.username || wxNickname || '',
         rating: typeof u.rating === 'number' ? u.rating : 300,
         rating_deviation: u.rating_deviation || 350,
-        level_name: u.level_name || '15K',
+        level_name: u.level_name || '7K',
         streak_days: u.streak_days || 0,
         total_solved: u.total_solved || 0,
         total_correct: u.total_correct || 0,
@@ -260,9 +259,9 @@ async function initUser(openid, wxNickname) {
     data: {
       _openid: openid,
       username: defaultName,
-      rating: 280,
+      rating: 520,
       rating_deviation: 350,
-      level_name: '15K',
+      level_name: '7K',
       streak_days: 0,
       last_play_date: '',
       total_solved: 0,
@@ -276,9 +275,9 @@ async function initUser(openid, wxNickname) {
     user: {
       openid: openid,
       username: defaultName,
-      rating: 280,
+      rating: 520,
       rating_deviation: 350,
-      level_name: '15K',
+      level_name: '7K',
       streak_days: 0,
       total_solved: 0,
       total_correct: 0,
@@ -290,8 +289,8 @@ async function initUser(openid, wxNickname) {
 async function setLevel(openid, levelName, clientRating) {
   // 优先用前端传来的 rating（因为云函数部署可能有延迟）
   var LEVEL_RATINGS = {
-    '15K': 280, '10K': 435, '5K': 615, '1K': 785,
-    '15级': 280, '10级': 435, '5级': 615, '1级': 785,
+    '7K': 520, '5K': 600, '3K': 695, '1K': 795,
+    '7级': 520, '5级': 600, '3级': 695, '1级': 795,
   }
   var rating = typeof clientRating === 'number' ? clientRating :
                typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
@@ -450,7 +449,7 @@ async function submitAnswer(openid, event) {
     user.rating, user.rating_deviation || 350, problemRating, event.is_correct
   )
 
-  var newRating = Math.max(280, user.rating + result.change)
+  var newRating = Math.max(520, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
   // 连续打卡

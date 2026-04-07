@@ -2,31 +2,23 @@ var apiModule = require('../../utils/api')
 var api = apiModule.api
 var app = getApp()
 
-// 天梯节点（20级，15K=280 到 5D=1100）
+// 天梯节点（12级，7K=520 到 5D=1080）
 var TIERS = [
-  { name: '15K', rating: 280, reward: 0 },
-  { name: '14K', rating: 310, reward: 0 },
-  { name: '13K', rating: 340, reward: 0 },
-  { name: '12K', rating: 370, reward: 5 },
-  { name: '11K', rating: 400, reward: 0 },
-  { name: '10K', rating: 435, reward: 10 },
-  { name: '9K',  rating: 470, reward: 0 },
-  { name: '8K',  rating: 505, reward: 0 },
-  { name: '7K',  rating: 540, reward: 5 },
-  { name: '6K',  rating: 575, reward: 0 },
-  { name: '5K',  rating: 615, reward: 10 },
-  { name: '4K',  rating: 655, reward: 0 },
+  { name: '7K',  rating: 520, reward: 0 },
+  { name: '6K',  rating: 560, reward: 0 },
+  { name: '5K',  rating: 600, reward: 10 },
+  { name: '4K',  rating: 645, reward: 0 },
   { name: '3K',  rating: 695, reward: 0 },
-  { name: '2K',  rating: 740, reward: 5 },
-  { name: '1K',  rating: 785, reward: 15 },
-  { name: '1D',  rating: 840, reward: 20 },
+  { name: '2K',  rating: 745, reward: 5 },
+  { name: '1K',  rating: 795, reward: 15 },
+  { name: '1D',  rating: 845, reward: 20 },
   { name: '2D',  rating: 900, reward: 0 },
   { name: '3D',  rating: 960, reward: 25 },
-  { name: '4D',  rating: 1030, reward: 0 },
-  { name: '5D',  rating: 1100, reward: 30 },
+  { name: '4D',  rating: 1020, reward: 0 },
+  { name: '5D',  rating: 1080, reward: 30 },
 ]
 
-var DAN_START_INDEX = 15 // 1D的index
+var DAN_START_INDEX = 7 // 1D的index
 
 function getLevelColor(name) {
   if (!name) return '#CCC'
@@ -143,29 +135,19 @@ Page({
         var nextIdx = Math.min(currentIdx + 1, TIERS.length - 1)
 
         // 节点坐标（百分比，对齐背景图上的小路 S 形）
-        // 图片是从底部草地到顶部星空
-        // Y: 0%=顶部(星空), 100%=底部(草地)
-        // 20 个节点，Y范围 4%~74%（底部留26%给tab+安全区）
+        // 12 个节点，Y范围 4%~78%，间距约6.7%
         var NODE_POSITIONS = [
-          { x: 30, y: 74 }, // 15K
-          { x: 65, y: 70.3 }, // 14K
-          { x: 30, y: 66.6 }, // 13K
-          { x: 65, y: 63 }, // 12K
-          { x: 30, y: 59.3 }, // 11K
-          { x: 65, y: 55.6 }, // 10K
-          { x: 30, y: 52 }, // 9K
-          { x: 65, y: 48.3 }, // 8K
-          { x: 30, y: 44.6 }, // 7K
-          { x: 65, y: 41 }, // 6K
-          { x: 30, y: 37.3 }, // 5K
-          { x: 65, y: 33.6 }, // 4K
-          { x: 30, y: 30 }, // 3K
-          { x: 65, y: 26.3 }, // 2K
-          { x: 30, y: 22.6 }, // 1K
-          { x: 65, y: 19 }, // 1D
-          { x: 30, y: 15.3 }, // 2D
-          { x: 65, y: 11.6 }, // 3D
-          { x: 30, y: 7.5 },  // 4D
+          { x: 30, y: 78 }, // 7K
+          { x: 65, y: 71 }, // 6K
+          { x: 30, y: 64 }, // 5K
+          { x: 65, y: 57 }, // 4K
+          { x: 30, y: 50 }, // 3K
+          { x: 65, y: 43 }, // 2K
+          { x: 30, y: 36 }, // 1K
+          { x: 65, y: 29 }, // 1D
+          { x: 30, y: 22 }, // 2D
+          { x: 65, y: 15 }, // 3D
+          { x: 30, y: 9 },  // 4D
           { x: 55, y: 4 },  // 5D
         ]
 
@@ -259,8 +241,8 @@ Page({
           app.globalData.playState = {
             problems: [res.problem], currentIndex: 0,
             resultsAccumulated: [], isContinueMode: true,
-            userLevel: (that.data.stats && that.data.stats.level_name) || '15K',
-            userRating: (that.data.stats && that.data.stats.rating) || 280,
+            userLevel: (that.data.stats && that.data.stats.level_name) || '7K',
+            userRating: (that.data.stats && that.data.stats.rating) || 520,
             completedCount: that.data.completedCount || 0,
           }
           wx.navigateTo({ url: '/pages/play/index' })
@@ -280,8 +262,8 @@ Page({
     app.globalData.playState = {
       problems: daily.problems, currentIndex: idx,
       resultsAccumulated: daily.results || [], isContinueMode: false,
-      userLevel: (this.data.stats && this.data.stats.level_name) || '15K',
-      userRating: (this.data.stats && this.data.stats.rating) || 280,
+      userLevel: (this.data.stats && this.data.stats.level_name) || '7K',
+      userRating: (this.data.stats && this.data.stats.rating) || 520,
       completedCount: this.data.completedCount || 0,
     }
     wx.navigateTo({ url: '/pages/play/index' })

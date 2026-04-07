@@ -173,9 +173,9 @@ async function resetUsers() {
     for (var i = 0; i < res.data.length; i++) {
       await withRetry(function () {
         return db.collection('users').doc(res.data[i]._id).update({
-          rating: 0,
+          rating: 520,
           rating_deviation: 350,
-          level_name: '25K',
+          level_name: '7K',
           total_solved: 0,
           total_correct: 0,
           streak_days: 0,

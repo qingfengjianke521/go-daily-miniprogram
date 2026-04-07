@@ -17,45 +17,88 @@ function sgf2xy(s) {
   return [x, y]
 }
 
-// 难度映射 — 网络公认难度标准
-// cho_elementary: 360-520 (10K-5K) — 赵治勋初级实际是10K-5K水平
-// cho_intermediate: 520-720 (5K-1D)
-// cho_advanced: 720-900 (1D-5D)
-// ishigure_basic: 300-420 (12K-8K)
-// yamada_basic: 300-360 (12K-10K)
-function getDifficulty(dirPath) {
+// ========== 难度映射 v3：书籍基准 + 棋子数量双重校准 ==========
+
+// 按书名确定基准范围 {min, max, cat}
+function getBookBase(dirPath) {
   const lc = dirPath.toLowerCase()
-  // 入门级 (12K-8K, rating 300-420)
-  if (lc.includes('ishigure') && lc.includes('basic')) return { rating: 300, range: 120, cat: '死活' }
-  if (lc.includes('yamada') && lc.includes('basic')) return { rating: 300, range: 60, cat: '死活' }
-  if (lc.includes('hashimoto') && lc.includes('elementary')) return { rating: 300, range: 120, cat: '死活' }
-  // 初级 (10K-5K, rating 360-520)
-  if (lc.includes('elementary') && !lc.includes('hashimoto')) return { rating: 360, range: 160, cat: '死活' }
-  if (lc.includes('fujisawa') && lc.includes('elementary')) return { rating: 360, range: 90, cat: '死活' }
-  // 中级 (5K-1K, rating 520-720)
-  if (lc.includes('10k-5k')) return { rating: 460, range: 120, cat: '死活' }
-  if (lc.includes('1k-5k') || lc.includes('1-8k') || lc.includes('kyu')) return { rating: 520, range: 200, cat: '死活' }
-  if (lc.includes('intermediate')) return { rating: 520, range: 200, cat: '死活' }
-  if (lc.includes('hashimoto') && lc.includes('intermediate')) return { rating: 520, range: 150, cat: '死活' }
-  // 上级 (1K-1D, rating 675-820)
-  if (lc.includes('1k-1d') || lc.includes('shodan')) return { rating: 675, range: 100, cat: '死活' }
-  if (lc.includes('hashimoto') && lc.includes('advanced')) return { rating: 675, range: 100, cat: '死活' }
-  // 高级 (1D-3D, rating 720-900)
-  if (lc.includes('advanced') || lc.includes('dan level')) return { rating: 720, range: 180, cat: '死活' }
-  if (lc.includes('yamada') && lc.includes('3 dan')) return { rating: 720, range: 130, cat: '死活' }
-  // 高段 (3D+, rating 825-950)
-  if (lc.includes('high dan') || lc.includes('pro level') || lc.includes('professional')) return { rating: 825, range: 125, cat: '死活' }
-  // 手筋大辞典 - 综合性，10K-3D，按题号递增难度
-  if (lc.includes('great tesuji') || (lc.includes('problems') && lc.match(/\d+-\d+/))) return { rating: 360, range: 360, cat: '手筋' }
-  // 手筋 (10K-1D, rating 360-720)
-  if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { rating: 360, range: 120, cat: '手筋' }
-  if (lc.includes('lee changho')) return { rating: 460, range: 200, cat: '手筋' }
-  if (lc.includes('kobayashi')) return { rating: 675, range: 100, cat: '手筋' }
-  if (lc.includes('tesuji') || lc.includes('splitting') || lc.includes('shape') || lc.includes('attack') || lc.includes('escape')) return { rating: 520, range: 200, cat: '手筋' }
-  // 官子 (5K-1D, rating 520-720)
-  if (lc.includes('endgame')) return { rating: 520, range: 200, cat: '官子' }
-  // 默认 (10K)
-  return { rating: 460, range: 200, cat: '死活' }
+
+  // === 初级死活 ===
+  if (lc.includes('cho') && lc.includes('elementary')) return { min: 520, max: 740, cat: '死活' }
+  if (lc.includes('ishigure') && lc.includes('basic')) return { min: 580, max: 785, cat: '死活' }
+  if (lc.includes('yamada') && lc.includes('basic')) return { min: 520, max: 700, cat: '死活' }
+  if (lc.includes('fujisawa') && lc.includes('elementary')) return { min: 580, max: 785, cat: '死活' }
+  if (lc.includes('hashimoto') && lc.includes('elementary')) return { min: 700, max: 900, cat: '死活' }
+
+  // === 中级死活 ===
+  if (lc.includes('10k-5k') || lc.includes('10k')) return { min: 520, max: 700, cat: '死活' }
+  if (lc.includes('1k-5k') || lc.includes('1-8k')) return { min: 580, max: 785, cat: '死活' }
+  if (lc.includes('intermediate') && lc.includes('cho')) return { min: 580, max: 820, cat: '死活' }
+  if (lc.includes('intermediate') && lc.includes('hashimoto')) return { min: 620, max: 860, cat: '死活' }
+  if (lc.includes('intermediate') && lc.includes('fujisawa')) return { min: 620, max: 820, cat: '死活' }
+  if (lc.includes('intermediate')) return { min: 580, max: 820, cat: '死活' }
+  if (lc.includes('kyu') && lc.includes('ishida')) return { min: 620, max: 785, cat: '死活' }
+  if (lc.includes('high speed')) return { min: 580, max: 785, cat: '死活' }
+
+  // === 高级死活 ===
+  if (lc.includes('1k-1d') || lc.includes('shodan')) return { min: 700, max: 860, cat: '死活' }
+  if (lc.includes('cho') && lc.includes('advanced')) return { min: 620, max: 900, cat: '死活' }
+  if (lc.includes('hashimoto') && lc.includes('advanced')) return { min: 785, max: 940, cat: '死活' }
+  if (lc.includes('advanced') && lc.includes('fujisawa')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('advanced')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('yamada') && lc.includes('3 dan')) return { min: 700, max: 860, cat: '死活' }
+
+  // === 高段 ===
+  if (lc.includes('dan level') && lc.includes('ishida')) return { min: 785, max: 900, cat: '死活' }
+  if (lc.includes('high dan') && lc.includes('ishida')) return { min: 860, max: 960, cat: '死活' }
+  if (lc.includes('high dan') && lc.includes('fujisawa')) return { min: 900, max: 1000, cat: '死活' }
+  if (lc.includes('high dan')) return { min: 860, max: 960, cat: '死活' }
+  if (lc.includes('pro level') || lc.includes('professional')) return { min: 960, max: 1100, cat: '死活' }
+
+  // === 桥本系列（棋子特别多） ===
+  if (lc.includes('53 to go') || lc.includes('fifty three')) return { min: 785, max: 940, cat: '死活' }
+  if (lc.includes('famous') && lc.includes('hashimoto')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('moments') || lc.includes('wind')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('1 year') || lc.includes('one year')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('millions')) return { min: 700, max: 900, cat: '死活' }
+  if (lc.includes('attack and protect') && lc.includes('elementary')) return { min: 580, max: 740, cat: '死活' }
+  if (lc.includes('attack and protect') && lc.includes('intermediate')) return { min: 700, max: 860, cat: '死活' }
+  if (lc.includes('attack and protect') && lc.includes('advanced')) return { min: 785, max: 940, cat: '死活' }
+  if (lc.includes('enjoy')) return { min: 700, max: 900, cat: '死活' }
+
+  // === 手筋大辞典 ===
+  if (lc.includes('great tesuji') || (lc.includes('problems') && lc.match(/\d+-\d+/))) return { min: 520, max: 820, cat: '手筋' }
+
+  // === 手筋 ===
+  if (lc.includes('fighting') || lc.includes('snapback') || lc.includes('net') || lc.includes('connecting')) return { min: 520, max: 785, cat: '手筋' }
+  if (lc.includes('lee changho')) return { min: 520, max: 785, cat: '手筋' }
+  if (lc.includes('go seigen') || lc.includes('segoe')) return { min: 700, max: 940, cat: '手筋' }
+  if (lc.includes('kobayashi')) return { min: 700, max: 860, cat: '手筋' }
+  if (lc.includes('tesuji') || lc.includes('splitting') || lc.includes('shape') || lc.includes('attack') || lc.includes('escape')) return { min: 580, max: 820, cat: '手筋' }
+
+  // === 官子 ===
+  if (lc.includes('endgame') || lc.includes('end game')) return { min: 580, max: 820, cat: '官子' }
+
+  // === 其他（捕获/攻防/生死等） ===
+  if (lc.includes('capturing') || lc.includes('settling') || lc.includes('life and death')) return { min: 580, max: 820, cat: '手筋' }
+
+  // 默认
+  return { min: 580, max: 820, cat: '死活' }
+}
+
+// 用棋子数量在书籍范围内微调
+function getDifficulty(dirPath, stoneCount) {
+  const base = getBookBase(dirPath)
+  let ratio = 0.5
+  if (stoneCount <= 8) ratio = 0.1
+  else if (stoneCount <= 15) ratio = 0.3
+  else if (stoneCount <= 22) ratio = 0.5
+  else if (stoneCount <= 30) ratio = 0.7
+  else ratio = 0.9
+  return {
+    rating: Math.round(base.min + (base.max - base.min) * ratio),
+    cat: base.cat,
+  }
 }
 
 // 解析 sanderland JSON 文件
@@ -83,7 +126,8 @@ function parseFile(filePath, parentDir) {
   }
   if (solutions.length === 0) return null
 
-  const diff = getDifficulty(parentDir)
+  const stoneCount = blacks.length + whites.length
+  const diff = getDifficulty(parentDir, stoneCount)
   const probName = path.basename(filePath, '.json')
   const dirShort = (parentDir || 'x').replace(/[^a-zA-Z0-9]/g, '').substring(0, 40).toLowerCase()
 
@@ -103,7 +147,7 @@ function parseFile(filePath, parentDir) {
     full_solution: solutions[0],
     all_solutions: solutions,
     description: '黑先 ' + diff.cat,
-    difficulty_rating: Math.round(diff.rating + ((parseInt(probName.replace(/[^0-9]/g,'')) || 0) % 100) / 100 * (diff.range || 200)),
+    difficulty_rating: diff.rating,
     view_region: {
       x1: Math.max(0, x1-2), y1: Math.max(0, y1-2),
       x2: Math.min(boardSize-1, x2+2), y2: Math.min(boardSize-1, y2+2)

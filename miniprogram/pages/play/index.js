@@ -43,8 +43,8 @@ function boardToStones(board) {
 Page({
   data: {
     statusBarHeight: 20,
-    userLevel: '15K',
-    userRating: 280,
+    userLevel: '7K',
+    userRating: 520,
     dailyDone: 0,
     dailyProgress: 0,
     problemIndex: 0,
@@ -111,8 +111,8 @@ Page({
     // 加载用户等级和每日进度
     var dailyDone = playState.completedCount || 0
     this.setData({
-      userLevel: playState.userLevel || '15K',
-      userRating: playState.userRating || 280,
+      userLevel: playState.userLevel || '7K',
+      userRating: playState.userRating || 520,
       dailyDone: dailyDone,
       dailyProgress: Math.min(100, Math.round(dailyDone / 3 * 100)),
     })
@@ -164,7 +164,7 @@ Page({
     this._wrongSubmitted = false
     this._wrongScore = undefined
     this._answerSubmitted = false
-    this._userRating = (app.globalData.userInfo && app.globalData.userInfo.rating) || wx.getStorageSync('userRating') || 280
+    this._userRating = (app.globalData.userInfo && app.globalData.userInfo.rating) || wx.getStorageSync('userRating') || 520
 
     var cat = problem.category || ''
     var catMap = { '死活': 'tag-life', '手筋': 'tag-tesuji', '官子': 'tag-endgame', '入门': 'tag-beginner', '定式': 'tag-joseki', '中盘': 'tag-middle' }
@@ -208,12 +208,11 @@ Page({
         else if (sf.indexOf('Go Seigen') !== -1) src = '吴清源手筋(5K-1D)'
         var r = problem.difficulty_rating || 0
         // 等级名
-        var lvl = '15K'
+        var lvl = '7K'
         var tiers = [
-          [280,'15K'],[310,'14K'],[340,'13K'],[370,'12K'],[400,'11K'],
-          [435,'10K'],[470,'9K'],[505,'8K'],[540,'7K'],[575,'6K'],
-          [615,'5K'],[655,'4K'],[695,'3K'],[740,'2K'],[785,'1K'],
-          [840,'1D'],[900,'2D'],[960,'3D'],[1030,'4D'],[1100,'5D'],
+          [520,'7K'],[560,'6K'],[600,'5K'],[645,'4K'],[695,'3K'],
+          [745,'2K'],[795,'1K'],
+          [845,'1D'],[900,'2D'],[960,'3D'],[1020,'4D'],[1080,'5D'],
         ]
         for (var i = tiers.length - 1; i >= 0; i--) { if (r >= tiers[i][0]) { lvl = tiers[i][1]; break } }
         return '难度' + r + '(' + lvl + ') · ' + src
@@ -512,10 +511,10 @@ Page({
       // 重复答错，不再扣分，显示之前的扣分
       that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that._wrongScore)
     } else {
-      var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 280)) / 400))
+      var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 520)) / 400))
       var estScore = Math.round(10 * (0 - estExpected))
       that._wrongScore = estScore
-      var estNewRating = Math.max(280, that.data.userRating + estScore)
+      var estNewRating = Math.max(520, that.data.userRating + estScore)
       that.setData({ userRating: estNewRating })
       that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
     }
