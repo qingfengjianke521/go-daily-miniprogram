@@ -78,19 +78,24 @@ Page({
     }
     if (!app.checkAuth()) return
     // 做题页传回的最新分数
-    if (app.globalData.latestRating !== undefined) {
-      this._cachedRating = app.globalData.latestRating
-      this._cachedLevel = app.globalData.latestLevel
-      // 用路径更新，确保触发渲染
+    var lr = app.globalData.latestRating
+    var ll = app.globalData.latestLevel
+    // 也从Storage读（globalData跨页面可能丢失）
+    if (lr === undefined) {
+      lr = wx.getStorageSync('_latestRating')
+      ll = wx.getStorageSync('_latestLevel')
+    }
+    if (lr) {
+      console.log('[index] onShow 读到latestRating:', lr)
       this.setData({
-        'stats.rating': this._cachedRating,
-        'stats.level_name': this._cachedLevel || (this.data.stats && this.data.stats.level_name) || '7K',
+        'stats.rating': lr,
+        'stats.level_name': ll || (this.data.stats && this.data.stats.level_name) || '7K',
       })
       app.globalData.latestRating = undefined
       app.globalData.latestLevel = undefined
-    } else {
-      this._cachedRating = undefined
-      this._cachedLevel = undefined
+      wx.removeStorageSync('_latestRating')
+      wx.removeStorageSync('_latestLevel')
+      return  // 不重新加载，避免云端旧数据覆盖
     }
     this._loadData()
   },
@@ -104,20 +109,9 @@ Page({
     var that = this
     that.setData({ loading: true })
 
-    // 记住做题页传回的分数（防止被云函数旧数据覆盖）
-    var cachedRating = that._cachedRating
-    var cachedLevel = that._cachedLevel
-
     // 一次调用拿 stats + daily
     api.getHome().then(function (home) {
         var daily = home.daily, stats = home.stats
-        // 如果做题页传回了更新的分数，用它覆盖云函数返回值
-        if (cachedRating !== undefined) {
-          stats.rating = cachedRating
-          stats.level_name = cachedLevel || stats.level_name
-          that._cachedRating = undefined
-          that._cachedLevel = undefined
-        }
         var completedCount = daily.completed_count || 0
         var checkedIn = completedCount >= 3
         var problemList = daily.problems || []

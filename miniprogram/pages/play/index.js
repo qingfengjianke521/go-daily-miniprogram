@@ -87,6 +87,7 @@ Page({
     // 新手村模式
     isVillageMode: false,
     villageNodeName: '',
+    villageProgress: 0,
   },
 
   _board: null,
@@ -177,9 +178,14 @@ Page({
     var catMap = { '死活': 'tag-life', '手筋': 'tag-tesuji', '官子': 'tag-endgame', '入门': 'tag-beginner', '定式': 'tag-joseki', '中盘': 'tag-middle' }
     var categoryClass = catMap[cat] || ''
 
+    var villageProgress = 0
+    if (this._isVillageMode) {
+      villageProgress = Math.round(playState.currentIndex / playState.problems.length * 100)
+    }
     this.setData({
       problemIndex: playState.currentIndex + 1,
       totalProblems: playState.problems.length,
+      villageProgress: villageProgress,
       description: problem.description || '',
       goalHint: problem.hint || '',
       category: cat,
@@ -448,6 +454,8 @@ Page({
       })
       app.globalData.latestRating = res.new_rating || that.data.userRating
       app.globalData.latestLevel = res.new_level || that.data.userLevel
+      wx.setStorageSync('_latestRating', app.globalData.latestRating)
+      wx.setStorageSync('_latestLevel', app.globalData.latestLevel)
       // 答对后下一步是对方（白棋）
       that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
@@ -515,6 +523,8 @@ Page({
         that.setData({ ratingChange: score, feedbackScore: score, userRating: nr, userLevel: nl })
         app.globalData.latestRating = nr
         app.globalData.latestLevel = nl
+        wx.setStorageSync('_latestRating', nr)
+        wx.setStorageSync('_latestLevel', nl)
       }).catch(function () {})
     }
 
@@ -530,6 +540,9 @@ Page({
       that.setData({ userRating: estNewRating })
       app.globalData.latestRating = estNewRating
       app.globalData.latestLevel = that.data.userLevel
+      wx.setStorageSync('_latestRating', estNewRating)
+      wx.setStorageSync('_latestLevel', that.data.userLevel)
+      console.log('[play] 写入latestRating:', estNewRating, 'level:', that.data.userLevel)
       that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
     }
 
@@ -878,6 +891,11 @@ Page({
     // 如果当前题还没做完，跳过（不提交）
     playState.currentIndex++
     if (playState.currentIndex >= playState.problems.length) {
+      // 新手村模式：全部做完，保存进度返回
+      if (this._isVillageMode) {
+        this._saveVillageCompletion()
+        return
+      }
       // 没有更多题了，请求新题
       var that = this
       wx.showLoading({ title: '选题中...' })
@@ -900,6 +918,31 @@ Page({
     }
     app.globalData.playState = playState
     this._initProblem()
+  },
+
+  _saveVillageCompletion: function () {
+    var playState = this._playState
+    var nodeId = playState.villageNodeId
+    var level = playState.villageLevel
+    var correct = this._villageCorrect || 0
+
+    // 更新本地进度
+    var progress = wx.getStorageSync('village_progress') || {}
+    var nodeProgress = progress[nodeId] || { completedLevel: 0, scores: {} }
+    nodeProgress.scores[level] = Math.max(nodeProgress.scores[level] || 0, correct)
+    if (level > nodeProgress.completedLevel) {
+      nodeProgress.completedLevel = level
+    }
+    progress[nodeId] = nodeProgress
+    wx.setStorageSync('village_progress', progress)
+
+    // 同步到云端
+    api.saveVillageProgress(nodeId, nodeProgress.completedLevel, nodeProgress.scores).catch(function () {})
+
+    wx.showToast({ title: '关卡完成！答对 ' + correct + ' 题', icon: 'none', duration: 2000 })
+    setTimeout(function () {
+      wx.navigateBack()
+    }, 1500)
   },
 
   handleReset: function () {
@@ -948,6 +991,8 @@ Page({
     // 把最新分数传回首页
     app.globalData.latestRating = this.data.userRating
     app.globalData.latestLevel = this.data.userLevel
+    wx.setStorageSync('_latestRating', this.data.userRating)
+    wx.setStorageSync('_latestLevel', this.data.userLevel)
     wx.navigateBack()
   },
 })

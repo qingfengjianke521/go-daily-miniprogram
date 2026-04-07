@@ -74,6 +74,23 @@ var api = {
   getRatingHistory: function() {
     return callCloud('getRatingHistory')
   },
+
+  // 新手村
+  getVillagePuzzles: function(puzzleTag) {
+    return callCloud('getVillagePuzzles', { puzzle_tag: puzzleTag })
+  },
+
+  getVillageProgress: function() {
+    return callCloud('getVillageProgress')
+  },
+
+  saveVillageProgress: function(nodeId, completedLevel, scores) {
+    return callCloud('saveVillageProgress', {
+      node_id: nodeId,
+      completed_level: completedLevel,
+      scores: scores,
+    })
+  },
 }
 
 module.exports = {

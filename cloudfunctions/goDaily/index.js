@@ -219,6 +219,12 @@ exports.main = async function(event, context) {
       return await getRatingHistory(openid)
     } else if (action === 'getCalendar') {
       return await getCalendar(openid, event.month)
+    } else if (action === 'getVillagePuzzles') {
+      return await getVillagePuzzles(event.puzzle_tag)
+    } else if (action === 'getVillageProgress') {
+      return await getVillageProgress(openid)
+    } else if (action === 'saveVillageProgress') {
+      return await saveVillageProgress(openid, event.node_id, event.completed_level, event.scores)
     } else {
       return { error: '未知操作' }
     }
@@ -709,4 +715,47 @@ async function getCalendar(openid, month) {
   }).field({ session_date: true }).limit(31).get()
 
   return { dates: res.data.map(function(d) { return d.session_date }) }
+}
+
+// ========== 新手村 ==========
+
+async function getVillagePuzzles(puzzleTag) {
+  if (!puzzleTag) return { problems: [] }
+
+  var res = await db.collection('problems')
+    .where({ skill_node: puzzleTag })
+    .limit(50)
+    .get()
+
+  // 随机打乱
+  var data = res.data || []
+  for (var i = data.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1))
+    var tmp = data[i]; data[i] = data[j]; data[j] = tmp
+  }
+
+  return { problems: data.map(formatProblem) }
+}
+
+async function getVillageProgress(openid) {
+  var res = await db.collection('users').where({ _openid: openid }).field({ village_progress: true }).get()
+  if (res.data.length === 0) return { village_progress: {} }
+  return { village_progress: res.data[0].village_progress || {} }
+}
+
+async function saveVillageProgress(openid, nodeId, completedLevel, scores) {
+  if (!nodeId) return { error: '缺少 node_id' }
+
+  var updateData = {}
+  updateData['village_progress.' + nodeId] = {
+    completedLevel: completedLevel || 0,
+    scores: scores || {},
+    updated_at: new Date(),
+  }
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: updateData,
+  })
+
+  return { ok: true }
 }

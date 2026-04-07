@@ -4,12 +4,21 @@
     <view class="close-btn" bindtap="handleBack">
       <text class="close-icon">✕</text>
     </view>
-    <text class="top-level">{{userLevel}}</text>
-    <text class="top-rating">{{userRating}}分</text>
-    <view class="top-progress-track">
-      <view class="top-progress-fill" style="width:{{dailyProgress}}%;"></view>
-    </view>
-    <text class="top-counter">{{dailyDone}}/3</text>
+    <block wx:if="{{isVillageMode}}">
+      <text class="top-level">{{villageNodeName}}</text>
+      <view class="top-progress-track">
+        <view class="top-progress-fill" style="width:{{villageProgress}}%;"></view>
+      </view>
+      <text class="top-counter">{{problemIndex}}/{{totalProblems}}</text>
+    </block>
+    <block wx:else>
+      <text class="top-level">{{userLevel}}</text>
+      <text class="top-rating">{{userRating}}分</text>
+      <view class="top-progress-track">
+        <view class="top-progress-fill" style="width:{{dailyProgress}}%;"></view>
+      </view>
+      <text class="top-counter">{{dailyDone}}/3</text>
+    </block>
   </view>
 </view>
 

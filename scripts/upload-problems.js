@@ -92,7 +92,7 @@ function convertProblem(p) {
 
   // category 映射提示
   var CAT_HINTS = {
-    '死活': '黑先', '手筋': '找到妙手', '官子': '收官妙手'
+    '死活': '黑先', '手筋': '找到妙手', '官子': '收官妙手', '入门': '黑先'
   }
   var hint = CAT_HINTS[p.category] || '黑先'
 
@@ -114,6 +114,7 @@ function convertProblem(p) {
     view_region: p.view_region || { x1: 0, y1: 0, x2: 18, y2: 18 },
     correct_sequences: seqs,
     level_tier: getLevelTier(p.difficulty_rating),
+    skill_node: p.skill_node || '',
     created_at: new Date(),
   }
 }
@@ -206,6 +207,73 @@ async function clearSessions() {
   console.log('sessions 和 attempts 已清空')
 }
 
+// 上传新手村题库（不清空已有题目，追加上传）
+async function uploadBeginner() {
+  var files = ['beginner_problems.json', 'ogs_puzzles.json']
+  var allProblems = []
+
+  for (var f = 0; f < files.length; f++) {
+    var filePath = path.join(__dirname, '..', files[f])
+    if (fs.existsSync(filePath)) {
+      var data = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+      console.log('读取 ' + files[f] + ': ' + data.length + ' 道')
+      allProblems = allProblems.concat(data)
+    } else {
+      console.log('跳过 ' + files[f] + '（文件不存在）')
+    }
+  }
+
+  if (allProblems.length === 0) {
+    console.log('没有新手村题目可上传')
+    return
+  }
+
+  console.log('总计新手村题目: ' + allProblems.length + ' 道')
+
+  // 先删除已有的新手村题目（避免重复）
+  console.log('清理旧新手村题目...')
+  var deleted = 0
+  while (true) {
+    var res = await db.collection('problems').where({ source: _.or('generated', 'online-go/online-go.com') }).limit(100).get()
+    if (res.data.length === 0) break
+    for (var i = 0; i < res.data.length; i++) {
+      await db.collection('problems').doc(res.data[i]._id).remove()
+      deleted++
+    }
+    process.stdout.write('\r  已删除: ' + deleted)
+  }
+  if (deleted > 0) console.log('\n  清理完成: ' + deleted + ' 条')
+
+  // 上传
+  var CONCURRENCY = 10
+  var uploaded = 0
+  var failed = 0
+  var startTime = Date.now()
+
+  for (var start = 0; start < allProblems.length; start += CONCURRENCY) {
+    var batch = allProblems.slice(start, start + CONCURRENCY)
+    var promises = batch.map(function (p) {
+      var doc = convertProblem(p)
+      return withRetry(function () {
+        return db.collection('problems').add(doc)
+      }).then(function () {
+        uploaded++
+      }).catch(function (e) {
+        failed++
+        if (failed <= 5) console.log('\n  失败 ' + p.id + ': ' + e.message)
+      })
+    })
+    await Promise.all(promises)
+
+    if ((start + CONCURRENCY) % 100 === 0 || start + CONCURRENCY >= allProblems.length) {
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(0)
+      process.stdout.write('\r  上传: ' + uploaded + '/' + allProblems.length +
+        ' 失败: ' + failed + ' ' + elapsed + 's')
+    }
+  }
+  console.log('\n新手村上传完成! 上传: ' + uploaded + ' 失败: ' + failed)
+}
+
 // 主流程
 async function main() {
   var args = process.argv.slice(2)
@@ -227,6 +295,12 @@ async function main() {
 
   if (args.indexOf('--upload-only') >= 0) {
     await uploadProblems()
+    await countProblems()
+    return
+  }
+
+  if (args.indexOf('--beginner') >= 0) {
+    await uploadBeginner()
     await countProblems()
     return
   }
