@@ -69,7 +69,7 @@ Page({
         coins: coins,
         streakFreezes: freezes,
         canBuyFreeze: freezes < 2 && coins >= 50,
-        isAdmin: stats.is_admin || (app.globalData.openid === 'o2gdp1zRV-kaBor5HiYSh6IO3Sek'),
+        isAdmin: stats.is_admin || stats.username === '清风剑客' || (app.globalData.openid === 'o2gdp1zRV-kaBor5HiYSh6IO3Sek'),
         categoryStats: self.data.categoryStats.map(function(c) {
           return { name: c.name, rate: c.rate, barWidth: Math.max(c.rate, 3), color: c.color }
         }),
