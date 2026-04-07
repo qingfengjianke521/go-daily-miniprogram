@@ -85,6 +85,15 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     if (!app.checkAuth()) return
+    // 先用做题页传回的最新分数立即更新
+    if (app.globalData.latestRating !== undefined) {
+      var s = this.data.stats || {}
+      s.rating = app.globalData.latestRating
+      s.level_name = app.globalData.latestLevel || s.level_name
+      this.setData({ stats: s })
+      app.globalData.latestRating = undefined
+      app.globalData.latestLevel = undefined
+    }
     this._loadData()
   },
 
@@ -97,13 +106,9 @@ Page({
     var that = this
     that.setData({ loading: true })
 
-    // 串行加载：先getStats（快），再getDaily（慢，要选题）
-    api.getStats().then(function (stats) {
-      return api.getDaily().then(function (daily) {
-        return [daily, stats]
-      })
-    }).then(function (res) {
-        var daily = res[0], stats = res[1]
+    // 一次调用拿 stats + daily
+    api.getHome().then(function (home) {
+        var daily = home.daily, stats = home.stats
         var completedCount = daily.completed_count || 0
         var checkedIn = completedCount >= 3
         var problemList = daily.problems || []
@@ -141,26 +146,27 @@ Page({
         // 图片是从底部草地到顶部星空
         // Y: 0%=顶部(星空), 100%=底部(草地)
         // 20 个节点坐标，S形排列
+        // Y范围 4%~82%（给底部tab栏留空间）
         var NODE_POSITIONS = [
-          { x: 30, y: 92 }, // 15K
-          { x: 65, y: 88 }, // 14K
-          { x: 30, y: 84 }, // 13K
-          { x: 65, y: 80 }, // 12K
-          { x: 30, y: 76 }, // 11K
-          { x: 65, y: 72 }, // 10K
-          { x: 30, y: 68 }, // 9K
-          { x: 65, y: 64 }, // 8K
-          { x: 30, y: 60 }, // 7K
-          { x: 65, y: 56 }, // 6K
-          { x: 30, y: 52 }, // 5K
-          { x: 65, y: 48 }, // 4K
-          { x: 30, y: 44 }, // 3K
-          { x: 65, y: 40 }, // 2K
-          { x: 30, y: 36 }, // 1K
-          { x: 65, y: 30 }, // 1D
-          { x: 30, y: 24 }, // 2D
-          { x: 65, y: 18 }, // 3D
-          { x: 30, y: 11 }, // 4D
+          { x: 30, y: 82 }, // 15K
+          { x: 65, y: 78 }, // 14K
+          { x: 30, y: 74 }, // 13K
+          { x: 65, y: 70 }, // 12K
+          { x: 30, y: 66 }, // 11K
+          { x: 65, y: 62 }, // 10K
+          { x: 30, y: 58 }, // 9K
+          { x: 65, y: 54 }, // 8K
+          { x: 30, y: 50 }, // 7K
+          { x: 65, y: 46 }, // 6K
+          { x: 30, y: 42 }, // 5K
+          { x: 65, y: 38 }, // 4K
+          { x: 30, y: 34 }, // 3K
+          { x: 65, y: 30 }, // 2K
+          { x: 30, y: 26 }, // 1K
+          { x: 65, y: 22 }, // 1D
+          { x: 30, y: 18 }, // 2D
+          { x: 65, y: 14 }, // 3D
+          { x: 30, y: 9 },  // 4D
           { x: 55, y: 4 },  // 5D
         ]
 
@@ -240,10 +246,13 @@ Page({
   },
 
   handleStart: function () {
+    var that = this
     var daily = this.data.daily
     if (!daily) return
 
     if (this.data.checkedIn) {
+      if (this._loadingContinue) return
+      this._loadingContinue = true
       wx.showLoading({ title: '选题中...' })
       api.getContinueProblem().then(function (res) {
         wx.hideLoading()
@@ -261,6 +270,7 @@ Page({
         }
       }).catch(function () {
         wx.hideLoading()
+        that._loadingContinue = false
         wx.showToast({ title: '获取题目失败', icon: 'none' })
       })
       return

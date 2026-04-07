@@ -82,55 +82,38 @@ function recentAccuracy(attempts) {
   return correct / attempts.length
 }
 
-// 出题策略（优化版：1次查询选3题）
-// 一次性查出 rating±90 范围内的题，在内存中分配
+// 出题策略（极速版：用随机rating点查询，不用skip）
 async function selectProblemsFromDB(userRating, recentIds, openid) {
   var exclude = {}
   if (recentIds) {
     for (var i = 0; i < recentIds.length; i++) exclude[recentIds[i]] = true
   }
 
-  // 1次查询：拿 rating±90 范围内的20题
-  var minR = Math.max(0, userRating - 90)
+  // 用随机起点查询，避免 skip（无索引时 skip 极慢）
+  var minR = Math.max(280, userRating - 90)
   var maxR = userRating + 90
-  var skip = Math.floor(Math.random() * 500)
+  // 在范围内随机一个起点，用 gte 查
+  var randStart = minR + Math.floor(Math.random() * (maxR - minR))
   var res = await db.collection('problems').where({
-    difficulty_rating: _.gte(minR).and(_.lte(maxR))
-  }).skip(skip).limit(20).get()
+    difficulty_rating: _.gte(randStart).and(_.lte(maxR))
+  }).limit(20).get()
 
-  // 如果 skip 太大没数据，从头取
-  if (res.data.length === 0) {
-    res = await db.collection('problems').where({
-      difficulty_rating: _.gte(minR).and(_.lte(maxR))
+  // 如果不够，从范围底部补
+  if (res.data.length < 5) {
+    var res2 = await db.collection('problems').where({
+      difficulty_rating: _.gte(minR).and(_.lt(randStart))
     }).limit(20).get()
+    res.data = res.data.concat(res2.data)
   }
 
-  // 过滤掉最近做过的
+  // 过滤+打乱
   var cands = res.data.filter(function(p) { return !exclude[p.problem_id] })
-
-  // 打乱顺序
   for (var i = cands.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1))
     var tmp = cands[i]; cands[i] = cands[j]; cands[j] = tmp
   }
 
-  // 取前3题
-  var selected = cands.slice(0, 3)
-
-  // 如果不够3题，放宽范围再查一次
-  if (selected.length < 3) {
-    var res2 = await db.collection('problems').where({
-      difficulty_rating: _.gte(Math.max(0, userRating - 200)).and(_.lte(userRating + 200))
-    }).limit(20).get()
-    var more = res2.data.filter(function(p) {
-      return !exclude[p.problem_id] && selected.every(function(s) { return s.problem_id !== p.problem_id })
-    })
-    for (var k = 0; k < more.length && selected.length < 3; k++) {
-      selected.push(more[k])
-    }
-  }
-
-  return selected
+  return cands.slice(0, 3)
 }
 
 // Pick a single problem for continuation practice (同级±30)
@@ -210,6 +193,11 @@ exports.main = async function(event, context) {
       return await initUser(openid, event.wx_nickname)
     } else if (action === 'setLevel') {
       return await setLevel(openid, event.level_name, event.rating)
+    } else if (action === 'getHome') {
+      // 合并 getStats + getDaily，一次调用
+      var homeStats = await getStats(openid)
+      var homeDaily = await getDaily(openid)
+      return { stats: homeStats, daily: homeDaily }
     } else if (action === 'getDaily') {
       return await getDaily(openid)
     } else if (action === 'submitAnswer') {
@@ -424,7 +412,7 @@ async function getDaily(openid) {
   }
 
   // 云数据库有题目，按 rating 匹配选题
-  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(90).get()
+  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(20).get()
   var recentIds = recentRes.data.map(function(a) { return a.problem_id })
   var recentAttempts = recentRes.data.slice(0, 20) // last 20 for accuracy calc
   var selectedProblems = await selectProblemsFromDB(user.rating, recentIds, openid)
@@ -580,7 +568,7 @@ async function getContinueProblem(openid) {
   }).get()
   var sessionIds = sessionRes.data.length > 0 ? (sessionRes.data[0].problem_ids || []) : []
 
-  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(90).get()
+  var recentRes = await db.collection('attempts').where({ _openid: openid }).orderBy('attempted_at', 'desc').limit(20).get()
   var excludeIds = recentRes.data.map(function(a) { return a.problem_id }).concat(sessionIds)
 
   var problem = null

@@ -162,6 +162,8 @@ Page({
     this._playHistory = []
     this._startTime = Date.now()
     this._wrongSubmitted = false
+    this._wrongScore = undefined
+    this._answerSubmitted = false
     this._userRating = (app.globalData.userInfo && app.globalData.userInfo.rating) || wx.getStorageSync('userRating') || 280
 
     var cat = problem.category || ''
@@ -402,6 +404,21 @@ Page({
     var timeSpentMs = Date.now() - that._startTime
     var problem = that._problem
 
+    // 如果已经提交过（答错或答对），不再重复提交
+    if (that._answerSubmitted) {
+      that.setData({
+        isDone: true, interactive: true, submitting: false, freePlay: true,
+        progressPercent: that._calcProgress(that.data.totalMoves, true),
+      })
+      that._freeColor = that._uc === 'black' ? 'white' : 'black'
+      that._fullHistory = that.data.moveHistory.slice()
+      that._consecutiveCorrect = 0
+      try { correctAudio.stop(); correctAudio.play() } catch (e) {}
+      that._showFeedback('correct', '答对了！（不重复计分）', 0)
+      return
+    }
+
+    that._answerSubmitted = true
     api.submitAnswer(
       problem.problem_id, that._seq, timeSpentMs, true,
       problem.difficulty_rating || 0, problem.expected_time_ms || 60000
@@ -472,22 +489,36 @@ Page({
     })
 
     // 提交错误结果获取扣分
-    if (!that._wrongSubmitted) {
+    if (!that._answerSubmitted) {
       that._wrongSubmitted = true
+      that._answerSubmitted = true
       var timeSpentMs = Date.now() - that._startTime
       api.submitAnswer(
         problem.problem_id, [], timeSpentMs, false,
         problem.difficulty_rating || 0, problem.expected_time_ms || 60000
       ).then(function (res) {
         var score = res.rating_change || 0
-        that.setData({ ratingChange: score, feedbackScore: score })
+        that.setData({
+          ratingChange: score,
+          feedbackScore: score,
+          userRating: res.new_rating || that.data.userRating,
+          userLevel: res.new_level || that.data.userLevel,
+        })
       }).catch(function () {})
     }
 
-    // 先用本地估算的扣分显示（不等异步）
-    var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 280)) / 400))
-    var estScore = Math.round(10 * (0 - estExpected))
-    that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
+    // 第一次答错才扣分和显示分数
+    if (that._wrongSubmitted && that._wrongScore !== undefined) {
+      // 重复答错，不再扣分，显示之前的扣分
+      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that._wrongScore)
+    } else {
+      var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 280)) / 400))
+      var estScore = Math.round(10 * (0 - estExpected))
+      that._wrongScore = estScore
+      var estNewRating = Math.max(280, that.data.userRating + estScore)
+      that.setData({ userRating: estNewRating })
+      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
+    }
 
     // 1秒后恢复棋盘到当前正确步骤的状态（保留之前的黑1白2等）
     setTimeout(function () {
@@ -549,9 +580,10 @@ Page({
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
 
-    // 如果还没提交过错误结果，现在提交
-    if (!that._wrongSubmitted) {
+    // 如果还没提交过，现在提交
+    if (!that._answerSubmitted) {
       that._wrongSubmitted = true
+      that._answerSubmitted = true
       var problem = that._problem
       var timeSpentMs = Date.now() - that._startTime
       api.submitAnswer(
@@ -804,9 +836,10 @@ Page({
     that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
 
-    // 如果还没提交过错误结果，现在提交
-    if (!that._wrongSubmitted) {
+    // 如果还没提交过，现在提交
+    if (!that._answerSubmitted) {
       that._wrongSubmitted = true
+      that._answerSubmitted = true
       var timeSpentMs = Date.now() - that._startTime
       api.submitAnswer(
         problem.problem_id, [], timeSpentMs, false,
@@ -899,6 +932,9 @@ Page({
   },
 
   handleBack: function () {
+    // 把最新分数传回首页
+    app.globalData.latestRating = this.data.userRating
+    app.globalData.latestLevel = this.data.userLevel
     wx.navigateBack()
   },
 })

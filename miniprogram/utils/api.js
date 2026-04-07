@@ -33,6 +33,11 @@ var api = {
     return callCloud('getDaily')
   },
 
+  // 首页合并接口：一次拿 stats + daily
+  getHome: function() {
+    return callCloud('getHome')
+  },
+
   // Submit answer for a problem
   submitAnswer: function(problemId, moves, timeSpentMs, isCorrect, problemRating, expectedTimeMs) {
     return callCloud('submitAnswer', {
