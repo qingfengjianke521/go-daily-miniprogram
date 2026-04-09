@@ -937,6 +937,7 @@ async function claimLoginChest(openid) {
 
   return {
     new_chest: newChest,
+    new_chest_index: chests.length - 1,  // push 到末尾，索引为 length-1
     chests: chests,
     streak_days: streakDays,
   }

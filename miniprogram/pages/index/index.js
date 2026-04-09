@@ -225,6 +225,10 @@ Page({
         // 计算该宝箱会给的金币（展示用，开箱时云端真实结算）
         var estAmount = res.new_chest.type === 'gold' ? 75
           : res.new_chest.type === 'silver' ? 22 : 7
+        // 保存新宝箱在数组中的位置，用于后续 openChest
+        self._loginChestIndex = (typeof res.new_chest_index === 'number')
+          ? res.new_chest_index
+          : ((res.chests && res.chests.length > 0) ? res.chests.length - 1 : 0)
         self.setData({
           showLoginChest: true,
           loginChestType: res.new_chest.type,
@@ -244,8 +248,9 @@ Page({
       // 重新拉数据，更新金币和宝箱数
       if (self._loadData) self._loadData()
     }, 500)
-    // 云端真实开箱（第一个宝箱 index = 0）
-    api.openChest(0).catch(function () {})
+    // 云端真实开箱：用 _tryClaimLoginChest 保存的新宝箱 index（push 到末尾）
+    var idx = (typeof self._loginChestIndex === 'number') ? self._loginChestIndex : 0
+    api.openChest(idx).catch(function () {})
   },
 
   handleStart: function () {
