@@ -247,6 +247,7 @@ Page({
       submitting: false,
       progressPercent: this._calcProgress(0, false),
       showHint: false,
+      showMoveNumbers: false,
       isWrong: false,
       freePlay: false,
       answerRevealed: false,
@@ -376,27 +377,100 @@ Page({
     console.log('[play] move:', x, y, 'expected:', JSON.stringify(expected), 'step:', step, 'seqLen:', this._seq.length)
     console.log('[play] allSeqs first moves:', (this._problem.correct_sequences||[]).map(function(s){return s&&s[0]?JSON.stringify(s[0]):'null'}).join(', '))
 
-    // Check against ALL correct sequences, not just the first one
+    // Check against ALL correct sequences at every step (not just step 0)
     var allSeqs = (this._problem.correct_sequences || [])
     var isCorrectMove = false
 
     if (expected && expected[0] === x && expected[1] === y) {
       isCorrectMove = true
-    } else if (step === 0) {
-      // First move: check if it matches the first move of ANY correct sequence
+    } else {
+      // Check all sequences: find one that matches ALL previous moves AND this move
       for (var si = 0; si < allSeqs.length; si++) {
         var altSeq = allSeqs[si]
-        if (altSeq && altSeq[0] && altSeq[0][0] === x && altSeq[0][1] === y) {
-          // Switch to this sequence for subsequent moves
+        if (!altSeq || altSeq.length <= step) continue
+        if (altSeq[step][0] !== x || altSeq[step][1] !== y) continue
+        var prevMatch = true
+        for (var pi = 0; pi < step; pi++) {
+          var prev = this._seq[pi]
+          if (!prev || !altSeq[pi] || prev[0] !== altSeq[pi][0] || prev[1] !== altSeq[pi][1]) {
+            prevMatch = false
+            break
+          }
+        }
+        if (prevMatch) {
           this._seq = altSeq
+          // 切换到更短/更长的序列时同步 totalMoves
+          if (altSeq.length !== this.data.totalMoves) {
+            this.setData({ totalMoves: altSeq.length })
+          }
           isCorrectMove = true
           break
         }
       }
     }
 
+    // 宽松验证（仅新手村模式，且仅多步题的最后一步）：
+    // 只接受有明确战术效果的走法 - 提子 或 打吃
+    // 死活题等需要精确关键点的题目，严格按存储正解判定
+    if (!isCorrectMove && this._isVillageMode && step > 0 && step === this.data.totalMoves - 1) {
+      var testColor = step % 2 === 0 ? this._uc : this._oc
+      var testResult = goLogic.playMove(this._board, x, y, testColor)
+      if (testResult.isValid) {
+        var accepted = false
+
+        // (a) 能提子 → 算对
+        if (testResult.captured.length > 0) {
+          accepted = true
+          console.log('[play] 宽松验证(提子)：(' + x + ',' + y + ') 提 ' + testResult.captured.length + ' 子')
+        }
+
+        // (b) 让对方相邻棋组气=0（已在提子中覆盖）或气=1（打吃且是致命打吃）
+        // 注意：只有打吃规模 ≥ 正解的打吃规模才算对
+        if (!accepted && expected) {
+          var opp = testColor === 'black' ? 'white' : 'black'
+          // 先计算用户打吃的最小气数
+          var userAtariLibs = 99
+          var userNeighbors = goLogic.getNeighbors(x, y, this._board.length)
+          for (var ni = 0; ni < userNeighbors.length; ni++) {
+            var nb = userNeighbors[ni]
+            if (testResult.newBoard[nb.y][nb.x] === opp) {
+              var libs = goLogic.getLiberties(testResult.newBoard, nb.x, nb.y)
+              if (libs < userAtariLibs) userAtariLibs = libs
+            }
+          }
+          // 再计算正解打吃的最小气数
+          var expResult = goLogic.playMove(this._board, expected[0], expected[1], testColor)
+          if (expResult.isValid) {
+            var expAtariLibs = 99
+            var expNeighbors = goLogic.getNeighbors(expected[0], expected[1], this._board.length)
+            for (var eni = 0; eni < expNeighbors.length; eni++) {
+              var en = expNeighbors[eni]
+              if (expResult.newBoard[en.y][en.x] === opp) {
+                var elibs = goLogic.getLiberties(expResult.newBoard, en.x, en.y)
+                if (elibs < expAtariLibs) expAtariLibs = elibs
+              }
+            }
+            // 用户打吃规模 ≤ 正解（气数更少意味着压力更大）
+            if (userAtariLibs <= 1 && userAtariLibs <= expAtariLibs) {
+              accepted = true
+              console.log('[play] 宽松验证(打吃)：用户气=' + userAtariLibs + ' 正解气=' + expAtariLibs)
+            }
+          }
+        }
+
+        if (accepted) {
+          var newSeq = this._seq.slice(0, step)
+          newSeq.push([x, y])
+          this._seq = newSeq
+          if (newSeq.length !== this.data.totalMoves) {
+            this.setData({ totalMoves: this._seq.length })
+          }
+          isCorrectMove = true
+        }
+      }
+    }
+
     if (isCorrectMove) {
-      // 如果之前答错面板还在，先关掉
       if (this.data.feedbackVisible) {
         this.setData({ feedbackVisible: false })
       }
@@ -494,56 +568,64 @@ Page({
       try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
     }, 300)
 
-    // 显示错误落子（标记黑1）+ 同时弹出面板
+    // 显示错误落子 + 同时弹出面板
+    // 保留之前正确步骤的 moveHistory，追加错误落子
     var currentStones = that.data.stones.slice()
     currentStones.push({ x: x, y: y, color: color })
+
+    var wrongHistory = that._playHistory.slice()
+    wrongHistory.push({ x: x, y: y, color: color })
 
     that.setData({
       stones: currentStones,
       lastMove: { x: x, y: y },
-      moveHistory: [{ x: x, y: y, color: color }],
-      showMoveNumbers: true,
+      moveHistory: wrongHistory,
+      showMoveNumbers: false,
       interactive: false,
       isWrong: true,
       wrongShowingSolution: false,
     })
 
-    // 提交错误结果获取扣分
-    if (!that._answerSubmitted) {
-      that._wrongSubmitted = true
-      that._answerSubmitted = true
-      var timeSpentMs = Date.now() - that._startTime
-      api.submitAnswer(
-        problem.problem_id, [], timeSpentMs, false,
-        problem.difficulty_rating || 0, problem.expected_time_ms || 60000
-      ).then(function (res) {
-        var score = res.rating_change || 0
-        var nr = res.new_rating || that.data.userRating
-        var nl = res.new_level || that.data.userLevel
-        that.setData({ ratingChange: score, feedbackScore: score, userRating: nr, userLevel: nl })
-        app.globalData.latestRating = nr
-        app.globalData.latestLevel = nl
-        wx.setStorageSync('_latestRating', nr)
-        wx.setStorageSync('_latestLevel', nl)
-      }).catch(function () {})
-    }
-
-    // 第一次答错才扣分和显示分数
-    if (that._wrongSubmitted && that._wrongScore !== undefined) {
-      // 重复答错，不再扣分，显示之前的扣分
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that._wrongScore)
+    // 新手村模式：不提交错误、不扣分，鼓励学习
+    if (that._isVillageMode) {
+      that._showFeedback('wrong', '试试看正解吧~', 0)
     } else {
-      var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 520)) / 400))
-      var estScore = Math.round(10 * (0 - estExpected))
-      that._wrongScore = estScore
-      var estNewRating = Math.max(520, that.data.userRating + estScore)
-      that.setData({ userRating: estNewRating })
-      app.globalData.latestRating = estNewRating
-      app.globalData.latestLevel = that.data.userLevel
-      wx.setStorageSync('_latestRating', estNewRating)
-      wx.setStorageSync('_latestLevel', that.data.userLevel)
-      console.log('[play] 写入latestRating:', estNewRating, 'level:', that.data.userLevel)
-      that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
+      // 提交错误结果获取扣分
+      if (!that._answerSubmitted) {
+        that._wrongSubmitted = true
+        that._answerSubmitted = true
+        var timeSpentMs = Date.now() - that._startTime
+        api.submitAnswer(
+          problem.problem_id, [], timeSpentMs, false,
+          problem.difficulty_rating || 0, problem.expected_time_ms || 60000
+        ).then(function (res) {
+          var score = res.rating_change || 0
+          var nr = res.new_rating || that.data.userRating
+          var nl = res.new_level || that.data.userLevel
+          that.setData({ ratingChange: score, feedbackScore: score, userRating: nr, userLevel: nl })
+          app.globalData.latestRating = nr
+          app.globalData.latestLevel = nl
+          wx.setStorageSync('_latestRating', nr)
+          wx.setStorageSync('_latestLevel', nl)
+        }).catch(function () {})
+      }
+
+      // 第一次答错才扣分和显示分数
+      if (that._wrongSubmitted && that._wrongScore !== undefined) {
+        that._showFeedback('wrong', pickRandom(WRONG_TEXTS), that._wrongScore)
+      } else {
+        var estExpected = 1 / (1 + Math.pow(10, ((problem.difficulty_rating || 300) - (that._userRating || 520)) / 400))
+        var estScore = Math.round(10 * (0 - estExpected))
+        that._wrongScore = estScore
+        var estNewRating = Math.max(520, that.data.userRating + estScore)
+        that.setData({ userRating: estNewRating })
+        app.globalData.latestRating = estNewRating
+        app.globalData.latestLevel = that.data.userLevel
+        wx.setStorageSync('_latestRating', estNewRating)
+        wx.setStorageSync('_latestLevel', that.data.userLevel)
+        console.log('[play] 写入latestRating:', estNewRating, 'level:', that.data.userLevel)
+        that._showFeedback('wrong', pickRandom(WRONG_TEXTS), estScore)
+      }
     }
 
     // 1秒后恢复棋盘到当前正确步骤的状态（保留之前的黑1白2等）
@@ -571,7 +653,7 @@ Page({
         stones: boardToStones(board),
         lastMove: history.length > 0 ? { x: history[history.length-1].x, y: history[history.length-1].y } : null,
         moveHistory: history,
-        showMoveNumbers: history.length > 0,
+        showMoveNumbers: false,
         isWrong: false,
         interactive: true,
         isDone: false,
@@ -664,11 +746,14 @@ Page({
   _showFeedback: function (type, text, score) {
     var playState = this._playState
     var isContinue = playState.isContinueMode
+    var isVillage = this._isVillageMode
     var isLastProblem = playState.currentIndex >= playState.problems.length - 1
 
     var buttonText = '下一题 →'
     if (type === 'wrong') {
       buttonText = '💡 查看正解'
+    } else if (isVillage && isLastProblem) {
+      buttonText = '完成关卡 →'
     } else if (isLastProblem && !isContinue) {
       buttonText = '查看总结 →'
     }
@@ -687,10 +772,13 @@ Page({
   _enableFeedbackContinue: function () {
     var playState = this._playState
     var isContinue = playState.isContinueMode
+    var isVillage = this._isVillageMode
     var isLastProblem = playState.currentIndex >= playState.problems.length - 1
 
     var buttonText = '继续'
     if (isContinue) buttonText = '再来一题 →'
+    else if (isVillage && isLastProblem) buttonText = '完成关卡 →'
+    else if (isVillage) buttonText = '下一题 →'
     else if (isLastProblem) buttonText = '查看总结 →'
 
     this.setData({
@@ -736,6 +824,20 @@ Page({
     }])
 
     var nextIndex = playState.currentIndex + 1
+
+    // 新手村模式：同页面切换，做完所有题保存进度并返回
+    if (this._isVillageMode) {
+      if (nextIndex >= playState.problems.length) {
+        this._saveVillageCompletion()
+        return
+      }
+      playState.currentIndex = nextIndex
+      playState.resultsAccumulated = newResults
+      app.globalData.playState = playState
+      this._playState = playState
+      this._initProblem()
+      return
+    }
 
     // 继续练习模式
     if (playState.isContinueMode) {
@@ -982,6 +1084,7 @@ Page({
       submitting: false,
       hintMsg: '',
       showHint: false,
+      showMoveNumbers: false,
       interactive: seq.length > 0,
       progressPercent: this._calcProgress(0, false),
     })

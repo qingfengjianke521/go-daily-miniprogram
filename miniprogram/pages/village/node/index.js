@@ -1,4 +1,5 @@
 var SKILL_TREE = require('../../../data/skill-tree')
+var beginnerPuzzles = require('../../../data/beginner-puzzles')
 var apiModule = require('../../../utils/api')
 var api = apiModule.api
 var app = getApp()
@@ -99,35 +100,27 @@ Page({
     }
 
     var that = this
-    wx.showLoading({ title: '加载题目...' })
+    // 直接使用本地题库（已打包在小程序中）
+    var problems = beginnerPuzzles.getPuzzlesByTag(tag)
+    if (!problems || problems.length === 0) {
+      wx.showToast({ title: '题目加载失败', icon: 'none' })
+      return
+    }
 
-    api.getVillagePuzzles(tag).then(function (res) {
-      wx.hideLoading()
-      var problems = (res && res.problems) || []
-      if (problems.length === 0) {
-        wx.showToast({ title: '题目加载失败', icon: 'none' })
-        return
-      }
+    app.globalData.playState = {
+      problems: problems,
+      currentIndex: 0,
+      resultsAccumulated: [],
+      isVillageMode: true,
+      villageNodeId: that.data.nodeId,
+      villageLevel: level,
+      villagePuzzleTag: tag,
+      villageNodeName: that.data.nodeName,
+      userLevel: (app.globalData.userInfo && app.globalData.userInfo.level_name) || '25K',
+      userRating: (app.globalData.userInfo && app.globalData.userInfo.rating) || 280,
+    }
 
-      app.globalData.playState = {
-        problems: problems,
-        currentIndex: 0,
-        resultsAccumulated: [],
-        isVillageMode: true,
-        villageNodeId: that.data.nodeId,
-        villageLevel: level,
-        villagePuzzleTag: tag,
-        villageNodeName: that.data.nodeName,
-        userLevel: (app.globalData.userInfo && app.globalData.userInfo.level_name) || '25K',
-        userRating: (app.globalData.userInfo && app.globalData.userInfo.rating) || 280,
-      }
-
-      wx.navigateTo({ url: '/pages/play/index' })
-    }).catch(function (err) {
-      wx.hideLoading()
-      console.error('getVillagePuzzles error', err)
-      wx.showToast({ title: '加载失败，请重试', icon: 'none' })
-    })
+    wx.navigateTo({ url: '/pages/play/index' })
   },
 
   onBack: function () {

@@ -209,7 +209,9 @@ async function clearSessions() {
 
 // 上传新手村题库（不清空已有题目，追加上传）
 async function uploadBeginner() {
-  var files = ['beginner_problems.json', 'ogs_puzzles.json']
+  var args = process.argv.slice(2)
+  var includeOgs = args.indexOf('--with-ogs') >= 0
+  var files = includeOgs ? ['beginner_problems.json', 'ogs_puzzles.json'] : ['beginner_problems.json']
   var allProblems = []
 
   for (var f = 0; f < files.length; f++) {
@@ -233,14 +235,18 @@ async function uploadBeginner() {
   // 先删除已有的新手村题目（避免重复）
   console.log('清理旧新手村题目...')
   var deleted = 0
-  while (true) {
-    var res = await db.collection('problems').where({ source: _.or('generated', 'online-go/online-go.com') }).limit(100).get()
-    if (res.data.length === 0) break
-    for (var i = 0; i < res.data.length; i++) {
-      await db.collection('problems').doc(res.data[i]._id).remove()
-      deleted++
+  var sourcesToClean = ['generated', 'online-go/online-go.com']
+  for (var si = 0; si < sourcesToClean.length; si++) {
+    var src = sourcesToClean[si]
+    while (true) {
+      var res = await db.collection('problems').where({ source: src }).limit(100).get()
+      if (res.data.length === 0) break
+      for (var i = 0; i < res.data.length; i++) {
+        await db.collection('problems').doc(res.data[i]._id).remove()
+        deleted++
+      }
+      process.stdout.write('\r  已删除: ' + deleted)
     }
-    process.stdout.write('\r  已删除: ' + deleted)
   }
   if (deleted > 0) console.log('\n  清理完成: ' + deleted + ' 条')
 
