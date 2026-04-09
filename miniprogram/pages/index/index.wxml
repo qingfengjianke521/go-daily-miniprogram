@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.6.0</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v3.7.0</text>
     <view class="hud-spacer"></view>
   </view>
 </view>
@@ -65,3 +65,17 @@
 
   </view>
 </scroll-view>
+
+<!-- ===== 每日登录宝箱浮层 ===== -->
+<view wx:if="{{showLoginChest}}" class="chest-modal">
+  <view class="chest-modal-inner">
+    <text class="chest-modal-title">每日登录奖励</text>
+    <text class="chest-modal-sub">连续登录 {{stats.streak_days || 1}} 天</text>
+    <chest
+      type="{{loginChestType}}"
+      amount="{{loginChestAmount}}"
+      autoOpen="{{true}}"
+      bind:openEnd="onLoginChestDone"
+    />
+  </view>
+</view>

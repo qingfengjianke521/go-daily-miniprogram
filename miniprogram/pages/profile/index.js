@@ -29,6 +29,8 @@ Page({
     isAdmin: false,
     calendarDays: [],
     ratingHistory: [],
+    // 宝箱栏：固定 4 格
+    chestSlots: [{}, {}, {}, {}],
     categoryStats: [
       { name: '死活', rate: 0, barWidth: 3, color: '#1C94E0' },
       { name: '手筋', rate: 0, barWidth: 3, color: '#9B59B6' },
@@ -57,6 +59,15 @@ Page({
     api.getStats().then(function (stats) {
       var coins = stats.coins || 0
       var freezes = stats.streak_freezes || 0
+      // 宝箱：构建 4 格
+      var chests = stats.chests || []
+      var slots = [{}, {}, {}, {}]
+      for (var i = 0; i < Math.min(chests.length, 4); i++) {
+        slots[i] = {
+          type: chests[i].type,
+          amount: chests[i].type === 'gold' ? 75 : chests[i].type === 'silver' ? 22 : 7,
+        }
+      }
       self.setData({
         username: stats.username || self.data.username,
         levelName: stats.level_name || '--',
@@ -70,6 +81,7 @@ Page({
         streakFreezes: freezes,
         canBuyFreeze: freezes < 2 && coins >= 50,
         isAdmin: stats.is_admin || stats.username === '清风剑客' || (app.globalData.openid === 'o2gdp1zRV-kaBor5HiYSh6IO3Sek'),
+        chestSlots: slots,
         categoryStats: self.data.categoryStats.map(function(c) {
           return { name: c.name, rate: c.rate, barWidth: Math.max(c.rate, 3), color: c.color }
         }),
@@ -205,6 +217,31 @@ Page({
         days.push({ day: d, today: d === todayDate, done: false, empty: false })
       }
       self.setData({ calendarDays: days })
+    })
+  },
+
+  onTapChestSlot: function (e) {
+    var idx = e.currentTarget.dataset.idx
+    var slot = this.data.chestSlots[idx]
+    if (!slot || !slot.type) return
+    // 宝箱组件的 tap 事件会调 open 方法，然后 openEnd 回调做真正的领取
+    // 但我们是通过外部点击触发，直接调云函数开箱 + 刷新
+    var self = this
+    api.openChest(idx).then(function (res) {
+      // 动画:先让该 slot 变空
+      var slots = self.data.chestSlots.slice()
+      // 移除该 slot,后面的往前挪
+      for (var i = idx; i < 3; i++) {
+        slots[i] = slots[i + 1] || {}
+      }
+      slots[3] = {}
+      self.setData({
+        chestSlots: slots,
+        coins: res.total_coins || self.data.coins,
+      })
+      wx.showToast({ title: '+' + res.amount + '金币', icon: 'none' })
+    }).catch(function (err) {
+      wx.showToast({ title: err.message || '开箱失败', icon: 'none' })
     })
   },
 

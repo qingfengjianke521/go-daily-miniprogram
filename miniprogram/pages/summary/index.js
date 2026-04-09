@@ -46,6 +46,9 @@ Page({
     levelProgress: 0,
     showStreak: false,
     streakDays: 0,
+    // 宝箱
+    rewardChest: null,
+    rewardChestAmount: 0,
   },
 
   onLoad: function () {
@@ -73,6 +76,13 @@ Page({
     var rate = correct / Math.max(results.length, 1)
     var group = rate >= 1 ? ENCOURAGE.perfect : rate >= 0.6 ? ENCOURAGE.good : rate > 0 ? ENCOURAGE.ok : ENCOURAGE.zero
 
+    // 宝箱
+    var chest = state.chest_dropped || null
+    var chestAmount = 0
+    if (chest) {
+      chestAmount = chest.type === 'gold' ? 75 : chest.type === 'silver' ? 22 : 7
+    }
+
     this.setData({
       emoji: pick(group.emojis),
       title: pick(group.titles),
@@ -80,6 +90,8 @@ Page({
       circles: circles,
       totalChangeText: (totalChange >= 0 ? '+' : '') + totalChange,
       totalChangeColor: totalChange >= 0 ? '#58CC02' : '#FF4B4B',
+      rewardChest: chest,
+      rewardChestAmount: chestAmount,
     })
 
     // 获取最新 stats

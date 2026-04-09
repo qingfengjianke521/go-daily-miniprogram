@@ -51,6 +51,16 @@
       </view>
     </view>
 
+    <!-- Step 4.5: 完成宝箱（仅当有掉落时显示） -->
+    <view wx:if="{{rewardChest && step >= 4}}" class="reward-chest-row animate-fade-up">
+      <text class="reward-chest-title">🎁 获得宝箱</text>
+      <chest
+        type="{{rewardChest.type}}"
+        amount="{{rewardChestAmount}}"
+        autoOpen="{{true}}"
+      />
+    </view>
+
     <!-- Step 5: Streak -->
     <view wx:if="{{showStreak}}" class="streak-row {{step >= 5 ? 'animate-fade-up' : 'hidden'}}">
       <text class="streak-fire">🔥</text>

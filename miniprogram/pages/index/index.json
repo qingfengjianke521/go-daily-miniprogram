@@ -1,7 +1,8 @@
 {
   "usingComponents": {
     "progress-circle": "/components/progress-circle/index",
-    "mascot": "/components/mascot/index"
+    "mascot": "/components/mascot/index",
+    "chest": "/components/chest/index"
   },
   "enablePullDownRefresh": true,
   "backgroundTextStyle": "dark",

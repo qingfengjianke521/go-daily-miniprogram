@@ -614,6 +614,10 @@ Page({
       app.globalData.latestLevel = res.new_level || that.data.userLevel
       wx.setStorageSync('_latestRating', app.globalData.latestRating)
       wx.setStorageSync('_latestLevel', app.globalData.latestLevel)
+      // 宝箱掉落
+      if (res.chest_dropped) {
+        that._chestDropped = res.chest_dropped
+      }
       // 答对后下一步是对方（白棋）
       that._freeColor = that._uc === 'black' ? 'white' : 'black'
       that._fullHistory = that.data.moveHistory.slice()
@@ -956,6 +960,7 @@ Page({
       app.globalData.summaryState = {
         results: newResults,
         problems: playState.problems,
+        chest_dropped: this._chestDropped || null,
       }
       wx.redirectTo({ url: '/pages/summary/index' })
     } else {

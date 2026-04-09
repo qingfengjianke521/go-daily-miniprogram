@@ -46,6 +46,10 @@ Page({
     scrollTarget: '',
     daily: null,
     danDividerBottom: 0,
+    // 登录宝箱
+    showLoginChest: false,
+    loginChestType: 'wood',
+    loginChestAmount: 0,
   },
 
   onLoad: function () {
@@ -61,6 +65,8 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     if (!app.checkAuth()) return
+    // 每日登录宝箱
+    this._tryClaimLoginChest()
     // 做题页传回的最新分数
     var lr = app.globalData.latestRating
     var ll = app.globalData.latestLevel
@@ -201,6 +207,45 @@ Page({
         console.error('[index] load error:', err)
         that.setData({ loading: false, buttonDisabled: true })
       })
+  },
+
+  _tryClaimLoginChest: function () {
+    var self = this
+    // 本地防抖：同一天只尝试一次
+    var today = (function () {
+      var d = new Date(Date.now() + 8 * 3600000)
+      return d.toISOString().slice(0, 10)
+    })()
+    var lastTried = wx.getStorageSync('_last_login_chest_tried')
+    if (lastTried === today) return
+    wx.setStorageSync('_last_login_chest_tried', today)
+
+    api.claimLoginChest().then(function (res) {
+      if (res.new_chest) {
+        // 计算该宝箱会给的金币（展示用，开箱时云端真实结算）
+        var estAmount = res.new_chest.type === 'gold' ? 75
+          : res.new_chest.type === 'silver' ? 22 : 7
+        self.setData({
+          showLoginChest: true,
+          loginChestType: res.new_chest.type,
+          loginChestAmount: estAmount,
+        })
+      }
+    }).catch(function () {
+      // 静默失败
+    })
+  },
+
+  onLoginChestDone: function () {
+    var self = this
+    // 动画完成后自动调 openChest 实际领取
+    setTimeout(function () {
+      self.setData({ showLoginChest: false })
+      // 重新拉数据，更新金币和宝箱数
+      if (self._loadData) self._loadData()
+    }, 500)
+    // 云端真实开箱（第一个宝箱 index = 0）
+    api.openChest(0).catch(function () {})
   },
 
   handleStart: function () {

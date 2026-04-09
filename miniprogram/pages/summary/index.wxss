@@ -158,3 +158,20 @@
   color: #AFAFAF;
   padding: 16rpx;
 }
+
+/* ===== 完成宝箱 ===== */
+.reward-chest-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx;
+  background: linear-gradient(180deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(255,215,0,0.3);
+}
+.reward-chest-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #FFB300;
+}

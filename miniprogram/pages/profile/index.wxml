@@ -37,6 +37,32 @@
         </view>
       </view>
 
+      <!-- 宝箱栏 -->
+      <view class="section-card bg-white rounded-2xl shadow-sm">
+        <view class="chest-header">
+          <text class="section-title">宝箱（{{chestSlots.length}}/4）</text>
+          <text wx:if="{{chestSlots.length >= 4}}" class="chest-hint">已满，快开箱！</text>
+        </view>
+        <view class="chest-grid">
+          <view
+            wx:for="{{chestSlots}}"
+            wx:key="idx"
+            class="chest-slot"
+            data-idx="{{index}}"
+            bindtap="onTapChestSlot"
+          >
+            <chest
+              wx:if="{{item.type}}"
+              type="{{item.type}}"
+              amount="{{item.amount}}"
+            />
+            <view wx:else class="chest-empty">
+              <text class="chest-empty-icon">📦</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <!-- 打卡日历 -->
       <view class="section-card bg-white rounded-2xl shadow-sm">
         <text class="section-title">本月打卡</text>

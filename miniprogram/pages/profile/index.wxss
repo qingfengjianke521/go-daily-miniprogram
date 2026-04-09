@@ -80,3 +80,39 @@
 .cal-empty { visibility: hidden; }
 .cal-done { color: #58CC02; font-size: 28rpx; }
 .cal-today { border: 3rpx solid #1C94E0; border-radius: 50%; width: 56rpx; height: 56rpx; margin: 4rpx calc((100% / 7 - 56rpx) / 2); }
+
+/* ===== 宝箱栏 ===== */
+.chest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.chest-hint {
+  font-size: 22rpx;
+  color: #FF9600;
+  font-weight: 600;
+}
+.chest-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+.chest-slot {
+  aspect-ratio: 1;
+  background: linear-gradient(180deg, #FAFAFA, #F0F0F0);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #E5E5E5;
+}
+.chest-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.2;
+}
+.chest-empty-icon {
+  font-size: 48rpx;
+}
