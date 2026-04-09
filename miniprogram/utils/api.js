@@ -87,6 +87,16 @@ var api = {
       scores: scores,
     })
   },
+
+  // 每日登录奖励
+  claimLoginChest: function() {
+    return callCloud('claimLoginChest')
+  },
+
+  // 打开宝箱
+  openChest: function(chestIndex) {
+    return callCloud('openChest', { chest_index: chestIndex })
+  },
 }
 
 module.exports = {

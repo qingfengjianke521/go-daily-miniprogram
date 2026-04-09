@@ -223,6 +223,10 @@ exports.main = async function(event, context) {
       return await getVillageProgress(openid)
     } else if (action === 'saveVillageProgress') {
       return await saveVillageProgress(openid, event.node_id, event.completed_level, event.scores)
+    } else if (action === 'claimLoginChest') {
+      return await claimLoginChest(openid)
+    } else if (action === 'openChest') {
+      return await openChest(openid, event.chest_index)
     } else {
       return { error: '未知操作' }
     }
@@ -552,12 +556,20 @@ async function submitAnswer(openid, event) {
     })
   }
 
+  // 完成3题额外掉宝箱
+  var chestDropped = null
+  if (completedAfter === 3) {
+    var drop = await tryDropCompletionChest(openid, user)
+    chestDropped = drop.dropped
+  }
+
   return {
     is_correct: event.is_correct, rating_change: result.change,
     new_rating: newRating, new_level: newLevel,
     level_changed: newLevel !== user.level_name, streak_days: streakDays,
     coins_earned: coinsEarned, coin_reason: coinReason,
     total_coins: (user.coins || 0) + coinsEarned,
+    chest_dropped: chestDropped,
   }
 }
 
@@ -607,6 +619,8 @@ async function getStats(openid) {
     problems_total: problemsTotal,
     coins: user.coins || 0,
     streak_freezes: user.streak_freezes || 0,
+    chests: user.chests || [],
+    last_chest_login: user.last_chest_login || '',
   }
 }
 
@@ -740,4 +754,137 @@ async function saveVillageProgress(openid, nodeId, completedLevel, scores) {
   })
 
   return { ok: true }
+}
+
+// ========== 宝箱系统 ==========
+
+// 根据连续登录天数决定登录宝箱类型
+function getLoginChestType(streakDays) {
+  // 1-8 天循环: 木木银银银银金木...
+  var cycle = ((streakDays - 1) % 7) + 1
+  if (cycle <= 2) return 'wood'
+  if (cycle <= 6) return 'silver'
+  return 'gold'
+}
+
+// 随机掉落宝箱类型 (70%木/25%银/5%金)
+function randomChestType() {
+  var r = Math.random()
+  if (r < 0.05) return 'gold'
+  if (r < 0.30) return 'silver'
+  return 'wood'
+}
+
+// 箱子金币数
+function chestCoinAmount(type) {
+  if (type === 'gold') return 50 + Math.floor(Math.random() * 51)    // 50-100
+  if (type === 'silver') return 15 + Math.floor(Math.random() * 16)  // 15-30
+  return 5 + Math.floor(Math.random() * 6)                            // 5-10
+}
+
+// 每日登录奖励
+async function claimLoginChest(openid) {
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  var today = getTodayDate()
+
+  // 已经领过了
+  if (user.last_chest_login === today) {
+    return {
+      already_claimed: true,
+      chests: user.chests || [],
+    }
+  }
+
+  // 宝箱栏满了
+  var chests = user.chests || []
+  if (chests.length >= 4) {
+    await db.collection('users').where({ _openid: openid }).update({
+      data: { last_chest_login: today }
+    })
+    return {
+      full: true,
+      chests: chests,
+    }
+  }
+
+  // 发放登录宝箱
+  var streakDays = user.streak_days || 1
+  var chestType = getLoginChestType(streakDays)
+  var newChest = {
+    type: chestType,
+    source: 'login',
+    created_at: new Date().toISOString(),
+    opened: false,
+  }
+  chests.push(newChest)
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: {
+      chests: chests,
+      last_chest_login: today,
+    }
+  })
+
+  return {
+    new_chest: newChest,
+    chests: chests,
+    streak_days: streakDays,
+  }
+}
+
+// 打开宝箱
+async function openChest(openid, chestIndex) {
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  var chests = user.chests || []
+  if (typeof chestIndex !== 'number' || chestIndex < 0 || chestIndex >= chests.length) {
+    return { error: '宝箱不存在' }
+  }
+  var chest = chests[chestIndex]
+  if (chest.opened) return { error: '宝箱已打开' }
+
+  // 计算金币
+  var amount = chestCoinAmount(chest.type)
+
+  // 移除已打开的宝箱
+  chests.splice(chestIndex, 1)
+
+  await db.collection('users').where({ _openid: openid }).update({
+    data: {
+      chests: chests,
+      coins: _.inc(amount),
+    }
+  })
+
+  return {
+    amount: amount,
+    type: chest.type,
+    chests: chests,
+    total_coins: (user.coins || 0) + amount,
+  }
+}
+
+// 尝试掉落完成宝箱(供 submitAnswer 完成3题时调用)
+async function tryDropCompletionChest(openid, user) {
+  var chests = user.chests || []
+  if (chests.length >= 4) {
+    return { dropped: null, chests: chests }
+  }
+  var chestType = randomChestType()
+  var newChest = {
+    type: chestType,
+    source: 'complete',
+    created_at: new Date().toISOString(),
+    opened: false,
+  }
+  chests.push(newChest)
+  await db.collection('users').where({ _openid: openid }).update({
+    data: { chests: chests }
+  })
+  return { dropped: newChest, chests: chests }
 }
