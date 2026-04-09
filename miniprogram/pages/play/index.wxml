@@ -7,7 +7,7 @@
     <block wx:if="{{isVillageMode}}">
       <text class="top-level">{{villageNodeName}}</text>
       <view class="top-progress-track">
-        <view class="top-progress-fill" style="width:{{villageProgress}}%;"></view>
+        <view class="top-progress-fill {{villageProgress >= 100 ? 'progress-full' : ''}}" style="width:{{villageProgress}}%;"></view>
       </view>
       <text class="top-counter">{{problemIndex}}/{{totalProblems}}</text>
     </block>
@@ -15,7 +15,7 @@
       <text class="top-level">{{userLevel}}</text>
       <text class="top-rating">{{userRating}}分</text>
       <view class="top-progress-track">
-        <view class="top-progress-fill" style="width:{{dailyProgress}}%;"></view>
+        <view class="top-progress-fill {{dailyProgress >= 100 ? 'progress-full' : ''}}" style="width:{{dailyProgress}}%;"></view>
       </view>
       <text class="top-counter">{{dailyDone}}/3</text>
     </block>
@@ -43,7 +43,7 @@
   </view>
 
   <!-- Board -->
-  <view class="board-wrap">
+  <view class="board-wrap {{boardAnimClass}}">
     <go-board
       boardSize="{{boardSize}}"
       stones="{{stones}}"
@@ -55,7 +55,18 @@
       highlightPoints="{{highlightPoints}}"
       bindmove="onBoardMove"
     />
+    <!-- Game Juice 反馈层 -->
+    <view wx:if="{{showCorrectAnim}}" class="feedback-overlay">
+      <view class="correct-check animate">✓</view>
+      <view wx:if="{{ratingChange}}" class="score-fly animate">+{{ratingChange}}</view>
+    </view>
   </view>
+
+  <!-- 全屏金色闪光（连击5/10） -->
+  <view wx:if="{{showGoldFlash}}" class="gold-flash-overlay"></view>
+
+  <!-- 连击大字爆出 -->
+  <view wx:if="{{showComboBurst}}" class="combo-burst">{{comboBurstText}}</view>
 
   <!-- 查看答案 -->
   <view wx:if="{{!isDone && !feedbackVisible && !answerRevealed}}" class="reveal-row">

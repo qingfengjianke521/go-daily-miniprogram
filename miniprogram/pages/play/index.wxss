@@ -169,3 +169,144 @@
 
 /* 橙色按钮 */
 .btn-orange { background: #FF9500 !important; color: #fff !important; border: none !important; }
+
+/* ========== Game Juice 动画 ========== */
+
+/* 答对：大✓弹出 */
+@keyframes pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 分数向上飞 */
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-200rpx); opacity: 0; }
+}
+
+/* 棋盘摇晃 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6rpx); }
+  40% { transform: translateX(6rpx); }
+  60% { transform: translateX(-4rpx); }
+  80% { transform: translateX(4rpx); }
+}
+
+/* 棋盘微弹 */
+@keyframes board-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* 金色闪光 */
+@keyframes flash-gold {
+  0% { opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+/* 红色闪烁 */
+@keyframes blink-red {
+  0%, 50%, 100% { opacity: 0; }
+  25%, 75% { opacity: 0.7; }
+}
+
+/* 左滑出 */
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+/* 右滑入 */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* 反馈层 */
+.feedback-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.correct-check {
+  font-size: 180rpx;
+  font-weight: 900;
+  color: #4CAF50;
+  text-shadow: 0 4rpx 20rpx rgba(76,175,80,0.5);
+}
+.correct-check.animate {
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.score-fly {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 72rpx;
+  font-weight: 900;
+  color: #58CC02;
+  text-shadow: 0 4rpx 16rpx rgba(88,204,2,0.4);
+}
+.score-fly.animate {
+  animation: float-up 0.8s ease-out forwards;
+}
+
+/* 棋盘动画状态 */
+.board-shake { animation: shake 0.3s ease-in-out; }
+.board-bounce { animation: board-bounce 0.2s ease-out; }
+.board-slide-out { animation: slide-out-left 0.25s forwards; }
+.board-slide-in { animation: slide-in-right 0.25s forwards; }
+
+/* 全屏金色闪光 */
+.gold-flash-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle, rgba(255,215,0,0.6), rgba(255,165,0,0.3));
+  pointer-events: none;
+  z-index: 999;
+  animation: flash-gold 0.3s ease-out forwards;
+}
+
+/* 连击弹出大字 */
+.combo-burst {
+  position: fixed;
+  top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 96rpx;
+  font-weight: 900;
+  color: #FFB300;
+  text-shadow:
+    0 0 20rpx rgba(255,179,0,0.8),
+    0 4rpx 12rpx rgba(0,0,0,0.3);
+  pointer-events: none;
+  z-index: 1000;
+  animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 连击文案加成 */
+.feedback-combo-2 .feedback-title {
+  color: #FF9600;
+  text-shadow: 0 0 8rpx rgba(255,150,0,0.4);
+  animation: board-bounce 0.6s ease-in-out infinite;
+}
+.feedback-combo-3 {
+  background: linear-gradient(135deg, #FFF8E1, #FFECB3) !important;
+}
+.feedback-combo-3 .feedback-title {
+  font-size: 44rpx;
+  color: #FF8F00;
+}
+
+/* 进度条弹性 */
+.top-progress-fill {
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.top-progress-fill.progress-full {
+  animation: board-bounce 0.5s ease-out;
+}
