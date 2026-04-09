@@ -272,7 +272,7 @@ Page({
     var self = this
     wx.showModal({
       title: '购买 Streak Freeze',
-      content: '花费 50 棋币购买1个 Streak Freeze？\n使用后当天不做题也不断连续天数。',
+      content: '花费 50 金币购买1个 Streak Freeze？\n使用后当天不做题也不断连续天数。',
       confirmText: '购买',
       confirmColor: '#58CC02',
       success: function (res) {

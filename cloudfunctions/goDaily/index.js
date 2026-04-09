@@ -642,7 +642,7 @@ async function submitAnswer(openid, event) {
     }
   })
 
-  // 获取 session 来判断棋币
+  // 获取 session 来判断金币
   var sessionRes2 = await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).get()
   var session = sessionRes2.data.length > 0 ? sessionRes2.data[0] : null
   var completedBefore = session ? (session.completed_count || 0) : 0
@@ -651,13 +651,13 @@ async function submitAnswer(openid, event) {
     data: { completed_count: _.inc(1), total_rating_change: _.inc(result.change) }
   })
 
-  // 棋币奖励逻辑
+  // 金币奖励逻辑
   var coinsEarned = 0
   var coinReason = ''
   var completedAfter = completedBefore + 1
 
   if (completedAfter === 3) {
-    // 完成今日3题打卡: +10 棋币
+    // 完成今日3题打卡: +10 金币
     coinsEarned = 10
     coinReason = '完成打卡'
 
@@ -741,7 +741,7 @@ async function buyStreakFreeze(openid) {
   var cost = 50
 
   if (freezes >= 2) return { error: '最多持有2个 Streak Freeze' }
-  if (coins < cost) return { error: '棋币不足，需要' + cost + '棋币' }
+  if (coins < cost) return { error: '金币不足，需要' + cost + '金币' }
 
   await db.collection('users').where({ _openid: openid }).update({
     data: { coins: _.inc(-cost), streak_freezes: _.inc(1) }
