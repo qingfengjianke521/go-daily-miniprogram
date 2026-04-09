@@ -193,10 +193,7 @@ exports.main = async function(event, context) {
     } else if (action === 'setLevel') {
       return await setLevel(openid, event.level_name, event.rating)
     } else if (action === 'getHome') {
-      // 合并 getStats + getDaily，一次调用
-      var homeStats = await getStats(openid)
-      var homeDaily = await getDaily(openid)
-      return { stats: homeStats, daily: homeDaily }
+      return await getHomeCombined(openid)
     } else if (action === 'getDaily') {
       return await getDaily(openid)
     } else if (action === 'submitAnswer') {
@@ -310,6 +307,135 @@ async function setLevel(openid, levelName, clientRating) {
   })
 
   return { user: { level_name: levelName, rating: rating, level_set: true } }
+}
+
+// 格式化 attempt 为前端需要的结构
+function formatAttempt(a) {
+  return { problem_id: a.problem_id, is_correct: a.is_correct, rating_change: a.rating_change }
+}
+
+// 构建 stats（不查 DB，用已查到的 user）
+function buildStatsFromUser(user) {
+  var rate = user.total_solved > 0 ? Math.round(user.total_correct / user.total_solved * 100) : 0
+  return {
+    username: user.username || '',
+    rating: user.rating,
+    level_name: user.level_name,
+    streak_days: user.streak_days || 0,
+    total_solved: user.total_solved || 0,
+    total_correct: user.total_correct || 0,
+    correct_rate: rate,
+    is_admin: user.is_admin || false,
+    coins: user.coins || 0,
+    streak_freezes: user.streak_freezes || 0,
+    chests: user.chests || [],
+    last_chest_login: user.last_chest_login || '',
+  }
+}
+
+// 首页合并接口：8-10次DB查询 → 3-4次
+async function getHomeCombined(openid) {
+  var today = getTodayDate()
+
+  // 查询1：用户信息
+  var userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length === 0) return { error: '用户不存在' }
+  var user = userRes.data[0]
+
+  // 查询2+3 并行：今日 session + 今日 attempts
+  var sessionResP = db.collection('daily_sessions').where({
+    _openid: openid, session_date: today,
+  }).get()
+  var attemptsResP = db.collection('attempts').where({
+    _openid: openid, session_date: today,
+  }).orderBy('attempted_at', 'asc').get()
+  var pair = await Promise.all([sessionResP, attemptsResP])
+  var sessionRes = pair[0]
+  var attemptsRes = pair[1]
+
+  var stats = buildStatsFromUser(user)
+
+  // 已有 session
+  if (sessionRes.data.length > 0) {
+    var session = sessionRes.data[0]
+    var problemIds = session.problem_ids || []
+
+    // 本地题库模式
+    if (session.useLocal) {
+      return {
+        stats: stats,
+        daily: {
+          session_date: today,
+          problem_ids: problemIds,
+          useLocalProblems: true,
+          completed_count: session.completed_count || 0,
+          results: attemptsRes.data.map(formatAttempt),
+          total_completed: session.completed_count || 0,
+        },
+      }
+    }
+
+    // 查询4：一次性查3道题（_.in 批量）
+    var problems = []
+    if (problemIds.length > 0) {
+      try {
+        var pRes = await db.collection('problems')
+          .where({ problem_id: _.in(problemIds) })
+          .get()
+        var pMap = {}
+        pRes.data.forEach(function (p) { pMap[p.problem_id] = p })
+        for (var i = 0; i < problemIds.length; i++) {
+          if (pMap[problemIds[i]]) problems.push(formatProblem(pMap[problemIds[i]]))
+        }
+      } catch (e) {
+        problems = []
+      }
+    }
+
+    // 题目不够（部分被删），重建 session
+    if (problems.length < 3 && problemIds.length > 0) {
+      await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).remove()
+      return await getHomeCombined(openid)
+    }
+
+    return {
+      stats: stats,
+      daily: {
+        session_date: today,
+        problem_ids: problemIds,
+        problems: problems,
+        completed_count: session.completed_count || 0,
+        results: attemptsRes.data.map(formatAttempt),
+        total_completed: session.completed_count || 0,
+      },
+    }
+  }
+
+  // 新建 session：用 user.rating 选题（已有user，无需再查）
+  var selectedProblems = await selectProblemsFromDB(user.rating, [], openid)
+  var newProblemIds = selectedProblems.map(function (p) { return p.problem_id })
+
+  await db.collection('daily_sessions').add({
+    data: {
+      _openid: openid,
+      session_date: today,
+      problem_ids: newProblemIds,
+      completed_count: 0,
+      total_rating_change: 0,
+    },
+  })
+
+  return {
+    stats: stats,
+    daily: {
+      session_date: today,
+      problem_ids: newProblemIds,
+      problems: selectedProblems.map(formatProblem),
+      completed_count: 0,
+      results: [],
+      total_completed: 0,
+    },
+  }
 }
 
 async function getDaily(openid) {
@@ -602,26 +728,7 @@ async function getContinueProblem(openid) {
 async function getStats(openid) {
   var userRes = await db.collection('users').where({ _openid: openid }).get()
   if (userRes.data.length === 0) return { error: '用户不存在' }
-  var user = userRes.data[0]
-  var rate = user.total_solved > 0 ? Math.round(user.total_correct / user.total_solved * 100) : 0
-
-  var problemsTotal = 0
-  try {
-    var countRes = await db.collection('problems').count()
-    problemsTotal = countRes.total
-  } catch (e) {}
-
-  return {
-    username: user.username || '', rating: user.rating,
-    level_name: user.level_name, streak_days: user.streak_days || 0,
-    total_solved: user.total_solved || 0, total_correct: user.total_correct || 0,
-    correct_rate: rate, is_admin: user.is_admin || false,
-    problems_total: problemsTotal,
-    coins: user.coins || 0,
-    streak_freezes: user.streak_freezes || 0,
-    chests: user.chests || [],
-    last_chest_login: user.last_chest_login || '',
-  }
+  return buildStatsFromUser(userRes.data[0])
 }
 
 async function buyStreakFreeze(openid) {
