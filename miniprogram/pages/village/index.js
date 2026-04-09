@@ -39,6 +39,8 @@ Page({
     navBarHeight: 44,
     nodes: [],
     overallProgress: 0,
+    isGraduated: false,
+    showGraduationToast: false,
   },
 
   onLoad: function () {
@@ -92,14 +94,58 @@ Page({
     }
 
     var overallProgress = totalLevels > 0 ? Math.round(completedLevels / totalLevels * 100) : 0
+    var isGraduated = overallProgress >= 100
 
     this.setData({
       nodes: nodes,
       overallProgress: overallProgress,
+      isGraduated: isGraduated,
     })
+
+    // 通关首次触发：弹提示 + 提升 rating 到 520
+    if (isGraduated && !wx.getStorageSync('village_graduated')) {
+      wx.setStorageSync('village_graduated', true)
+      this._handleGraduation()
+    }
 
     // sync from cloud in background
     this._syncFromCloud(progress)
+  },
+
+  _handleGraduation: function () {
+    // 当前 rating 低于 520 才提升
+    var userInfo = app.globalData.userInfo || {}
+    var currentRating = userInfo.rating || wx.getStorageSync('userRating') || 520
+    var promoteToSeven = currentRating < 520
+
+    var content = '你已掌握基础技能，去天梯挑战更难的题目吧！'
+    if (promoteToSeven) {
+      content += '\n\n你的等级已提升至 7K (520分)。'
+    }
+
+    wx.showModal({
+      title: '🎓 恭喜毕业！',
+      content: content,
+      confirmText: '去天梯',
+      cancelText: '继续练习',
+      success: function (res) {
+        if (promoteToSeven) {
+          // 调云函数升 rating
+          api.setLevel('7K', 520).catch(function () {})
+          if (app.globalData.userInfo) {
+            app.globalData.userInfo.rating = 520
+            app.globalData.userInfo.level_name = '7K'
+          }
+          app.globalData.latestRating = 520
+          app.globalData.latestLevel = '7K'
+          wx.setStorageSync('userRating', 520)
+        }
+        if (res.confirm) {
+          // 跳转到首页天梯
+          wx.switchTab({ url: '/pages/index/index' })
+        }
+      },
+    })
   },
 
   _syncFromCloud: function (localProgress) {
@@ -146,5 +192,9 @@ Page({
     wx.navigateTo({
       url: '/pages/village/node/index?id=' + nodeId,
     })
+  },
+
+  goLadder: function () {
+    wx.switchTab({ url: '/pages/index/index' })
   },
 })

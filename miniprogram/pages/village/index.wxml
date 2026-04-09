@@ -8,14 +8,25 @@
   <scroll-view scroll-y class="content" style="top: {{statusBarHeight + navBarHeight}}px;">
     <view class="inner-content">
       <view class="header">
-        <text class="page-title">新手村</text>
-        <text class="page-subtitle">从零开始，一步步成为围棋高手</text>
+        <text class="page-title" wx:if="{{!isGraduated}}">新手村</text>
+        <text class="page-title" wx:if="{{isGraduated}}">🎓 恭喜毕业！</text>
+        <text class="page-subtitle" wx:if="{{!isGraduated}}">从零开始，一步步成为围棋高手</text>
+        <text class="page-subtitle" wx:if="{{isGraduated}}">基础技能已掌握，去天梯挑战吧！</text>
         <view class="progress-bar-wrap">
           <view class="progress-bar">
             <view class="progress-fill" style="width: {{overallProgress}}%;"></view>
           </view>
           <text class="progress-text">{{overallProgress}}%</text>
         </view>
+      </view>
+
+      <view wx:if="{{isGraduated}}" class="graduation-banner" bindtap="goLadder">
+        <text class="grad-icon">🏆</text>
+        <view class="grad-body">
+          <text class="grad-title">前往天梯模式</text>
+          <text class="grad-desc">挑战 7K 以上更难的题目</text>
+        </view>
+        <view class="node-arrow"></view>
       </view>
 
       <view wx:for="{{nodes}}" wx:key="id"

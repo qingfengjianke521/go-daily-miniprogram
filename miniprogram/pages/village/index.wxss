@@ -92,6 +92,40 @@
   margin-top: 20rpx;
 }
 
+.graduation-banner {
+  background: linear-gradient(135deg, #FFD54F, #FF9800);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(255, 152, 0, 0.3);
+}
+
+.grad-icon {
+  font-size: 56rpx;
+  flex-shrink: 0;
+}
+
+.grad-body {
+  flex: 1;
+  margin-left: 24rpx;
+}
+
+.grad-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.grad-desc {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 6rpx;
+}
+
 .skill-node.locked {
   opacity: 0.55;
 }
