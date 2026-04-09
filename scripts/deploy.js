@@ -44,8 +44,8 @@ async function uploadMiniProgram() {
   try {
     var result = await ci.upload({
       project: project,
-      version: '4.5.0',
-      desc: '20级天梯+rating280起点+formatProblem兼容',
+      version: '4.7.0',
+      desc: 'getHome查询优化+金币统一+登录宝箱',
       setting: {
         es6: true,
         es7: true,
