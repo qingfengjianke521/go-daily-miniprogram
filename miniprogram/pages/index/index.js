@@ -29,13 +29,6 @@ function getLevelColor(name) {
   return '#BDBDBD'
 }
 
-var GOAL_OPTIONS = [
-  { value: 3, label: '轻松', desc: '3题就好~' },
-  { value: 5, label: '标准', desc: '5题刚好！' },
-  { value: 10, label: '认真', desc: '加油哦！' },
-  { value: 20, label: '疯狂', desc: '你是真猛！' },
-]
-
 Page({
   data: {
     statusBarHeight: 20,
@@ -45,10 +38,7 @@ Page({
     levelColor: '#CCC',
     checkedIn: false,
     circles: [],
-    dailyGoal: 5,
     todayDone: 0,
-    showGoalPicker: false,
-    goalOptions: GOAL_OPTIONS,
     totalChange: 0,
     completedCount: 0,
     buttonDisabled: false,
@@ -60,16 +50,10 @@ Page({
 
   onLoad: function () {
     var sbh = app.globalData.statusBarHeight || 20
-    var savedGoal = wx.getStorageSync('dailyGoal')
     this.setData({
       statusBarHeight: sbh,
       topHeight: sbh + 44,
-      dailyGoal: savedGoal || 5,
     })
-    // 首次使用弹出目标选择
-    if (!savedGoal) {
-      this.setData({ showGoalPicker: true })
-    }
   },
 
   onShow: function () {
@@ -217,20 +201,6 @@ Page({
         console.error('[index] load error:', err)
         that.setData({ loading: false, buttonDisabled: true })
       })
-  },
-
-  onTapGoal: function () {
-    this.setData({ showGoalPicker: true })
-  },
-
-  onCloseGoal: function () {
-    this.setData({ showGoalPicker: false })
-  },
-
-  onSelectGoal: function (e) {
-    var val = e.currentTarget.dataset.value
-    wx.setStorageSync('dailyGoal', val)
-    this.setData({ dailyGoal: val, showGoalPicker: false })
   },
 
   handleStart: function () {

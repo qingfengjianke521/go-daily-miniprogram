@@ -180,25 +180,3 @@
   right: -80rpx; top: -20rpx;
 }
 
-/* ===== 目标选择弹窗 ===== */
-.goal-mask {
-  position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-}
-.goal-dialog {
-  width: 80%; background: white; border-radius: 32rpx;
-  padding: 48rpx 36rpx; display: flex; flex-direction: column; align-items: center; gap: 24rpx;
-}
-.goal-title { font-size: 36rpx; font-weight: 700; color: #4B4B4B; }
-.goal-sub { font-size: 24rpx; color: #AFAFAF; }
-.goal-options { width: 100%; display: flex; flex-direction: column; gap: 16rpx; }
-.goal-opt {
-  display: flex; align-items: center; gap: 16rpx;
-  padding: 24rpx; border-radius: 16rpx; border: 3rpx solid #E5E5E5;
-}
-.goal-opt-on { border-color: #58CC02; background: #F0FFF0; }
-.goal-num { font-size: 36rpx; font-weight: 800; color: #58CC02; min-width: 64rpx; text-align: center; }
-.goal-label { font-size: 28rpx; font-weight: 600; color: #4B4B4B; }
-.goal-desc { font-size: 22rpx; color: #AFAFAF; margin-left: auto; }
-.hud-goal { background: rgba(88,204,2,0.25); }
