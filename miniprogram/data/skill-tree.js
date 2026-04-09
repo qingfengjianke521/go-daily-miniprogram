@@ -13,10 +13,10 @@ var SKILL_TREE = [
     description: '学会提掉对方没气的棋子',
     prerequisites: [],
     levels: [
-      { level: 1, name: '提一子', tag: 'cap1_single', count: 8 },
-      { level: 2, name: '提两子', tag: 'cap1_double', count: 8 },
-      { level: 3, name: '角上吃子', tag: 'cap1_corner', count: 8 },
-      { level: 4, name: '边上吃子', tag: 'cap1_edge', count: 10 },
+      { level: 1, name: '提一子', tag: 'cap1_single', count: 30},
+      { level: 2, name: '提两子', tag: 'cap1_double', count: 30},
+      { level: 3, name: '角上吃子', tag: 'cap1_corner', count: 30},
+      { level: 4, name: '边上吃子', tag: 'cap1_edge', count: 30},
     ],
   },
   {
@@ -27,9 +27,9 @@ var SKILL_TREE = [
     description: '学会吃掉多颗棋子',
     prerequisites: ['capture_basic'],
     levels: [
-      { level: 1, name: '中腹吃子', tag: 'cap2_center', count: 8 },
-      { level: 2, name: '吃三子以上', tag: 'cap2_multi', count: 8 },
-      { level: 3, name: '吃子综合', tag: 'cap2_mixed', count: 10 },
+      { level: 1, name: '中腹吃子', tag: 'cap2_center', count: 30},
+      { level: 2, name: '吃三子以上', tag: 'cap2_multi', count: 30},
+      { level: 3, name: '吃子综合', tag: 'cap2_mixed', count: 30},
     ],
   },
 
@@ -42,9 +42,9 @@ var SKILL_TREE = [
     description: '让自己的棋子逃出险境',
     prerequisites: ['capture_adv'],
     levels: [
-      { level: 1, name: '简单逃跑', tag: 'escape_basic', count: 8 },
-      { level: 2, name: '连接逃跑', tag: 'escape_connect', count: 8 },
-      { level: 3, name: '逃跑综合', tag: 'escape_mixed', count: 10 },
+      { level: 1, name: '简单逃跑', tag: 'escape_basic', count: 30},
+      { level: 2, name: '连接逃跑', tag: 'escape_connect', count: 30},
+      { level: 3, name: '逃跑综合', tag: 'escape_mixed', count: 30},
     ],
   },
   {
@@ -55,9 +55,9 @@ var SKILL_TREE = [
     description: '连接自己的棋，切断对方',
     prerequisites: ['escape'],
     levels: [
-      { level: 1, name: '基础连接', tag: 'connect_basic', count: 8 },
-      { level: 2, name: '切断对方', tag: 'connect_cut', count: 8 },
-      { level: 3, name: '连断综合', tag: 'connect_mixed', count: 10 },
+      { level: 1, name: '基础连接', tag: 'connect_basic', count: 30},
+      { level: 2, name: '切断对方', tag: 'connect_cut', count: 30},
+      { level: 3, name: '连断综合', tag: 'connect_mixed', count: 30},
     ],
   },
 
@@ -70,9 +70,9 @@ var SKILL_TREE = [
     description: '用征子技巧追吃对方',
     prerequisites: ['connect'],
     levels: [
-      { level: 1, name: '基础征子', tag: 'ladder_basic', count: 8 },
-      { level: 2, name: '征子判断', tag: 'ladder_judge', count: 8 },
-      { level: 3, name: '征子综合', tag: 'ladder_mixed', count: 10 },
+      { level: 1, name: '基础征子', tag: 'ladder_basic', count: 30},
+      { level: 2, name: '征子判断', tag: 'ladder_judge', count: 30},
+      { level: 3, name: '征子综合', tag: 'ladder_mixed', count: 30},
     ],
   },
   {
@@ -83,9 +83,9 @@ var SKILL_TREE = [
     description: '用倒扑技巧反吃对方',
     prerequisites: ['connect'],
     levels: [
-      { level: 1, name: '基础倒扑', tag: 'snapback_basic', count: 8 },
-      { level: 2, name: '倒扑应用', tag: 'snapback_apply', count: 8 },
-      { level: 3, name: '倒扑综合', tag: 'snapback_mixed', count: 10 },
+      { level: 1, name: '基础倒扑', tag: 'snapback_basic', count: 30},
+      { level: 2, name: '倒扑应用', tag: 'snapback_apply', count: 30},
+      { level: 3, name: '倒扑综合', tag: 'snapback_mixed', count: 30},
     ],
   },
   {
@@ -96,10 +96,10 @@ var SKILL_TREE = [
     description: '判断棋的死活，做活或杀棋',
     prerequisites: ['ladder', 'snapback'],
     levels: [
-      { level: 1, name: '基础死活', tag: 'eyes_basic', count: 8 },
-      { level: 2, name: '活棋要点', tag: 'eyes_make', count: 8 },
-      { level: 3, name: '杀棋要点', tag: 'eyes_kill', count: 8 },
-      { level: 4, name: '死活综合', tag: 'eyes_mixed', count: 10 },
+      { level: 1, name: '基础死活', tag: 'eyes_basic', count: 30},
+      { level: 2, name: '活棋要点', tag: 'eyes_make', count: 30},
+      { level: 3, name: '杀棋要点', tag: 'eyes_kill', count: 30},
+      { level: 4, name: '死活综合', tag: 'eyes_mixed', count: 30},
     ],
   },
 
@@ -112,9 +112,9 @@ var SKILL_TREE = [
     description: '在对杀中比气取胜',
     prerequisites: ['eyes'],
     levels: [
-      { level: 1, name: '简单对杀', tag: 'semeai_basic', count: 8 },
-      { level: 2, name: '比气对杀', tag: 'semeai_liberties', count: 8 },
-      { level: 3, name: '对杀综合', tag: 'semeai_mixed', count: 10 },
+      { level: 1, name: '简单对杀', tag: 'semeai_basic', count: 30},
+      { level: 2, name: '比气对杀', tag: 'semeai_liberties', count: 30},
+      { level: 3, name: '对杀综合', tag: 'semeai_mixed', count: 30},
     ],
   },
   {
@@ -125,9 +125,9 @@ var SKILL_TREE = [
     description: '学会常见的妙手技巧',
     prerequisites: ['eyes'],
     levels: [
-      { level: 1, name: '枷吃', tag: 'tesuji_net', count: 8 },
-      { level: 2, name: '扑吃', tag: 'tesuji_throw', count: 8 },
-      { level: 3, name: '手筋综合', tag: 'tesuji_mixed', count: 10 },
+      { level: 1, name: '枷吃', tag: 'tesuji_net', count: 30},
+      { level: 2, name: '扑吃', tag: 'tesuji_throw', count: 30},
+      { level: 3, name: '手筋综合', tag: 'tesuji_mixed', count: 30},
     ],
   },
 ]
