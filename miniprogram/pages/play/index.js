@@ -231,7 +231,7 @@ Page({
         return '难度' + r + '(' + lvl + ') · ' + src
       })(),
       boardSize: boardSize,
-      stones: problem.initial_stones ? [].concat(problem.initial_stones) : [],
+      stones: goLogic.normalizeStones(problem.initial_stones),
       viewRegion: problem.view_region || null,
       interactive: totalMoves > 0,
       currentColor: uc,
@@ -892,7 +892,7 @@ Page({
     var history = []
 
     that.setData({
-      stones: problem.initial_stones ? [].concat(problem.initial_stones) : [],
+      stones: goLogic.normalizeStones(problem.initial_stones),
       lastMove: null,
       moveHistory: [],
       showingSolution: true,
@@ -1069,7 +1069,7 @@ Page({
     this._seq = seq
 
     this.setData({
-      stones: problem.initial_stones ? [].concat(problem.initial_stones) : [],
+      stones: goLogic.normalizeStones(problem.initial_stones),
       lastMove: null,
       moveHistory: [],
       highlightPoints: [],

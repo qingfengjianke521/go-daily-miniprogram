@@ -16,11 +16,32 @@ function createBoard(size) {
   return board
 }
 
+// 把 {black:[[x,y]], white:[[x,y]]} 格式转成 [{x,y,color}] 格式
+function normalizeStones(stones) {
+  if (!stones) return []
+  if (Array.isArray(stones)) return stones
+  var arr = []
+  if (stones.black) {
+    for (var i = 0; i < stones.black.length; i++) {
+      arr.push({ x: stones.black[i][0], y: stones.black[i][1], color: 'black' })
+    }
+  }
+  if (stones.white) {
+    for (var j = 0; j < stones.white.length; j++) {
+      arr.push({ x: stones.white[j][0], y: stones.white[j][1], color: 'white' })
+    }
+  }
+  return arr
+}
+
 function placeStones(board, stones) {
+  var arr = normalizeStones(stones)
   var newBoard = board.map(function (row) { return row.slice() })
-  for (var i = 0; i < stones.length; i++) {
-    var s = stones[i]
-    newBoard[s.y][s.x] = s.color
+  for (var i = 0; i < arr.length; i++) {
+    var s = arr[i]
+    if (s && typeof s.x === 'number' && typeof s.y === 'number') {
+      newBoard[s.y][s.x] = s.color
+    }
   }
   return newBoard
 }
@@ -153,6 +174,7 @@ function isValidMove(board, x, y, color) {
 module.exports = {
   createBoard: createBoard,
   placeStones: placeStones,
+  normalizeStones: normalizeStones,
   getNeighbors: getNeighbors,
   getGroup: getGroup,
   getLiberties: getLiberties,
