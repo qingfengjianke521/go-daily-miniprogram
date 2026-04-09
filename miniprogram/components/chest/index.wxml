@@ -1,0 +1,28 @@
+<view class="chest-wrap" bindtap="onTap">
+  <!-- 宝箱主体 -->
+  <view wx:if="{{!opened}}" class="chest chest-{{type}} {{stageShake ? 'anim-shake' : ''}} {{stageOpen ? 'anim-open' : ''}}">
+    <!-- 箱盖 -->
+    <view class="chest-lid"></view>
+    <!-- 箱身 -->
+    <view class="chest-body">
+      <view class="chest-lock"></view>
+      <view class="chest-plate"></view>
+    </view>
+    <!-- 稀有标识 -->
+    <view wx:if="{{type === 'silver'}}" class="rarity-badge rarity-silver">银</view>
+    <view wx:if="{{type === 'gold'}}" class="rarity-badge rarity-gold">金</view>
+  </view>
+
+  <!-- 开箱后：金币飞出 -->
+  <view wx:if="{{stageCoins}}" class="coin-rain">
+    <view
+      wx:for="{{coinDots}}"
+      wx:key="i"
+      class="coin"
+      style="left:{{item.x}}%;animation-delay:{{item.delay}}ms;"
+    >🪙</view>
+  </view>
+
+  <!-- 总数飞入 -->
+  <view wx:if="{{stageTotal}}" class="coin-total">+{{amount}}金币</view>
+</view>

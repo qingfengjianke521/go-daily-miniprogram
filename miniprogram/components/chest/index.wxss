@@ -1,0 +1,170 @@
+.chest-wrap {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== 宝箱主体 ===== */
+.chest {
+  position: relative;
+  width: 120rpx;
+  height: 100rpx;
+  transform-origin: center center;
+}
+
+.chest-lid {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 44rpx;
+  border-radius: 60rpx 60rpx 8rpx 8rpx;
+  box-shadow: inset 0 4rpx 8rpx rgba(255,255,255,0.3),
+              0 2rpx 0 rgba(0,0,0,0.25);
+}
+
+.chest-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 64rpx;
+  border-radius: 6rpx 6rpx 10rpx 10rpx;
+  box-shadow: inset 0 -6rpx 10rpx rgba(0,0,0,0.25),
+              0 6rpx 16rpx rgba(0,0,0,0.2);
+}
+
+.chest-plate {
+  position: absolute;
+  top: -6rpx; left: 50%;
+  transform: translateX(-50%);
+  width: 30rpx; height: 14rpx;
+  border-radius: 3rpx;
+}
+
+.chest-lock {
+  position: absolute;
+  top: 12rpx; left: 50%;
+  transform: translateX(-50%);
+  width: 20rpx; height: 20rpx;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* 木箱 */
+.chest-wood .chest-lid,
+.chest-wood .chest-body {
+  background: linear-gradient(180deg, #A0522D, #6B3410);
+}
+.chest-wood .chest-lid {
+  background: linear-gradient(180deg, #B06030, #8B4513);
+}
+.chest-wood .chest-plate { background: #5A2C0A; }
+.chest-wood .chest-lock {
+  background: radial-gradient(circle at 30% 30%, #FFD700, #B8860B);
+  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.4);
+}
+
+/* 银箱 */
+.chest-silver .chest-lid,
+.chest-silver .chest-body {
+  background: linear-gradient(180deg, #C0C0C0, #808080);
+}
+.chest-silver .chest-lid {
+  background: linear-gradient(180deg, #E5E5E5, #A8A8A8);
+}
+.chest-silver .chest-plate { background: #606060; }
+.chest-silver .chest-lock {
+  background: radial-gradient(circle at 30% 30%, #FFD700, #DAA520);
+  box-shadow: 0 0 8rpx rgba(192,192,192,0.6);
+}
+
+/* 金箱 */
+.chest-gold .chest-lid,
+.chest-gold .chest-body {
+  background: linear-gradient(180deg, #FFD700, #B8860B);
+}
+.chest-gold .chest-lid {
+  background: linear-gradient(180deg, #FFEF5C, #DAA520);
+}
+.chest-gold .chest-plate { background: #8B6914; }
+.chest-gold .chest-lock {
+  background: radial-gradient(circle at 30% 30%, #FFF, #E0E0E0);
+  box-shadow: 0 0 12rpx rgba(255,215,0,0.8);
+}
+.chest-gold {
+  animation: gold-shine 2s ease-in-out infinite;
+}
+@keyframes gold-shine {
+  0%, 100% { filter: drop-shadow(0 0 6rpx rgba(255,215,0,0.5)); }
+  50% { filter: drop-shadow(0 0 20rpx rgba(255,215,0,0.9)); }
+}
+
+/* ===== 稀有标识 ===== */
+.rarity-badge {
+  position: absolute;
+  top: -12rpx; right: -12rpx;
+  min-width: 32rpx; height: 32rpx;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20rpx; font-weight: 800;
+  color: white;
+  z-index: 3;
+}
+.rarity-silver { background: linear-gradient(135deg, #BDBDBD, #757575); }
+.rarity-gold { background: linear-gradient(135deg, #FFD700, #FF8F00); }
+
+/* ===== 动画 ===== */
+@keyframes chest-shake {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(-6deg); }
+  30% { transform: rotate(5deg); }
+  45% { transform: rotate(-4deg); }
+  60% { transform: rotate(3deg); }
+  75% { transform: rotate(-2deg); }
+}
+.anim-shake { animation: chest-shake 0.4s ease-in-out; }
+
+@keyframes chest-open {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0) translateY(-120rpx); opacity: 0; }
+}
+.anim-open { animation: chest-open 0.6s ease-out forwards; }
+
+/* ===== 金币雨 ===== */
+.coin-rain {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+}
+.coin {
+  position: absolute;
+  bottom: 30%;
+  font-size: 40rpx;
+  transform: translateX(-50%) scale(0);
+  opacity: 0;
+  animation: coin-pop 1s ease-out forwards;
+}
+@keyframes coin-pop {
+  0% { transform: translateX(-50%) scale(0) translateY(0); opacity: 0; }
+  30% { transform: translateX(-50%) scale(1.3) translateY(-60rpx); opacity: 1; }
+  60% { transform: translateX(-50%) scale(1) translateY(-100rpx); opacity: 1; }
+  100% { transform: translateX(-50%) scale(0.8) translateY(-140rpx); opacity: 0; }
+}
+
+/* ===== 总数文字 ===== */
+.coin-total {
+  position: absolute;
+  top: 30%;
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #FFB300;
+  text-shadow: 0 4rpx 12rpx rgba(0,0,0,0.3),
+               0 0 16rpx rgba(255,179,0,0.6);
+  animation: total-fly 0.8s ease-out forwards;
+}
+@keyframes total-fly {
+  0% { transform: scale(0) translateY(0); opacity: 0; }
+  30% { transform: scale(1.4) translateY(-20rpx); opacity: 1; }
+  100% { transform: scale(1) translateY(-120rpx); opacity: 0; }
+}
