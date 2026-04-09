@@ -101,11 +101,13 @@ Page({
 
     var that = this
     // 直接使用本地题库（已打包在小程序中）
-    var problems = beginnerPuzzles.getPuzzlesByTag(tag)
-    if (!problems || problems.length === 0) {
+    var allProblems = beginnerPuzzles.getPuzzlesByTag(tag)  // 已随机打乱
+    if (!allProblems || allProblems.length === 0) {
       wx.showToast({ title: '题目加载失败', icon: 'none' })
       return
     }
+    // 每次只出10题，从池中随机抽，重复做不会总是同样的题
+    var problems = allProblems.slice(0, 10)
 
     app.globalData.playState = {
       problems: problems,
