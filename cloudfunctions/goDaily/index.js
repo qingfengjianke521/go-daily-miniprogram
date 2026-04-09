@@ -193,7 +193,7 @@ exports.main = async function(event, context) {
     } else if (action === 'setLevel') {
       return await setLevel(openid, event.level_name, event.rating)
     } else if (action === 'getHome') {
-      return await getHomeCombined(openid)
+      return await getHomeFast(openid)
     } else if (action === 'getDaily') {
       return await getDaily(openid)
     } else if (action === 'submitAnswer') {
@@ -334,7 +334,7 @@ function buildStatsFromUser(user) {
 }
 
 // 首页合并接口：8-10次DB查询 → 3-4次
-async function getHomeCombined(openid) {
+async function getHomeFast(openid) {
   var today = getTodayDate()
 
   // 查询1：用户信息
@@ -395,7 +395,7 @@ async function getHomeCombined(openid) {
     // 题目不够（部分被删），重建 session
     if (problems.length < 3 && problemIds.length > 0) {
       await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).remove()
-      return await getHomeCombined(openid)
+      return await getHomeFast(openid)
     }
 
     return {
