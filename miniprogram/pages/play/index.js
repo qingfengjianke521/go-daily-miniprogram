@@ -88,6 +88,71 @@ Page({
     isVillageMode: false,
     villageNodeName: '',
     villageProgress: 0,
+    // Game Juice 动画状态
+    boardAnimClass: '',
+    showCorrectAnim: false,
+    showGoldFlash: false,
+    showComboBurst: false,
+    comboBurstText: '',
+  },
+
+  // ========== Game Juice 动画触发器 ==========
+
+  _triggerCorrectAnim: function (ratingChange) {
+    var that = this
+    // 棋盘弹 + 显示大✓ + 分数飞
+    that.setData({
+      boardAnimClass: 'board-bounce',
+      showCorrectAnim: true,
+    })
+    try { wx.vibrateShort({ type: 'medium' }) } catch (e) {}
+    setTimeout(function () {
+      that.setData({ boardAnimClass: '' })
+    }, 220)
+    setTimeout(function () {
+      that.setData({ showCorrectAnim: false })
+    }, 900)
+  },
+
+  _triggerWrongAnim: function () {
+    var that = this
+    that.setData({ boardAnimClass: 'board-shake' })
+    try { wx.vibrateShort({ type: 'light' }) } catch (e) {}
+    setTimeout(function () {
+      that.setData({ boardAnimClass: '' })
+    }, 320)
+  },
+
+  _triggerComboEffect: function (cc) {
+    var that = this
+    if (cc === 5) {
+      that.setData({ showGoldFlash: true })
+      setTimeout(function () { that.setData({ showGoldFlash: false }) }, 320)
+    } else if (cc === 10) {
+      that.setData({
+        showGoldFlash: true,
+        showComboBurst: true,
+        comboBurstText: '🔥 太强了！',
+      })
+      setTimeout(function () { that.setData({ showGoldFlash: false }) }, 320)
+      setTimeout(function () { that.setData({ showComboBurst: false }) }, 1200)
+    } else if (cc === 3) {
+      that.setData({
+        showComboBurst: true,
+        comboBurstText: '🔥 连对3！',
+      })
+      setTimeout(function () { that.setData({ showComboBurst: false }) }, 900)
+    }
+  },
+
+  _triggerSlideTransition: function (cb) {
+    var that = this
+    that.setData({ boardAnimClass: 'board-slide-out' })
+    setTimeout(function () {
+      cb()
+      that.setData({ boardAnimClass: 'board-slide-in' })
+      setTimeout(function () { that.setData({ boardAnimClass: '' }) }, 280)
+    }, 240)
   },
 
   _board: null,
@@ -500,6 +565,7 @@ Page({
       that._fullHistory = that.data.moveHistory.slice()
       that._consecutiveCorrect = 0
       try { correctAudio.stop(); correctAudio.play() } catch (e) {}
+      that._triggerCorrectAnim(0)
       that._showFeedback('correct', '答对了！（不重复计分）', 0)
       return
     }
@@ -522,6 +588,8 @@ Page({
       var text2 = pickRandom(CORRECT_TEXTS)
       if (STREAK_MSGS[cc2]) text2 = STREAK_MSGS[cc2]
       try { correctAudio.stop(); correctAudio.play() } catch (e) {}
+      that._triggerCorrectAnim(0)
+      that._triggerComboEffect(cc2)
       that._showFeedback('correct', text2, 0)
       return
     }
@@ -562,11 +630,14 @@ Page({
       // 连对加成文案
       if (STREAK_MSGS[cc]) text = STREAK_MSGS[cc]
 
-      // 播放答对音效 + 显示绿色反馈面板
+      // 播放答对音效 + 触发 game juice 动画 + 显示绿色反馈面板
       try { correctAudio.stop(); correctAudio.play() } catch (e) {}
+      that._triggerCorrectAnim(res.rating_change || 0)
+      that._triggerComboEffect(cc)
       that._showFeedback('correct', text, res.rating_change || 0)
     }).catch(function () {
       that.setData({ isDone: true, interactive: false, submitting: false })
+      that._triggerCorrectAnim(0)
       that._showFeedback('correct', '完成！', 0)
     })
   },
@@ -583,6 +654,8 @@ Page({
     setTimeout(function () {
       try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
     }, 300)
+    // Game Juice 答错动画：棋盘摇晃 + 轻震动
+    that._triggerWrongAnim()
 
     // 显示错误落子 + 同时弹出面板
     // 保留之前正确步骤的 moveHistory，追加错误落子
@@ -1000,7 +1073,10 @@ Page({
     if (playState.currentIndex <= 0) return
     playState.currentIndex--
     app.globalData.playState = playState
-    this._initProblem()
+    var self1 = this
+    this._triggerSlideTransition(function () {
+      self1._initProblem()
+    })
   },
 
   handleNextProblem: function () {
@@ -1022,7 +1098,9 @@ Page({
         if (res.problem) {
           playState.problems.push(res.problem)
           app.globalData.playState = playState
-          that._initProblem()
+          that._triggerSlideTransition(function () {
+            that._initProblem()
+          })
         } else {
           wx.showToast({ title: '没有更多题了', icon: 'none' })
           playState.currentIndex--
@@ -1035,7 +1113,10 @@ Page({
       return
     }
     app.globalData.playState = playState
-    this._initProblem()
+    var self2 = this
+    this._triggerSlideTransition(function () {
+      self2._initProblem()
+    })
   },
 
   _saveVillageCompletion: function () {
