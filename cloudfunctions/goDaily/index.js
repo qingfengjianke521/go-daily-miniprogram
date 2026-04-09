@@ -719,6 +719,9 @@ async function getCalendar(openid, month) {
 
 // ========== 新手村 ==========
 
+// 预留：未来用于云端题库扩展。
+// 当前新手村使用本地 beginner-puzzles.js 题库（打包在小程序里），
+// 不走云函数。如果将来题量增大需要云端托管，前端调用 api.getVillagePuzzles 即可。
 async function getVillagePuzzles(puzzleTag) {
   if (!puzzleTag) return { problems: [] }
 
