@@ -75,11 +75,7 @@ var api = {
     return callCloud('getRatingHistory')
   },
 
-  // 新手村
-  getVillagePuzzles: function(puzzleTag) {
-    return callCloud('getVillagePuzzles', { puzzle_tag: puzzleTag })
-  },
-
+  // 新手村（题库用本地 beginner-puzzles.js，只有进度走云端）
   getVillageProgress: function() {
     return callCloud('getVillageProgress')
   },

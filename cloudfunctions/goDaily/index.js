@@ -219,8 +219,6 @@ exports.main = async function(event, context) {
       return await getRatingHistory(openid)
     } else if (action === 'getCalendar') {
       return await getCalendar(openid, event.month)
-    } else if (action === 'getVillagePuzzles') {
-      return await getVillagePuzzles(event.puzzle_tag)
     } else if (action === 'getVillageProgress') {
       return await getVillageProgress(openid)
     } else if (action === 'saveVillageProgress') {
@@ -718,27 +716,8 @@ async function getCalendar(openid, month) {
 }
 
 // ========== 新手村 ==========
-
-// 预留：未来用于云端题库扩展。
 // 当前新手村使用本地 beginner-puzzles.js 题库（打包在小程序里），
-// 不走云函数。如果将来题量增大需要云端托管，前端调用 api.getVillagePuzzles 即可。
-async function getVillagePuzzles(puzzleTag) {
-  if (!puzzleTag) return { problems: [] }
-
-  var res = await db.collection('problems')
-    .where({ skill_node: puzzleTag })
-    .limit(50)
-    .get()
-
-  // 随机打乱
-  var data = res.data || []
-  for (var i = data.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1))
-    var tmp = data[i]; data[i] = data[j]; data[j] = tmp
-  }
-
-  return { problems: data.map(formatProblem) }
-}
+// 只保留进度同步相关的云函数。
 
 async function getVillageProgress(openid) {
   var res = await db.collection('users').where({ _openid: openid }).field({ village_progress: true }).get()
