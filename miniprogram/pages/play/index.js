@@ -505,9 +505,25 @@ Page({
     }
 
     that._answerSubmitted = true
-    // 新手村模式下也计数
+    // 新手村模式：不调云函数，不影响天梯rating
     if (that._isVillageMode) {
       that._villageCorrect = (that._villageCorrect || 0) + 1
+      that.setData({
+        isDone: true,
+        interactive: true,
+        submitting: false,
+        freePlay: true,
+        progressPercent: that._calcProgress(that.data.totalMoves, true),
+      })
+      that._freeColor = that._uc === 'black' ? 'white' : 'black'
+      that._fullHistory = that.data.moveHistory.slice()
+      that._consecutiveCorrect = (that._consecutiveCorrect || 0) + 1
+      var cc2 = that._consecutiveCorrect
+      var text2 = pickRandom(CORRECT_TEXTS)
+      if (STREAK_MSGS[cc2]) text2 = STREAK_MSGS[cc2]
+      try { correctAudio.stop(); correctAudio.play() } catch (e) {}
+      that._showFeedback('correct', text2, 0)
+      return
     }
     api.submitAnswer(
       problem.problem_id, that._seq, timeSpentMs, true,
