@@ -89,7 +89,7 @@ async function selectProblemsFromDB(userRating, recentIds, openid) {
   }
 
   // 用随机起点查询，避免 skip（无索引时 skip 极慢）
-  var minR = Math.max(280, userRating - 90)
+  var minR = Math.max(520, userRating - 90)
   var maxR = userRating + 90
   // 在范围内随机一个起点，用 gte 查
   var randStart = minR + Math.floor(Math.random() * (maxR - minR))
@@ -250,7 +250,7 @@ async function initUser(openid, wxNickname) {
       user: {
         openid: openid,
         username: u.username || wxNickname || '',
-        rating: typeof u.rating === 'number' ? u.rating : 300,
+        rating: typeof u.rating === 'number' ? u.rating : 520,
         rating_deviation: u.rating_deviation || 350,
         level_name: u.level_name || '7K',
         streak_days: u.streak_days || 0,
