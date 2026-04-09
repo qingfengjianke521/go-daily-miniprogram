@@ -219,10 +219,6 @@ Page({
       })
   },
 
-  goLearn: function () {
-    wx.navigateTo({ url: '/learn/index' })
-  },
-
   onTapGoal: function () {
     this.setData({ showGoalPicker: true })
   },

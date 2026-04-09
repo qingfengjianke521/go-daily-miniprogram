@@ -1,6 +1,0 @@
-{
-  "usingComponents": {
-    "go-board": "/components/go-board/index"
-  },
-  "navigationBarTitleText": "学习"
-}
