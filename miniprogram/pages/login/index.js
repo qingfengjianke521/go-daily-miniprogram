@@ -85,8 +85,8 @@ Page({
         var userInfo = {
           openid: user.openid || 'unknown',
           username: user.username || '',
-          rating: user.rating || 1200,
-          level_name: user.level_name || '18级',
+          rating: user.rating || 520,
+          level_name: user.level_name || '7K',
           level_set: !!user.level_set,
         }
         storage.setUserInfo(userInfo)
