@@ -131,8 +131,120 @@ async function pickContinueProblem(userRating, excludeIds) {
 }
 
 // Format a problem from DB for client response
+// 根据棋子数量动态调整棋盘大小，去掉 view_region
+function adaptBoardSize(problem) {
+  var stones = problem.initial_stones || {}
+  var blackArr = stones.black || []
+  var whiteArr = stones.white || []
+  var total = blackArr.length + whiteArr.length
+  var origSize = problem.board_size || 19
+  var vr = problem.view_region
+
+  if (!vr && origSize <= 13) {
+    // 已经是小棋盘且没有 view_region，直接返回
+    return problem
+  }
+
+  // 计算棋子实际范围
+  var allStones = blackArr.concat(whiteArr)
+  if (allStones.length === 0) return problem
+  var minX = 99, maxX = 0, minY = 99, maxY = 0
+  for (var i = 0; i < allStones.length; i++) {
+    var s = allStones[i]
+    if (s[0] < minX) minX = s[0]
+    if (s[0] > maxX) maxX = s[0]
+    if (s[1] < minY) minY = s[1]
+    if (s[1] > maxY) maxY = s[1]
+  }
+  // 也考虑正解坐标的范围
+  var seqs = problem.correct_sequences || problem.all_solutions || []
+  for (var si = 0; si < seqs.length; si++) {
+    var seq = seqs[si]
+    for (var sj = 0; sj < seq.length; sj++) {
+      var sc = seq[sj]
+      if (sc[0] < minX) minX = sc[0]
+      if (sc[0] > maxX) maxX = sc[0]
+      if (sc[1] < minY) minY = sc[1]
+      if (sc[1] > maxY) maxY = sc[1]
+    }
+  }
+
+  var spanX = maxX - minX
+  var spanY = maxY - minY
+  var span = Math.max(spanX, spanY)
+
+  // 决定目标棋盘大小（留2路边距）
+  var targetSize = 9
+  if (span + 2 > 8 || total > 20) targetSize = 13
+  if (span + 2 > 12 || total > 40) targetSize = 19
+
+  if (targetSize >= origSize) {
+    problem.view_region = null
+    return problem
+  }
+
+  // 平移到目标棋盘，尽量保持靠边（角部题保持在角上）
+  var offsetX = 0, offsetY = 0
+  // 如果棋子靠近原棋盘边缘，保持靠边
+  if (minX <= 2) {
+    offsetX = 0 // 靠左边
+  } else if (maxX >= origSize - 3) {
+    offsetX = (targetSize - 1) - maxX // 靠右边
+  } else {
+    offsetX = Math.floor(targetSize / 2) - Math.floor((minX + maxX) / 2)
+  }
+  if (minY <= 2) {
+    offsetY = 0
+  } else if (maxY >= origSize - 3) {
+    offsetY = (targetSize - 1) - maxY
+  } else {
+    offsetY = Math.floor(targetSize / 2) - Math.floor((minY + maxY) / 2)
+  }
+
+  // 边界修正
+  if (minX + offsetX < 0) offsetX = -minX
+  if (minY + offsetY < 0) offsetY = -minY
+  if (maxX + offsetX >= targetSize) offsetX = targetSize - 1 - maxX
+  if (maxY + offsetY >= targetSize) offsetY = targetSize - 1 - maxY
+
+  // 最终检查
+  if (minX + offsetX < 0 || maxX + offsetX >= targetSize ||
+      minY + offsetY < 0 || maxY + offsetY >= targetSize) {
+    problem.view_region = null
+    return problem
+  }
+
+  function shiftCoords(arr) {
+    return arr.map(function(c) { return [c[0] + offsetX, c[1] + offsetY] })
+  }
+  problem.initial_stones = {
+    black: shiftCoords(blackArr),
+    white: shiftCoords(whiteArr)
+  }
+  if (problem.correct_sequences) {
+    problem.correct_sequences = problem.correct_sequences.map(function(seq) {
+      return seq.map(function(c) { return [c[0] + offsetX, c[1] + offsetY] })
+    })
+  }
+  if (problem.all_solutions) {
+    problem.all_solutions = problem.all_solutions.map(function(seq) {
+      return seq.map(function(c) { return [c[0] + offsetX, c[1] + offsetY] })
+    })
+  }
+  if (problem.correct_first_move) {
+    problem.correct_first_move = [
+      problem.correct_first_move[0] + offsetX,
+      problem.correct_first_move[1] + offsetY
+    ]
+  }
+
+  problem.board_size = targetSize
+  problem.view_region = null
+  return problem
+}
+
 function formatProblem(p) {
-  return {
+  var result = {
     problem_id: p.problem_id,
     category: p.category,
     difficulty_rating: p.difficulty_rating,
@@ -147,6 +259,7 @@ function formatProblem(p) {
     hint: p.hint || '',
     source_file: p.source_file || '',
   }
+  return adaptBoardSize(result)
 }
 
 // ========== 云函数入口 ==========
