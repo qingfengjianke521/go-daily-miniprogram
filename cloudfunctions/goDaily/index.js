@@ -758,7 +758,7 @@ async function getLeaderboard(type) {
   var res = await db.collection('users')
     .orderBy('rating', 'desc')
     .limit(50)
-    .field({ _openid: true, username: true, rating: true, level_name: true, streak_days: true, total_solved: true })
+    .field({ username: true, rating: true, level_name: true, streak_days: true, total_solved: true })
     .get()
 
   return {
@@ -766,7 +766,6 @@ async function getLeaderboard(type) {
     leaderboard: res.data.map(function(u, i) {
       return {
         rank: i + 1,
-        openid: u._openid,
         username: u.username || '匿名棋手',
         rating: u.rating || 0,
         level_name: u.level_name || '',
