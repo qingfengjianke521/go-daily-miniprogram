@@ -588,13 +588,25 @@ async function submitAnswer(openid, event) {
   var newRating = Math.max(520, user.rating + result.change)
   var newLevel = getLevelName(newRating)
 
-  // 连续打卡
+  // 连续打卡 + Streak Freeze
   var streakDays = user.streak_days || 0
+  var freezes = user.streak_freezes || 0
+  var usedFreeze = false
   var lastPlay = user.last_play_date || ''
   if (lastPlay !== today) {
     var yd = new Date(new Date().getTime() + 8 * 3600000 - 86400000)
     var ydStr = yd.toISOString().slice(0, 10)
-    streakDays = (lastPlay === ydStr) ? streakDays + 1 : 1
+    if (lastPlay === ydStr) {
+      // 昨天做过，正常+1
+      streakDays = streakDays + 1
+    } else if (freezes > 0 && lastPlay) {
+      // 断签但有freeze，消耗1个freeze保持streak
+      streakDays = streakDays + 1
+      usedFreeze = true
+    } else {
+      // 断签且无freeze，streak归1
+      streakDays = 1
+    }
   }
 
   await db.collection('attempts').add({
@@ -632,15 +644,15 @@ async function submitAnswer(openid, event) {
     try { await db.collection('wrong_book').where({ _openid: openid, problem_id: event.problem_id }).remove() } catch(e) {}
   }
 
-  await db.collection('users').where({ _openid: openid }).update({
-    data: {
-      rating: newRating, rating_deviation: result.newRD,
-      level_name: newLevel, streak_days: streakDays,
-      last_play_date: today,
-      total_solved: _.inc(1),
-      total_correct: event.is_correct ? _.inc(1) : _.inc(0),
-    }
-  })
+  var userUpdate = {
+    rating: newRating, rating_deviation: result.newRD,
+    level_name: newLevel, streak_days: streakDays,
+    last_play_date: today,
+    total_solved: _.inc(1),
+    total_correct: event.is_correct ? _.inc(1) : _.inc(0),
+  }
+  if (usedFreeze) userUpdate.streak_freezes = _.inc(-1)
+  await db.collection('users').where({ _openid: openid }).update({ data: userUpdate })
 
   // 获取 session 来判断金币
   var sessionRes2 = await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).get()
@@ -693,6 +705,7 @@ async function submitAnswer(openid, event) {
     is_correct: event.is_correct, rating_change: result.change,
     new_rating: newRating, new_level: newLevel,
     level_changed: newLevel !== user.level_name, streak_days: streakDays,
+    used_freeze: usedFreeze,
     coins_earned: coinsEarned, coin_reason: coinReason,
     total_coins: (user.coins || 0) + coinsEarned,
     chest_dropped: chestDropped,
