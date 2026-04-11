@@ -411,8 +411,9 @@ async function getHomeFast(openid) {
     }
   }
 
-  // 新建 session：用 user.rating 选题（已有user，无需再查）
-  var selectedProblems = await selectProblemsFromDB(user.rating, [], openid)
+  // 新建 session：用已查到的 attempts 做排除
+  var recentIds = attemptsRes.data.map(function (a) { return a.problem_id })
+  var selectedProblems = await selectProblemsFromDB(user.rating, recentIds, openid)
   var newProblemIds = selectedProblems.map(function (p) { return p.problem_id })
 
   await db.collection('daily_sessions').add({
