@@ -31,10 +31,14 @@
 
       <view wx:for="{{nodes}}" wx:key="id"
         class="skill-node {{item.status}}"
+        style="border-left-color: {{item.status === 'locked' ? '#E0E0E0' : item.color}};"
         hover-class="{{item.status !== 'locked' ? 'skill-node-hover' : ''}}"
         bindtap="onTapNode"
         data-id="{{item.id}}"
         data-status="{{item.status}}">
+
+        <!-- 已完成金色 ✓ 徽章 -->
+        <view wx:if="{{item.status === 'completed'}}" class="done-badge">✓</view>
 
         <view class="node-icon" style="background-color: {{item.status === 'locked' ? '#E0E0E0' : item.color}};">
           <text class="node-icon-text">{{item.icon}}</text>
