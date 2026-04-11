@@ -618,7 +618,7 @@ async function submitAnswer(openid, event) {
       var intervalDays = wrongCount <= 2 ? 1 : wrongCount <= 3 ? 3 : 7
       var nextReview = new Date(Date.now() + intervalDays * 86400000)
       await db.collection('wrong_book').doc(wb._id).update({
-        wrong_count: wrongCount, next_review: nextReview, last_wrong: new Date()
+        data: { wrong_count: wrongCount, next_review: nextReview, last_wrong: new Date() }
       })
     } else {
       await db.collection('wrong_book').add({ data: {
