@@ -66,6 +66,13 @@
   </view>
 </scroll-view>
 
+<!-- ===== 底部浮动按钮 ===== -->
+<view wx:if="{{!loading}}" class="fab-container">
+  <view class="fab-btn" bindtap="handleStart">
+    <text class="fab-text">{{checkedIn ? '继续练习' : '开始今日练习'}}</text>
+  </view>
+</view>
+
 <!-- ===== 每日登录宝箱浮层 ===== -->
 <view wx:if="{{showLoginChest}}" class="chest-modal">
   <view class="chest-modal-inner">

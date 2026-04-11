@@ -181,6 +181,27 @@
 }
 
 
+/* ===== 底部浮动按钮 ===== */
+.fab-container {
+  position: fixed;
+  bottom: 180rpx;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+}
+.fab-btn {
+  pointer-events: auto;
+  background: #58CC02;
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 700;
+  padding: 24rpx 80rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 8rpx 24rpx rgba(88,204,2,0.4);
+}
+
 /* ===== 每日登录宝箱浮层 ===== */
 .chest-modal {
   position: fixed;

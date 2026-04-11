@@ -72,6 +72,7 @@ Page({
     isWrong: false,
     freePlay: false,
     answerRevealed: false,
+    hasAttempted: false,
     wrongShowingSolution: false,
     showingSolution: false,
     // 反馈面板
@@ -86,6 +87,7 @@ Page({
     levelUpName: '',
     // 新手村模式
     isVillageMode: false,
+    isAdmin: false,
     villageNodeName: '',
     villageProgress: 0,
     // Game Juice 动画状态
@@ -187,6 +189,7 @@ Page({
       dailyDone: dailyDone,
       dailyProgress: Math.min(100, Math.round(dailyDone / 3 * 100)),
       isVillageMode: this._isVillageMode,
+      isAdmin: app.globalData.isAdmin || false,
       villageNodeName: playState.villageNodeName || '',
     })
 
@@ -316,6 +319,7 @@ Page({
       isWrong: false,
       freePlay: false,
       answerRevealed: false,
+      hasAttempted: false,
       wrongShowingSolution: false,
       showingSolution: false,
       feedbackVisible: false,
@@ -341,6 +345,7 @@ Page({
 
     var coord = seq[stepIdx]
     var color = stepIdx % 2 === 0 ? this._uc : this._oc
+    console.log('[_placeStep] stepIdx:', stepIdx, 'coord:', coord, 'color:', color, '_uc:', this._uc, '_oc:', this._oc)
     var result = goLogic.playMove(currentBoard, coord[0], coord[1], color)
     var newHistory = currentHistory.concat([{ x: coord[0], y: coord[1], color: color }])
     return { newBoard: result.newBoard, newHistory: newHistory, captured: result.captured || [] }
@@ -654,6 +659,7 @@ Page({
     var problem = that._problem
 
     that._consecutiveCorrect = 0
+    that.setData({ hasAttempted: true })
     try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
     setTimeout(function () {
       try { wrongAudio.stop(); wrongAudio.play() } catch (e) {}
@@ -1180,6 +1186,7 @@ Page({
       advancing: false,
       freePlay: false,
       answerRevealed: false,
+      hasAttempted: false,
       isWrong: false,
       wrongShowingSolution: false,
       feedbackVisible: false,

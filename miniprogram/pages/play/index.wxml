@@ -29,7 +29,8 @@
     <text wx:if="{{goalHint}}" class="goal-hint">· {{goalHint}}</text>
     <text class="category-tag {{categoryClass}}">{{category}}</text>
   </view>
-  <view class="debug-row">
+  <!-- debugInfo 仅管理员可见 -->
+  <view wx:if="{{isAdmin}}" class="debug-row">
     <text class="debug-text">{{debugInfo}}</text>
   </view>
 
@@ -68,8 +69,8 @@
   <!-- 连击大字爆出 -->
   <view wx:if="{{showComboBurst}}" class="combo-burst">{{comboBurstText}}</view>
 
-  <!-- 查看答案 -->
-  <view wx:if="{{!isDone && !feedbackVisible && !answerRevealed}}" class="reveal-row">
+  <!-- 查看答案（至少尝试1次后才显示） -->
+  <view wx:if="{{hasAttempted && !isDone && !feedbackVisible && !answerRevealed}}" class="reveal-row">
     <text class="reveal-btn" bindtap="handleRevealAnswer">💡 查看答案</text>
   </view>
 

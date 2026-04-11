@@ -191,6 +191,7 @@ Page({
         var viewportH = sysInfo.windowHeight - that.data.topHeight
         var scrollTo = Math.max(0, nodePixelY - viewportH * 0.75)
 
+        app.globalData.isAdmin = stats.is_admin || false
         that.setData({
           loading: false,
           stats: stats,
@@ -293,11 +294,14 @@ Page({
       return
     }
 
+    if (this._navigating) return
     if (!daily.problems || daily.problems.length === 0) {
       wx.showToast({ title: '题目加载中...', icon: 'none' })
       this._loadData()
       return
     }
+    this._navigating = true
+    setTimeout(function () { that._navigating = false }, 1000)
     var idx = this.data.completedCount % daily.problems.length
     app.globalData.playState = {
       problems: daily.problems, currentIndex: idx,
