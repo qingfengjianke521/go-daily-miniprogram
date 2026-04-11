@@ -100,7 +100,22 @@ Page({
       that.setData({
         levelName: stats.level_name || '',
         rating: stats.rating || 0,
-        levelProgress: Math.min(100, ((stats.rating % 400) / 400) * 100),
+        levelProgress: (function () {
+          var TIERS = [
+            [520,'7K'],[560,'6K'],[600,'5K'],[645,'4K'],[695,'3K'],
+            [745,'2K'],[795,'1K'],[845,'1D'],[900,'2D'],[960,'3D'],[1020,'4D'],[1080,'5D'],
+          ]
+          var r = stats.rating || 520
+          var curMin = 520, curMax = 560
+          for (var i = TIERS.length - 1; i >= 0; i--) {
+            if (r >= TIERS[i][0]) {
+              curMin = TIERS[i][0]
+              curMax = (i < TIERS.length - 1) ? TIERS[i + 1][0] : TIERS[i][0] + 60
+              break
+            }
+          }
+          return Math.min(100, Math.round((r - curMin) / (curMax - curMin) * 100))
+        })(),
         showStreak: (stats.streak_days || 0) > 1,
         streakDays: stats.streak_days || 0,
       })
