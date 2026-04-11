@@ -4,23 +4,18 @@ var app = getApp()
 
 // 段位层级（从低到高）
 var TIERS = [
-  { name: '25级', rating: 500, reward: 5, rewardIcon: '💎' },
-  { name: '22级', rating: 650, reward: 5, rewardIcon: '💎' },
-  { name: '20级', rating: 800, reward: 10, rewardIcon: '💎' },
-  { name: '18级', rating: 900, reward: 10, rewardIcon: '💎' },
-  { name: '15级', rating: 1000, reward: 15, rewardIcon: '💎' },
-  { name: '12级', rating: 1100, reward: 15, rewardIcon: '💎' },
-  { name: '10级', rating: 1200, reward: 20, rewardIcon: '💎' },
-  { name: '8级', rating: 1300, reward: 20, rewardIcon: '💎' },
-  { name: '6级', rating: 1400, reward: 25, rewardIcon: '💎' },
-  { name: '4级', rating: 1500, reward: 25, rewardIcon: '💎' },
-  { name: '2级', rating: 1600, reward: 30, rewardIcon: '💎' },
-  { name: '1级', rating: 1700, reward: 30, rewardIcon: '💎' },
-  { name: '初段', rating: 1800, reward: 50, rewardIcon: '🏆' },
-  { name: '二段', rating: 1900, reward: 50, rewardIcon: '🏆' },
-  { name: '三段', rating: 2000, reward: 50, rewardIcon: '🏆' },
-  { name: '四段', rating: 2200, reward: 80, rewardIcon: '🏆' },
-  { name: '五段', rating: 2400, reward: 100, rewardIcon: '🏆' },
+  { name: '7K', rating: 520, reward: 5, rewardIcon: '💎' },
+  { name: '6K', rating: 560, reward: 5, rewardIcon: '💎' },
+  { name: '5K', rating: 600, reward: 10, rewardIcon: '💎' },
+  { name: '4K', rating: 645, reward: 10, rewardIcon: '💎' },
+  { name: '3K', rating: 695, reward: 15, rewardIcon: '💎' },
+  { name: '2K', rating: 745, reward: 15, rewardIcon: '💎' },
+  { name: '1K', rating: 795, reward: 20, rewardIcon: '💎' },
+  { name: '1D', rating: 845, reward: 25, rewardIcon: '🏆' },
+  { name: '2D', rating: 900, reward: 30, rewardIcon: '🏆' },
+  { name: '3D', rating: 960, reward: 50, rewardIcon: '🏆' },
+  { name: '4D', rating: 1020, reward: 80, rewardIcon: '🏆' },
+  { name: '5D', rating: 1080, reward: 100, rewardIcon: '🏆' },
 ]
 
 Page({
@@ -76,7 +71,7 @@ Page({
         nodes.push({
           id: j,
           name: tier.name,
-          label: tier.name.replace('级', '').replace('段', 'D'),
+          label: tier.name,
           rating: tier.rating,
           status: status,
           side: j % 2 === 0 ? 'left' : 'right',
