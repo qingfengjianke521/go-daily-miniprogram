@@ -1,5 +1,6 @@
+<view style="display:flex;flex-direction:column;height:100vh;">
 <!-- 顶部栏：✕ + 等级 + 分数 + 进度条(x/3) -->
-<view class="top-bar" style="padding-top:{{statusBarHeight}}px;">
+<view class="top-bar" style="flex-shrink:0;padding-top:{{statusBarHeight}}px;">
   <view class="top-bar-inner">
     <view class="close-btn" bindtap="handleBack">
       <text class="close-icon">✕</text>
@@ -64,18 +65,15 @@
   <!-- 连击大字爆出 -->
   <view wx:if="{{showComboBurst}}" class="combo-burst">{{comboBurstText}}</view>
 
-  <!-- 查看答案（至少尝试1次后才显示） -->
-  <view wx:if="{{hasAttempted && !isDone && !feedbackVisible && !answerRevealed}}" class="reveal-row">
-    <text class="reveal-btn" bindtap="handleRevealAnswer">💡 查看答案</text>
-  </view>
-
-  <!-- Controls (始终显示) -->
+  <!-- Controls -->
   <view class="controls-row">
     <button class="nav-btn" bindtap="handlePrevProblem" disabled="{{problemIndex <= 1}}">上一题</button>
-    <button wx:if="{{isDone || answerRevealed}}" class="nav-btn" bindtap="handleRetry">重做</button>
+    <text wx:if="{{hasAttempted && !isDone && !answerRevealed}}" class="reveal-btn" bindtap="handleRevealAnswer">💡</text>
+    <button wx:elif="{{isDone || answerRevealed}}" class="nav-btn" bindtap="handleRetry">重做</button>
     <view wx:else class="hint-text">{{problemIndex}}/{{totalProblems}}</view>
     <button class="nav-btn nav-btn-primary" bindtap="handleNextProblem">下一题</button>
   </view>
+</view>
 </view>
 
 <!-- ========== 段位升级浮层 ========== -->

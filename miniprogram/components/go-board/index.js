@@ -83,10 +83,10 @@ Component({
       const rows = region.y2 - region.y1
       const aspectRatio = rows / (cols || 1)
       const cssWidth = this._cssWidth
-      // 限制最大高度为屏幕高度的 55%，防止溢出
       const sysInfo = wx.getWindowInfo()
-      const maxHeight = Math.round(sysInfo.windowHeight * 0.55)
-      const canvasHeight = Math.min(Math.round(cssWidth * aspectRatio), maxHeight)
+      const maxHeight = Math.round(sysInfo.windowHeight * 0.72)
+      const minHeight = Math.round(cssWidth * 0.7)
+      const canvasHeight = Math.max(minHeight, Math.min(Math.round(cssWidth * aspectRatio), maxHeight))
       const dpr = this._dpr
 
       this._canvas.width = Math.round(cssWidth * dpr)

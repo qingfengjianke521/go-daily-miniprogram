@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.7.5</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.8.0</text>
     <view class="hud-spacer"></view>
   </view>
 </view>
