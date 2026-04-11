@@ -84,9 +84,9 @@ Component({
       const aspectRatio = rows / (cols || 1)
       const cssWidth = this._cssWidth
       const sysInfo = wx.getWindowInfo()
-      const maxHeight = Math.round(sysInfo.windowHeight * 0.72)
-      const minHeight = Math.round(cssWidth * 0.7)
-      const canvasHeight = Math.max(minHeight, Math.min(Math.round(cssWidth * aspectRatio), maxHeight))
+      const maxHeight = Math.round(sysInfo.windowHeight * 0.65)
+      const naturalHeight = Math.round(cssWidth * aspectRatio)
+      const canvasHeight = Math.min(naturalHeight, maxHeight)
       const dpr = this._dpr
 
       this._canvas.width = Math.round(cssWidth * dpr)
@@ -140,7 +140,7 @@ Component({
       const toX = (x) => (x - region.x1) * cellSize + paddingPx + offsetX
       const toY = (y) => (y - region.y1) * cellSize + paddingPx + offsetY
 
-      const stoneRadius = cellSize * 0.47
+      const stoneRadius = cellSize * 0.46
       const starRadius = cellSize * 0.08
       const lastMoveRadius = cellSize * 0.12
 
@@ -160,12 +160,12 @@ Component({
       ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
       // 1. Board background
-      ctx.fillStyle = '#D4A76A'
+      ctx.fillStyle = '#DCB468'
       roundRect(ctx, 0, 0, canvasWidth, canvasHeight, cellSize * 0.15)
       ctx.fill()
 
       // 2. Grid lines
-      ctx.strokeStyle = 'rgba(92, 64, 51, 0.3)'
+      ctx.strokeStyle = 'rgba(60, 40, 20, 0.45)'
       ctx.lineWidth = cellSize * 0.02
 
       // Vertical lines
@@ -291,11 +291,13 @@ Component({
         )
 
         if (s.color === 'black') {
-          gradient.addColorStop(0, '#444')
+          gradient.addColorStop(0, '#555')
+          gradient.addColorStop(0.5, '#222')
           gradient.addColorStop(1, '#000')
         } else {
-          gradient.addColorStop(0, '#fff')
-          gradient.addColorStop(1, '#ddd')
+          gradient.addColorStop(0, '#FFFFFF')
+          gradient.addColorStop(0.4, '#F5F5F5')
+          gradient.addColorStop(1, '#CCCCCC')
         }
 
         ctx.fillStyle = gradient
@@ -305,8 +307,8 @@ Component({
 
         // White stone border
         if (s.color === 'white') {
-          ctx.strokeStyle = '#999'
-          ctx.lineWidth = cellSize * 0.015
+          ctx.strokeStyle = '#AAA'
+          ctx.lineWidth = cellSize * 0.02
           ctx.stroke()
         }
       }
