@@ -90,7 +90,7 @@ async function selectProblemsFromDB(userRating, recentIds, openid) {
 
   // 用随机起点查询，避免 skip（无索引时 skip 极慢）
   var minR = Math.max(520, userRating - 90)
-  var maxR = userRating + 90
+  var maxR = Math.max(minR + 60, userRating + 90)
   // 在范围内随机一个起点，用 gte 查
   var randStart = minR + Math.floor(Math.random() * (maxR - minR))
   var res = await db.collection('problems').where({
