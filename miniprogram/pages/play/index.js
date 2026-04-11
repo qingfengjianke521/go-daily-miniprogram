@@ -763,29 +763,41 @@ Page({
   // 查看正解按钮（答错面板里）
   handleShowSolution: function () {
     var that = this
-    var expected = that._seq[0]
-    if (!expected) return
+    var step = that.data.currentStep || 0
+    var seq = that._seq
+    if (!seq || step >= seq.length) return
+
+    // 从当前步骤开始，逐步播放剩余正解
+    var board = that._board
+    var history = that._playHistory ? that._playHistory.slice() : []
+
+    for (var i = step; i < seq.length; i++) {
+      var coord = seq[i]
+      var color = i % 2 === 0 ? that._uc : that._oc
+      var r = goLogic.playMove(board, coord[0], coord[1], color)
+      if (r && r.isValid) board = r.newBoard
+      history.push({ x: coord[0], y: coord[1], color: color })
+    }
+
+    that._board = board
+    that._playHistory = history
 
     // 落子音效
-    stoneAudio.stop()
-    stoneAudio.play()
+    try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
 
-    // 在棋盘上标记正解
-    var result = goLogic.playMove(that._board, expected[0], expected[1], that._uc)
-    if (result && result.isValid) that._board = result.newBoard
-
+    var lastCoord = seq[seq.length - 1]
     that.setData({
-      stones: boardToStones(that._board),
-      lastMove: { x: expected[0], y: expected[1] },
-      moveHistory: [{ x: expected[0], y: expected[1], color: that._uc }],
+      stones: boardToStones(board),
+      lastMove: { x: lastCoord[0], y: lastCoord[1] },
+      moveHistory: history,
       showMoveNumbers: true,
       interactive: true,
       freePlay: true,
       wrongShowingSolution: true,
       feedbackButtonText: '下一题 →',
     })
-    that._freeColor = that._uc === 'black' ? 'white' : 'black'
-      that._fullHistory = that.data.moveHistory.slice()
+    that._freeColor = seq.length % 2 === 0 ? that._uc : that._oc
+    that._fullHistory = history.slice()
 
     // 如果还没提交过，现在提交
     if (!that._answerSubmitted) {
