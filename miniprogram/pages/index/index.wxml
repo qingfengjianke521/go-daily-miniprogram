@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.7.2</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.7.3</text>
     <view class="hud-spacer"></view>
   </view>
 </view>
@@ -32,8 +32,15 @@
   <view class="world-container">
     <image class="world-bg" src="/images/world-bg.jpg" mode="widthFix" />
 
-    <!-- ===== 悬浮UI：关卡节点 ===== -->
+    <!-- ===== 节点连线 ===== -->
     <view class="nodes-overlay">
+      <block wx:for="{{nodeLines}}" wx:key="idx">
+        <view class="gn-line {{item.done ? 'gn-line-done' : 'gn-line-locked'}}"
+          style="left:{{item.x1}}%;top:{{item.y1}}%;width:{{item.len}}rpx;transform:rotate({{item.angle}}deg);transform-origin:0 0;">
+        </view>
+      </block>
+
+      <!-- ===== 关卡节点 ===== -->
       <block wx:for="{{nodes}}" wx:key="id">
         <view
           id="node-{{item.id}}"
@@ -68,8 +75,8 @@
 
 <!-- ===== 底部浮动按钮 ===== -->
 <view wx:if="{{!loading}}" class="fab-container">
-  <view class="fab-btn" bindtap="handleStart">
-    <text class="fab-text">{{checkedIn ? '继续练习' : '开始今日练习'}}</text>
+  <view class="fab-btn fab-breathe" bindtap="handleStart">
+    {{checkedIn ? '继续练习' : completedCount > 0 ? '继续第' + (completedCount + 1) + '题' : '开始今日练习'}}
   </view>
 </view>
 

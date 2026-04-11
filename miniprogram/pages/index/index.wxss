@@ -5,8 +5,9 @@
 /* ===== HUD ===== */
 .hud {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.1) 80%, transparent 100%);
-  padding-bottom: 30rpx;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
 }
 .hud-row {
   height: 44px; padding: 0 24rpx;
@@ -16,16 +17,16 @@
   display: flex; align-items: center; gap: 4rpx;
   padding: 6rpx 16rpx; border-radius: 9999rpx; font-size: 24rpx;
 }
-.hud-fire { background: rgba(255,150,0,0.25); }
-.hud-coin { background: rgba(124,58,237,0.25); }
-.hud-val { font-weight: 700; color: white; text-shadow: 0 2rpx 6rpx rgba(0,0,0,0.3); }
+.hud-fire { background: #FFF3E0; }
+.hud-coin { background: #F3E8FF; }
+.hud-val { font-weight: 700; color: #4B4B4B; }
 .hud-level {
   padding: 6rpx 24rpx; border-radius: 20rpx;
   background: linear-gradient(135deg, #FFD54F, #FFB300);
   box-shadow: 0 3rpx 0 #E65100;
 }
 .hud-level-txt { font-size: 22rpx; font-weight: 700; color: #5D4037; }
-.hud-rating { font-size: 22rpx; color: #fff; font-weight: 600; text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.5); }
+.hud-rating { font-size: 22rpx; color: #999; font-weight: 600; }
 .hud-spacer { flex: 1; }
 
 /* 打卡条 */
@@ -181,11 +182,31 @@
 }
 
 
+/* ===== 节点连线 ===== */
+.gn-line {
+  position: absolute;
+  height: 6rpx;
+  border-radius: 3rpx;
+  z-index: 5;
+}
+.gn-line-done {
+  background: #58CC02;
+  box-shadow: 0 0 8rpx rgba(88,204,2,0.3);
+}
+.gn-line-locked {
+  height: 4rpx;
+  background: repeating-linear-gradient(
+    90deg,
+    #BDBDBD 0, #BDBDBD 10rpx,
+    transparent 10rpx, transparent 18rpx
+  );
+}
+
 /* ===== 底部浮动按钮 ===== */
 .fab-container {
   position: fixed;
-  bottom: 180rpx;
-  left: 0; right: 0;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  left: 10%; right: 10%;
   display: flex;
   justify-content: center;
   z-index: 50;
@@ -193,13 +214,26 @@
 }
 .fab-btn {
   pointer-events: auto;
+  width: 100%;
+  text-align: center;
   background: #58CC02;
   color: #fff;
   font-size: 34rpx;
   font-weight: 700;
-  padding: 24rpx 80rpx;
+  padding: 28rpx 0;
   border-radius: 50rpx;
-  box-shadow: 0 8rpx 24rpx rgba(88,204,2,0.4);
+  box-shadow: 0 8rpx 0 #46A302, 0 12rpx 32rpx rgba(88,204,2,0.35);
+}
+.fab-btn:active {
+  box-shadow: 0 2rpx 0 #46A302;
+  transform: translateY(6rpx);
+}
+.fab-breathe {
+  animation: fab-pulse 2s ease-in-out infinite;
+}
+@keyframes fab-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8rpx 0 #46A302, 0 12rpx 32rpx rgba(88,204,2,0.35); }
+  50% { transform: scale(1.03); box-shadow: 0 8rpx 0 #46A302, 0 16rpx 40rpx rgba(88,204,2,0.45); }
 }
 
 /* ===== 每日登录宝箱浮层 ===== */

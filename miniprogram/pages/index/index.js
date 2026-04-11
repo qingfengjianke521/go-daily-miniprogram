@@ -181,6 +181,19 @@ Page({
           })
         }
 
+        // 计算节点连线
+        var nodeLines = []
+        for (var nl = 0; nl < nodes.length - 1; nl++) {
+          var n1 = nodes[nl], n2 = nodes[nl + 1]
+          var done = n1.status === 'passed' && (n2.status === 'passed' || n2.status === 'current')
+          // 简化：用百分比坐标画线，角度由 JS 算
+          var dx = n2.pctX - n1.pctX
+          var dy = n2.pctY - n1.pctY
+          var len = Math.round(Math.sqrt(dx * dx + dy * dy) * 10) // rpx 近似
+          var angle = Math.round(Math.atan2(dy, dx) * 180 / Math.PI)
+          nodeLines.push({ idx: nl, x1: n1.pctX, y1: n1.pctY, len: len, angle: angle, done: done })
+        }
+
         // 计算滚动位置使当前节点居中
         // 图片宽高比 1800/854 = 2.108
         var sysInfo = wx.getWindowInfo()
@@ -205,6 +218,7 @@ Page({
           todayDone: completedCount,
           buttonDisabled: !problemList || problemList.length === 0,
           nodes: nodes,
+          nodeLines: nodeLines,
           scrollToTop: scrollTo,
         })
       })
