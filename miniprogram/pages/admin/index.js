@@ -1,15 +1,32 @@
 // 题库管理页面 - 仅管理员可用
 // 访问方式: 在 profile 页面或控制台中 wx.navigateTo({url:'/pages/admin/index'})
 
+var apiModule = require('../../utils/api')
+var api = apiModule.api
+
 Page({
   data: {
-    isAdmin: true, // 实际应检查用户权限
+    isAdmin: false,
     running: false,
     logs: [],
     statsResult: null,
     validateProgress: null,
     validateIssues: [],
     classifyProgress: null,
+  },
+
+  onLoad: function () {
+    var that = this
+    api.getStats().then(function (stats) {
+      if (!stats.is_admin) {
+        wx.showToast({ title: '无权限', icon: 'error' })
+        setTimeout(function () { wx.navigateBack() }, 1500)
+        return
+      }
+      that.setData({ isAdmin: true })
+    }).catch(function () {
+      wx.navigateBack()
+    })
   },
 
   log: function(msg) {

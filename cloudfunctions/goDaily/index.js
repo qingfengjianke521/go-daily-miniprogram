@@ -157,25 +157,14 @@ exports.main = async function(event, context) {
 
   console.log('goDaily called, action:', event.action, 'openid:', openid)
 
-  // 调试接口：不需要 openid
+  // 调试接口：需要管理员身份
   if (event.action === 'debug') {
+    if (!openid) return { error: '未授权' }
+    var debugUser = await db.collection('users').where({ _openid: openid }).field({ is_admin: true }).get()
+    if (!debugUser.data.length || !debugUser.data[0].is_admin) return { error: '需要管理员权限' }
     try {
       var pCount = await db.collection('problems').count()
-      var sample = await db.collection('problems').limit(1).get()
-      var sCount = await db.collection('daily_sessions').count()
-      return {
-        version: 'v4.5.0_20260406',
-        problems_count: pCount.total,
-        sessions_count: sCount.total,
-        sample_problem: sample.data.length > 0 ? {
-          id: sample.data[0].problem_id,
-          rating: sample.data[0].difficulty_rating,
-          has_stones: !!(sample.data[0].initial_stones),
-          has_seqs: !!(sample.data[0].correct_sequences),
-        } : null,
-        env: 'cloud1-2gna4pn73d7fe81e',
-        timestamp: new Date().toISOString(),
-      }
+      return { version: 'v4.7.1', problems_count: pCount.total, timestamp: new Date().toISOString() }
     } catch (e) {
       return { debug_error: e.message || String(e) }
     }
@@ -200,10 +189,6 @@ exports.main = async function(event, context) {
       return await submitAnswer(openid, event)
     } else if (action === 'getContinueProblem') {
       return await getContinueProblem(openid)
-    } else if (action === 'resetSession') {
-      var today = getTodayDate()
-      await db.collection('daily_sessions').where({ _openid: openid, session_date: today }).remove()
-      return { ok: true }
     } else if (action === 'getStats') {
       return await getStats(openid)
     } else if (action === 'buyStreakFreeze') {
@@ -293,14 +278,13 @@ async function initUser(openid, wxNickname) {
   }
 }
 
-async function setLevel(openid, levelName, clientRating) {
-  // 优先用前端传来的 rating（因为云函数部署可能有延迟）
+async function setLevel(openid, levelName) {
+  // 只信任后端映射表，忽略前端传的 rating
   var LEVEL_RATINGS = {
-    '7K': 520, '5K': 600, '3K': 695, '1K': 795,
-    '7级': 520, '5级': 600, '3级': 695, '1级': 795,
+    '7K': 520, '6K': 560, '5K': 600, '4K': 645, '3K': 695,
+    '2K': 745, '1K': 795, '1D': 845, '2D': 900, '3D': 960,
   }
-  var rating = typeof clientRating === 'number' ? clientRating :
-               typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 100
+  var rating = typeof LEVEL_RATINGS[levelName] === 'number' ? LEVEL_RATINGS[levelName] : 520
 
   await db.collection('users').where({ _openid: openid }).update({
     data: { level_name: levelName, rating: rating, level_set: true }
