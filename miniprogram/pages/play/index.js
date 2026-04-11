@@ -245,6 +245,8 @@ Page({
     var cat = problem.category || ''
     var catMap = { '死活': 'tag-life', '手筋': 'tag-tesuji', '官子': 'tag-endgame', '入门': 'tag-beginner', '定式': 'tag-joseki', '中盘': 'tag-middle' }
     var categoryClass = catMap[cat] || ''
+    var borderMap = { '死活': '', '手筋': 'border-tesuji', '官子': 'border-endgame', '入门': 'border-beginner' }
+    var categoryBorderClass = borderMap[cat] || ''
 
     var villageProgress = 0
     if (this._isVillageMode) {
@@ -258,6 +260,7 @@ Page({
       goalHint: problem.hint || '',
       category: cat,
       categoryClass: categoryClass,
+      categoryBorderClass: categoryBorderClass,
       debugInfo: (function() {
         var sf = problem.source_file || ''
         var src = '未知'

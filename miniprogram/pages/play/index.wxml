@@ -24,16 +24,11 @@
 
 <view class="play-content">
   <!-- Description -->
-  <view class="desc-row">
+  <view class="desc-row {{categoryBorderClass}}">
     <text class="desc-text">{{description}}</text>
     <text wx:if="{{goalHint}}" class="goal-hint">· {{goalHint}}</text>
     <text class="category-tag {{categoryClass}}">{{category}}</text>
   </view>
-  <!-- debugInfo 仅管理员可见 -->
-  <view wx:if="{{isAdmin}}" class="debug-row">
-    <text class="debug-text">{{debugInfo}}</text>
-  </view>
-
   <!-- Status line -->
   <view class="status-line">
     <text wx:if="{{showHint}}" class="status-text" style="color:#888;">{{hintMsg}}</text>
