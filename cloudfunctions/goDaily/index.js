@@ -663,7 +663,7 @@ async function submitAnswer(openid, event) {
 
     // 检查3题全对: 额外+5
     var todayAttempts = await db.collection('attempts').where({ _openid: openid, session_date: today }).get()
-    var allCorrect = todayAttempts.data.length >= 2 && todayAttempts.data.every(function(a) { return a.is_correct })
+    var allCorrect = todayAttempts.data.length >= 3 && todayAttempts.data.every(function(a) { return a.is_correct })
     if (allCorrect && event.is_correct) {
       coinsEarned += 5
       coinReason = '全对打卡'
