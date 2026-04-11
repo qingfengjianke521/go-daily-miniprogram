@@ -216,14 +216,15 @@ Page({
     this._oc = oc
 
     var seq = (problem.correct_sequences && problem.correct_sequences[0]) || []
-    // 校验多步答案：如果后续步骤在view_region外，截断为1步题
+    // KataGo 4步以后的应手不可靠，最多保留3步（黑1→白2→黑3）
+    if (seq.length > 3) seq = seq.slice(0, 3)
+    // 再检查：后续步骤在view_region外则截断
     var vr = problem.view_region
     if (vr && seq.length > 1) {
       var pad = 1
       for (var si = 1; si < seq.length; si++) {
         var mx = seq[si][0], my = seq[si][1]
         if (mx < vr.x1 - pad || mx > vr.x2 + pad || my < vr.y1 - pad || my > vr.y2 + pad) {
-          console.log('[play] 截断多步答案: step' + si + ' (' + mx + ',' + my + ') 超出view_region')
           seq = seq.slice(0, si)
           break
         }

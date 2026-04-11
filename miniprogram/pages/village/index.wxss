@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background-color: #F7F7F7;
+  background: linear-gradient(180deg, #F0FFF0 0%, #FFFFFF 30%);
 }
 
 .nav-bar {
