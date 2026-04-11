@@ -62,7 +62,7 @@
 .play-content {
   display: flex;
   flex-direction: column;
-  padding: 16rpx 24rpx 0;
+  padding: 12rpx 16rpx 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -130,8 +130,7 @@
   justify-content: center;
   min-height: 0;
   overflow: hidden;
-  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08);
-  border-radius: 16rpx;
+  padding: 0 8rpx;
   position: relative;
 }
 
@@ -180,7 +179,7 @@
 }
 .nav-btn.disabled { opacity: 0.35; }
 .nav-btn-primary { background: #58CC02; color: #fff; border-color: #46A302; box-shadow: 0 4rpx 0 #46A302; }
-.controls-row { display: flex; align-items: center; gap: 16rpx; padding: 16rpx 8rpx calc(16rpx + env(safe-area-inset-bottom)); flex-shrink: 0; }
+.controls-row { display: flex; align-items: center; gap: 16rpx; padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom)); flex-shrink: 0; }
 .retry-btn { font-size: 36rpx; padding: 8rpx 16rpx; color: #999; }
 
 /* 查看答案 */
