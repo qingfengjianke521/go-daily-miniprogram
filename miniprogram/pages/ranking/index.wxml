@@ -5,11 +5,9 @@
     </view>
   </view>
 
-  <!-- Tab 切换 -->
+  <!-- 排行标题 -->
   <view class="tab-row">
-    <view class="tab {{activeTab === 'daily' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="daily">今日</view>
-    <view class="tab {{activeTab === 'weekly' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="weekly">本周</view>
-    <view class="tab {{activeTab === 'monthly' ? 'tab-on' : ''}}" bindtap="onTab" data-tab="monthly">本月</view>
+    <view class="tab tab-on">总排行</view>
   </view>
 
   <view wx:if="{{loading}}" class="loading-center"><text class="text-999">加载中...</text></view>
