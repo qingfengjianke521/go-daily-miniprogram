@@ -7,7 +7,7 @@
     data-path="{{item.pagePath}}"
     data-index="{{index}}"
   >
-    <text class="tab-emoji">{{item.icon}}</text>
+    <image class="tab-icon" src="{{selected === index ? item.selectedIcon : item.icon}}" />
     <text class="tab-label">{{item.text}}</text>
   </view>
 </view>

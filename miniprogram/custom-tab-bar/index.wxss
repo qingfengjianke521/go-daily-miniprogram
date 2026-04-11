@@ -4,9 +4,10 @@
   padding: 16rpx 48rpx calc(16rpx + env(safe-area-inset-bottom));
   display: flex;
   justify-content: space-around;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   z-index: 999;
+  box-shadow: 0 -2rpx 8rpx rgba(0,0,0,0.04);
 }
 
 .tab-btn {
@@ -16,6 +17,6 @@
   gap: 4rpx;
 }
 
-.tab-emoji { font-size: 36rpx; }
+.tab-icon { width: 48rpx; height: 48rpx; }
 .tab-label { font-size: 20rpx; color: #999; font-weight: 600; }
 .tab-btn-on .tab-label { color: #58CC02; font-weight: 700; }
