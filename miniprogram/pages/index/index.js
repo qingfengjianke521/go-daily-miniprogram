@@ -64,6 +64,7 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
     }
+    this._loadingContinue = false  // 每次回首页重置，防止卡死
     if (!app.checkAuth()) return
     // 每日登录宝箱
     this._tryClaimLoginChest()
@@ -76,7 +77,6 @@ Page({
       ll = wx.getStorageSync('_latestLevel')
     }
     if (lr) {
-      console.log('[index] onShow 读到latestRating:', lr)
       this.setData({
         'stats.rating': lr,
         'stats.level_name': ll || (this.data.stats && this.data.stats.level_name) || '7K',
@@ -85,7 +85,11 @@ Page({
       app.globalData.latestLevel = undefined
       wx.removeStorageSync('_latestRating')
       wx.removeStorageSync('_latestLevel')
-      return  // 不重新加载，避免云端旧数据覆盖
+      // 如果 daily 还没加载过，必须继续加载
+      if (!this.data.daily) {
+        this._loadData()
+      }
+      return
     }
     this._loadData()
   },
@@ -256,7 +260,11 @@ Page({
   handleStart: function () {
     var that = this
     var daily = this.data.daily
-    if (!daily) return
+    if (!daily) {
+      wx.showToast({ title: '加载中，请稍候', icon: 'none' })
+      this._loadData()
+      return
+    }
 
     if (this.data.checkedIn) {
       if (this._loadingContinue) return
@@ -264,6 +272,7 @@ Page({
       wx.showLoading({ title: '选题中...' })
       api.getContinueProblem().then(function (res) {
         wx.hideLoading()
+        that._loadingContinue = false  // BUG1 修复：成功后也重置
         if (res.problem) {
           app.globalData.playState = {
             problems: [res.problem], currentIndex: 0,
@@ -284,7 +293,11 @@ Page({
       return
     }
 
-    if (!daily.problems || daily.problems.length === 0) return
+    if (!daily.problems || daily.problems.length === 0) {
+      wx.showToast({ title: '题目加载中...', icon: 'none' })
+      this._loadData()
+      return
+    }
     var idx = this.data.completedCount % daily.problems.length
     app.globalData.playState = {
       problems: daily.problems, currentIndex: idx,
