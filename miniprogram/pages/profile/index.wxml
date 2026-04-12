@@ -61,6 +61,25 @@
         </view>
       </view>
 
+      <!-- Streak Freeze -->
+      <view wx:if="{{canBuyFreeze || streakFreezes > 0}}" class="section-card bg-white rounded-2xl shadow-sm">
+        <view class="freeze-row">
+          <view class="freeze-left">
+            <text class="freeze-icon">🛡️</text>
+            <view>
+              <text class="freeze-title">Streak Freeze ({{streakFreezes}}/2)</text>
+              <text class="freeze-desc">断签保护，不断连续天数</text>
+            </view>
+          </view>
+          <button
+            wx:if="{{canBuyFreeze}}"
+            class="btn btn-primary btn-sm"
+            style="padding:8rpx 24rpx;font-size:24rpx;"
+            bindtap="onBuyFreeze"
+          >💎50 购买</button>
+        </view>
+      </view>
+
       <!-- 打卡日历 -->
       <view class="section-card bg-white rounded-2xl shadow-sm">
         <text class="section-title">本月打卡</text>
