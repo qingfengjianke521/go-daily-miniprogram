@@ -1061,7 +1061,7 @@ Page({
   _goToNext: function () {
     var that = this
     var playState = this._playState
-    var isCorrect = !this.data.isWrong
+    var isCorrect = !this.data.isWrong && !this._wrongSubmitted
     var newResults = playState.resultsAccumulated.concat([{
       problem_id: this._problem.problem_id,
       is_correct: isCorrect,
