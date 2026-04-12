@@ -910,7 +910,11 @@ Page({
       interactive: true,
       freePlay: true,
       wrongShowingSolution: true,
-      feedbackButtonText: '下一题 →',
+      feedbackButtonText: (function () {
+        var ps = that._playState
+        var isLast = ps.currentIndex >= ps.problems.length - 1
+        return (isLast && !ps.isContinueMode) ? '查看总结 →' : '下一题 →'
+      })(),
     })
     that._freeColor = seq.length % 2 === 0 ? that._uc : that._oc
     that._fullHistory = history.slice()

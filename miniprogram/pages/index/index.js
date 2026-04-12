@@ -65,13 +65,13 @@ Page({
       this.getTabBar().setData({ selected: 0 })
     }
     this._loadingContinue = false  // 每次回首页重置，防止卡死
+    this._loadingContinue = false
     if (!app.checkAuth()) return
-    // 每日登录宝箱
     this._tryClaimLoginChest()
-    // 做题页传回的最新分数
+
+    // 做题页传回的最新分数 → 先显示，然后还是要刷新
     var lr = app.globalData.latestRating
     var ll = app.globalData.latestLevel
-    // 也从Storage读（globalData跨页面可能丢失）
     if (lr === undefined) {
       lr = wx.getStorageSync('_latestRating')
       ll = wx.getStorageSync('_latestLevel')
@@ -85,11 +85,7 @@ Page({
       app.globalData.latestLevel = undefined
       wx.removeStorageSync('_latestRating')
       wx.removeStorageSync('_latestLevel')
-      // 如果 daily 还没加载过，必须继续加载
-      if (!this.data.daily) {
-        this._loadData()
-      }
-      return
+      // 不再 return，继续执行 _loadData 刷新打卡状态
     }
     this._loadData()
   },
