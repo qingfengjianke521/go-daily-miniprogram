@@ -30,27 +30,14 @@ Page({
   handleStart: function () {
     var that = this
     if (that.data.loading) return
-
     that.setData({ loading: true, error: '' })
 
-    // 先尝试获取微信昵称
-    var wxNickname = ''
-    try {
-      wx.getUserProfile({
-        desc: '用于显示你的围棋昵称',
-        success: function (profileRes) {
-          wxNickname = profileRes.userInfo.nickName || ''
-          that._doLogin(wxNickname)
-        },
-        fail: function () {
-          // 用户拒绝授权，用默认名
-          that._doLogin('')
-        }
-      })
-    } catch (e) {
-      // 旧版本不支持 getUserProfile
-      that._doLogin('')
-    }
+    // getUserProfile 已废弃，直接用随机围棋昵称
+    var names = ['执黑少年','白石飞侠','围棋小将','弈海棋童','落子无悔',
+      '黑白使者','星位守护','天元侠客','手筋达人','死活高手',
+      '棋海拾贝','妙手回春','定式达人','官子精灵','布局大师']
+    var nickname = names[Math.floor(Math.random() * names.length)]
+    that._doLogin(nickname)
   },
 
   _doLogin: function (wxNickname) {
