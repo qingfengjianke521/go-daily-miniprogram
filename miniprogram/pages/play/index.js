@@ -210,6 +210,118 @@ Page({
     }
 
     this._problem = problem
+
+    // ===== 棋盘大小自适应：把裁剪区域映射到完整的9路或13路棋盘 =====
+    ;(function adaptBoard(p) {
+      var stones = p.initial_stones
+      if (!stones) return
+
+      var allCoords = []
+      var isArrayFormat = Array.isArray(stones)
+
+      if (isArrayFormat) {
+        for (var i = 0; i < stones.length; i++) {
+          allCoords.push([stones[i].x, stones[i].y])
+        }
+      } else {
+        var bk = stones.black || []
+        var wt = stones.white || []
+        for (var i = 0; i < bk.length; i++) allCoords.push(bk[i])
+        for (var i = 0; i < wt.length; i++) allCoords.push(wt[i])
+      }
+
+      if (allCoords.length === 0) return
+
+      var minX = 99, maxX = 0, minY = 99, maxY = 0
+      for (var i = 0; i < allCoords.length; i++) {
+        var c = allCoords[i]
+        if (c[0] < minX) minX = c[0]
+        if (c[0] > maxX) maxX = c[0]
+        if (c[1] < minY) minY = c[1]
+        if (c[1] > maxY) maxY = c[1]
+      }
+
+      // 也检查正解坐标范围
+      var seqs = p.correct_sequences || []
+      var allMoveCoords = []
+      for (var si = 0; si < seqs.length; si++) {
+        for (var mi = 0; mi < seqs[si].length; mi++) {
+          allMoveCoords.push(seqs[si][mi])
+          var mc = seqs[si][mi]
+          if (mc[0] < minX) minX = mc[0]
+          if (mc[0] > maxX) maxX = mc[0]
+          if (mc[1] < minY) minY = mc[1]
+          if (mc[1] > maxY) maxY = mc[1]
+        }
+      }
+
+      var spanX = maxX - minX
+      var spanY = maxY - minY
+      var span = Math.max(spanX, spanY)
+
+      var targetSize
+      if (span + 4 <= 9) targetSize = 9
+      else if (span + 4 <= 13) targetSize = 13
+      else targetSize = 19
+
+      var origSize = p.board_size || 19
+      if (targetSize >= origSize && !p.view_region) return
+      if (targetSize > origSize) targetSize = origSize
+
+      // 计算平移：靠边的保持靠边
+      var offsetX, offsetY
+      if (minX <= 2) offsetX = 0
+      else if (maxX >= origSize - 3) offsetX = (targetSize - 1) - maxX
+      else offsetX = Math.floor(targetSize / 2) - Math.floor((minX + maxX) / 2)
+
+      if (minY <= 2) offsetY = 0
+      else if (maxY >= origSize - 3) offsetY = (targetSize - 1) - maxY
+      else offsetY = Math.floor(targetSize / 2) - Math.floor((minY + maxY) / 2)
+
+      // 边界修正
+      var checkCoords = allCoords.concat(allMoveCoords)
+      for (var iter = 0; iter < 3; iter++) {
+        var anyOut = false
+        for (var i = 0; i < checkCoords.length; i++) {
+          var nx = checkCoords[i][0] + offsetX
+          var ny = checkCoords[i][1] + offsetY
+          if (nx < 0) { offsetX -= nx; anyOut = true }
+          if (ny < 0) { offsetY -= ny; anyOut = true }
+          if (nx >= targetSize) { offsetX -= (nx - targetSize + 1); anyOut = true }
+          if (ny >= targetSize) { offsetY -= (ny - targetSize + 1); anyOut = true }
+        }
+        if (!anyOut) break
+      }
+
+      // 最终验证
+      var valid = true
+      for (var i = 0; i < checkCoords.length; i++) {
+        if (checkCoords[i][0] + offsetX < 0 || checkCoords[i][0] + offsetX >= targetSize ||
+            checkCoords[i][1] + offsetY < 0 || checkCoords[i][1] + offsetY >= targetSize) {
+          valid = false; break
+        }
+      }
+      if (!valid) { p.view_region = null; return }
+      if (offsetX === 0 && offsetY === 0 && targetSize === origSize) { p.view_region = null; return }
+
+      function shiftPair(pair) { return [pair[0] + offsetX, pair[1] + offsetY] }
+
+      if (isArrayFormat) {
+        for (var i = 0; i < stones.length; i++) { stones[i].x += offsetX; stones[i].y += offsetY }
+      } else {
+        if (stones.black) stones.black = stones.black.map(shiftPair)
+        if (stones.white) stones.white = stones.white.map(shiftPair)
+      }
+      if (p.correct_sequences) {
+        p.correct_sequences = p.correct_sequences.map(function(seq) { return seq.map(shiftPair) })
+      }
+
+      p.board_size = targetSize
+      p.view_region = null
+      console.log('[adaptBoard] ' + origSize + '路→' + targetSize + '路, offset(' + offsetX + ',' + offsetY + '), 棋子' + allCoords.length + '颗')
+    })(problem)
+    // ===== 棋盘适配结束 =====
+
     var uc = userColor(problem.description)
     var oc = uc === 'black' ? 'white' : 'black'
     this._uc = uc
