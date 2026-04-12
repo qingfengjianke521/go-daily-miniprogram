@@ -678,9 +678,20 @@ async function submitAnswer(openid, event) {
   if (userRes.data.length === 0) return { error: '用户不存在' }
   var user = userRes.data[0]
 
+  // 反作弊：声称答对但 moves 为空且耗时极短，视为可疑
+  var isCorrect = !!event.is_correct
+  if (isCorrect) {
+    var moves = event.moves || []
+    var timeMs = event.time_spent_ms || 0
+    if (moves.length === 0 && timeMs < 1000) {
+      isCorrect = false
+      console.warn('[anti-cheat] 可疑提交: moves空 time=' + timeMs + 'ms, 强制判错')
+    }
+  }
+
   var problemRating = event.problem_rating || user.rating
   var result = calculateRating(
-    user.rating, user.rating_deviation || 350, problemRating, event.is_correct
+    user.rating, user.rating_deviation || 350, problemRating, isCorrect
   )
 
   var newRating = Math.max(520, user.rating + result.change)
@@ -710,7 +721,7 @@ async function submitAnswer(openid, event) {
   await db.collection('attempts').add({
     data: {
       _openid: openid, problem_id: event.problem_id, session_date: today,
-      is_correct: event.is_correct, time_spent_ms: event.time_spent_ms,
+      is_correct: isCorrect, time_spent_ms: event.time_spent_ms,
       moves: event.moves || [], rating_before: user.rating,
       rating_after: newRating, rating_change: result.change,
       attempted_at: new Date(),
@@ -718,7 +729,7 @@ async function submitAnswer(openid, event) {
   })
 
   // 错题本：做错记录到 wrong_book（间隔重复：1天→3天→7天）
-  if (!event.is_correct) {
+  if (!isCorrect) {
     var existWrong = await db.collection('wrong_book').where({
       _openid: openid, problem_id: event.problem_id
     }).get()
@@ -747,7 +758,7 @@ async function submitAnswer(openid, event) {
     level_name: newLevel, streak_days: streakDays,
     last_play_date: today,
     total_solved: _.inc(1),
-    total_correct: event.is_correct ? _.inc(1) : _.inc(0),
+    total_correct: isCorrect ? _.inc(1) : _.inc(0),
   }
   if (usedFreeze) userUpdate.streak_freezes = _.inc(-1)
   await db.collection('users').where({ _openid: openid }).update({ data: userUpdate })
@@ -774,7 +785,7 @@ async function submitAnswer(openid, event) {
     // 检查3题全对: 额外+5
     var todayAttempts = await db.collection('attempts').where({ _openid: openid, session_date: today }).get()
     var allCorrect = todayAttempts.data.length >= 3 && todayAttempts.data.every(function(a) { return a.is_correct })
-    if (allCorrect && event.is_correct) {
+    if (allCorrect && isCorrect) {
       coinsEarned += 5
       coinReason = '全对打卡'
     }
@@ -800,7 +811,7 @@ async function submitAnswer(openid, event) {
   }
 
   return {
-    is_correct: event.is_correct, rating_change: result.change,
+    is_correct: isCorrect, rating_change: result.change,
     new_rating: newRating, new_level: newLevel,
     level_changed: newLevel !== user.level_name, streak_days: streakDays,
     used_freeze: usedFreeze,
