@@ -48,6 +48,7 @@
           style="left:{{item.pctX}}%;top:{{item.pctY}}%;"
           bindtap="onTapNode"
           data-idx="{{index}}"
+          hover-class="gn-pressed"
         >
           <!-- 发光（当前） -->
           <view wx:if="{{item.status === 'current'}}" class="gn-glow"></view>

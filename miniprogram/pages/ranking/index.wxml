@@ -10,7 +10,9 @@
     <view class="tab tab-on">总排行</view>
   </view>
 
-  <view wx:if="{{loading}}" class="loading-center"><text class="text-999">加载中...</text></view>
+  <view wx:if="{{loading}}" class="loading-center">
+    <mascot color="black" mood="wait" size="md" bubble="加载中..." />
+  </view>
 
   <scroll-view wx:else scroll-y class="rank-scroll">
     <!-- 空状态 -->
@@ -57,7 +59,7 @@
 
       <!-- 列表 -->
       <view class="rank-list">
-        <view wx:for="{{restList}}" wx:key="rank" class="rank-item">
+        <view wx:for="{{restList}}" wx:key="rank" class="rank-item" hover-class="rank-item-hover">
           <text class="rank-num">{{item.rank}}</text>
           <view class="rank-avatar-sm">
             <text>{{item.initial}}</text>
@@ -73,4 +75,14 @@
 
     <view style="height:200rpx;"></view>
   </scroll-view>
+
+  <!-- 我的排名固定栏 -->
+  <view wx:if="{{!loading}}" class="my-rank-bar">
+    <text class="rank-num">#{{myRank}}</text>
+    <view class="rank-info">
+      <text class="rank-name" style="color:#58CC02;">我</text>
+      <text class="rank-sub">{{myLevel}}</text>
+    </view>
+    <text class="rank-score">{{myRating}}分</text>
+  </view>
 </view>

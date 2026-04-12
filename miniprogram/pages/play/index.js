@@ -1114,7 +1114,7 @@ Page({
         problems: playState.problems,
         chest_dropped: this._chestDropped || null,
       }
-      wx.redirectTo({ url: '/pages/summary/index' })
+      wx.navigateTo({ url: '/pages/summary/index' })
     } else {
       // 还有题，继续下一题（同页面切换）
       playState.currentIndex = nextIndex
@@ -1265,7 +1265,7 @@ Page({
           problems: playState.problems,
           chest_dropped: this._chestDropped || null,
         }
-        wx.redirectTo({ url: '/pages/summary/index' })
+        wx.navigateTo({ url: '/pages/summary/index' })
         return
       }
       // 继续模式：请求新题

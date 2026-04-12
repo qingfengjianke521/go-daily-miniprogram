@@ -25,6 +25,10 @@ Page({
     list: [],
     topThree: [],
     restList: [],
+    myRank: '--',
+    myLevel: '',
+    myRating: 0,
+    myName: '我',
   },
 
   onLoad: function () {
@@ -60,6 +64,20 @@ Page({
           streak_days: u.streak_days || 0,
         }
       })
+      // 拿自己的数据
+      api.getStats().then(function (stats) {
+        var myRating = stats.rating || 0
+        var myLevel = stats.level_name || ''
+        var myName = stats.username || '我'
+        // 找自己在排行榜中的位置
+        var myRank = '--'
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].rating <= myRating) { myRank = i + 1; break }
+        }
+        if (myRank === '--' && list.length > 0) myRank = list.length + 1
+        that.setData({ myRank: myRank, myLevel: myLevel, myRating: myRating, myName: myName })
+      }).catch(function () {})
+
       that.setData({
         loading: false,
         list: list,
@@ -68,6 +86,7 @@ Page({
       })
     }).catch(function () {
       that.setData({ loading: false })
+      wx.showToast({ title: '网络不给力，请稍后再试', icon: 'none' })
     })
   },
 })

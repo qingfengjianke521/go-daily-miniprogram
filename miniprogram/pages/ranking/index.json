@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "mascot": "/components/mascot/index"
+  },
   "navigationStyle": "custom"
 }
