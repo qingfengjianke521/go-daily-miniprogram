@@ -7,7 +7,7 @@
     <view class="hud-level">
       <text class="hud-level-txt">{{stats.level_name || '--'}}</text>
     </view>
-    <text class="hud-rating">{{stats.rating || 0}}分 · {{todayDone}}/3题 · v4.9.5</text>
+    <text class="hud-rating">{{stats.rating || 0}}分 · 💎{{stats.coins || 0}}</text>
     <view class="hud-spacer"></view>
   </view>
 </view>
@@ -75,7 +75,7 @@
 
 <!-- ===== 底部浮动按钮 ===== -->
 <view wx:if="{{!loading}}" class="fab-container">
-  <view class="fab-btn fab-breathe" bindtap="handleStart">
+  <view class="fab-btn {{checkedIn ? 'fab-done' : 'fab-breathe'}}" bindtap="handleStart">
     {{checkedIn ? '继续练习' : completedCount > 0 ? '继续第' + (completedCount + 1) + '题' : '开始今日练习'}}
   </view>
 </view>

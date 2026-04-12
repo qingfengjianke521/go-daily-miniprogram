@@ -231,6 +231,12 @@
 .fab-breathe {
   animation: fab-pulse 2s ease-in-out infinite;
 }
+.fab-done {
+  background: rgba(255,255,255,0.9);
+  color: #666;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+  animation: none;
+}
 @keyframes fab-pulse {
   0%, 100% { transform: scale(1); box-shadow: 0 8rpx 0 #46A302, 0 12rpx 32rpx rgba(88,204,2,0.35); }
   50% { transform: scale(1.03); box-shadow: 0 8rpx 0 #46A302, 0 16rpx 40rpx rgba(88,204,2,0.45); }
