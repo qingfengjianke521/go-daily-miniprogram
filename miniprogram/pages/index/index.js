@@ -64,7 +64,6 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
     }
-    this._loadingContinue = false  // 每次回首页重置，防止卡死
     this._loadingContinue = false
     if (!app.checkAuth()) return
     this._tryClaimLoginChest()

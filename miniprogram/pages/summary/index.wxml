@@ -58,6 +58,7 @@
         type="{{rewardChest.type}}"
         amount="{{rewardChestAmount}}"
         autoOpen="{{true}}"
+        bind:openEnd="onChestOpened"
       />
     </view>
 

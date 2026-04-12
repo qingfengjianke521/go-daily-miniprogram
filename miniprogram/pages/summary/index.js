@@ -270,6 +270,11 @@ Page({
     })
   },
 
+  onChestOpened: function () {
+    // 宝箱动画完成后，调云端 openChest 结算金币（最新那个宝箱）
+    api.openChest(0).catch(function () {})
+  },
+
   handleContinue: function () {
     var that = this
     wx.showLoading({ title: '选题中...' })
