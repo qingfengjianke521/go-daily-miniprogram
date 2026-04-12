@@ -84,7 +84,7 @@
 
 .skill-node {
   background: #FFFFFF;
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   padding: 28rpx 32rpx;
   display: flex;
   align-items: center;
@@ -97,7 +97,7 @@
 
 .graduation-banner {
   background: linear-gradient(135deg, #FFD54F, #FF9800);
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   padding: 32rpx;
   display: flex;
   align-items: center;

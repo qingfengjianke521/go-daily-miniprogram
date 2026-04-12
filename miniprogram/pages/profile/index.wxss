@@ -6,7 +6,7 @@
 .inner-content { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 24rpx; }
 
 /* Profile card */
-.profile-card { padding: 36rpx; background: linear-gradient(135deg, #F0FBE5, #E8F5E9); border-radius: 32rpx; }
+.profile-card { padding: 36rpx; background: linear-gradient(135deg, #F0FBE5, #E8F5E9); border-radius: 24rpx; }
 .profile-top { display: flex; align-items: center; gap: 24rpx; }
 .avatar-circle {
   width: 96rpx; height: 96rpx; border-radius: 50%;

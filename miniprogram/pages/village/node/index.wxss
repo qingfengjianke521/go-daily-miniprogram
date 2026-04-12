@@ -58,7 +58,7 @@
 
 .node-header {
   margin-top: 24rpx;
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   padding: 40rpx 32rpx;
   display: flex;
   flex-direction: column;

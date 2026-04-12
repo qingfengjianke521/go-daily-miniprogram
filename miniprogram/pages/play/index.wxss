@@ -164,7 +164,7 @@
   gap: 20rpx;
   background: white;
   padding: 64rpx 80rpx;
-  border-radius: 32rpx;
+  border-radius: 24rpx;
 }
 .levelup-emoji { font-size: 120rpx; }
 .levelup-title { font-size: 36rpx; font-weight: 700; color: #FFB300; }

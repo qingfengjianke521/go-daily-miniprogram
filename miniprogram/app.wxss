@@ -72,7 +72,7 @@ page {
 /* ========== Border & Radius ========== */
 .rounded-lg { border-radius: 16rpx; }
 .rounded-xl { border-radius: 24rpx; }
-.rounded-2xl { border-radius: 32rpx; }
+.rounded-2xl { border-radius: 24rpx; }
 .rounded-full { border-radius: 9999rpx; }
 .shadow-sm { box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05); }
 .shadow-md { box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08); }
@@ -193,7 +193,7 @@ page {
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 48rpx 48rpx calc(48rpx + env(safe-area-inset-bottom));
-  border-radius: 32rpx 32rpx 0 0;
+  border-radius: 24rpx 24rpx 0 0;
 }
 .feedback-panel.show { transform: translateY(0); }
 .feedback-correct { background: #D7FFB8; }
