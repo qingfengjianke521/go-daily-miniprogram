@@ -28,16 +28,15 @@ Page({
     }
   },
 
+  onNicknameInput: function (e) {
+    this.setData({ nickname: e.detail.value || '' })
+  },
+
   handleStart: function () {
     var that = this
     if (that.data.loading) return
     that.setData({ loading: true, error: '' })
-
-    // getUserProfile 已废弃，直接用随机围棋昵称
-    var names = ['执黑少年','白石飞侠','围棋小将','弈海棋童','落子无悔',
-      '黑白使者','星位守护','天元侠客','手筋达人','死活高手',
-      '棋海拾贝','妙手回春','定式达人','官子精灵','布局大师']
-    var nickname = names[Math.floor(Math.random() * names.length)]
+    var nickname = that.data.nickname.trim() || '围棋爱好者'
     that._doLogin(nickname)
   },
 
