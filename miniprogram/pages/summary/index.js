@@ -271,6 +271,7 @@ Page({
   },
 
   handleContinue: function () {
+    var that = this
     wx.showLoading({ title: '选题中...' })
     api.getContinueProblem().then(function (res) {
       wx.hideLoading()
@@ -280,6 +281,8 @@ Page({
           currentIndex: 0,
           resultsAccumulated: [],
           isContinueMode: true,
+          userLevel: that.data.levelName || '7K',
+          userRating: that.data.rating || 520,
         }
         wx.redirectTo({ url: '/pages/play/index' })
       } else {
