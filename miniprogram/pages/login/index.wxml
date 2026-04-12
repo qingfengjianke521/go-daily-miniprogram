@@ -20,6 +20,18 @@
     <text class="welcome-title">黑白天天练</text>
     <text class="welcome-subtitle">每天3道题，棋力日日涨</text>
 
+    <!-- 昵称输入（微信会自动弹出昵称填充） -->
+    <view class="nickname-row">
+      <input
+        type="nickname"
+        class="nickname-input"
+        placeholder="点击填入微信昵称"
+        bindinput="onNicknameInput"
+        bindblur="onNicknameInput"
+        value="{{nickname}}"
+      />
+    </view>
+
     <!-- 3D主按钮 -->
     <button class="start-btn" bindtap="handleStart" disabled="{{loading}}">
       {{loading ? '加载中...' : '开始练习'}}

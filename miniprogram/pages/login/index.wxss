@@ -55,6 +55,21 @@
   margin-bottom: 48rpx;
 }
 
+/* 昵称输入 */
+.nickname-row {
+  width: 100%;
+  margin-bottom: 24rpx;
+}
+.nickname-input {
+  height: 88rpx;
+  background: #F7F7F7;
+  border-radius: 16rpx;
+  padding: 0 32rpx;
+  font-size: 32rpx;
+  color: #4B4B4B;
+  text-align: center;
+}
+
 /* 3D按钮 */
 .start-btn {
   width: 100% !important;

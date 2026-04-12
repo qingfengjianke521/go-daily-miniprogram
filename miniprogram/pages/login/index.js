@@ -4,6 +4,7 @@ Page({
   data: {
     loading: false,
     error: '',
+    nickname: '',
     statusBarHeight: 20,
     navBarHeight: 44,
   },

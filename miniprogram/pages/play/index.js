@@ -461,8 +461,11 @@ Page({
 
     var coord = seq[stepIdx]
     var color = stepIdx % 2 === 0 ? this._uc : this._oc
-    console.log('[_placeStep] stepIdx:', stepIdx, 'coord:', coord, 'color:', color, '_uc:', this._uc, '_oc:', this._oc)
     var result = goLogic.playMove(currentBoard, coord[0], coord[1], color)
+    if (!result || !result.isValid) {
+      console.log('[_placeStep] 无效落子 step:', stepIdx, coord, color, '跳过')
+      return { newBoard: currentBoard, newHistory: currentHistory, captured: [], skipped: true }
+    }
     var newHistory = currentHistory.concat([{ x: coord[0], y: coord[1], color: color }])
     return { newBoard: result.newBoard, newHistory: newHistory, captured: result.captured || [] }
   },
@@ -480,6 +483,12 @@ Page({
     that.setData({ advancing: true })
 
     var result = that._placeStep(step, that._board, that._playHistory)
+    // KataGo 应手无效（落在已有棋子上），直接完成
+    if (result.skipped) {
+      that.setData({ advancing: false, interactive: false })
+      that._finishCorrect()
+      return
+    }
     that._board = result.newBoard
     that._playHistory = result.newHistory
 
@@ -518,6 +527,11 @@ Page({
         try { stoneAudio.stop(); stoneAudio.play() } catch (e) {}
 
         var oppResult = that._placeStep(nextStep, that._board, that._playHistory)
+        if (oppResult.skipped) {
+          that.setData({ advancing: false, interactive: false })
+          that._finishCorrect()
+          return
+        }
         that._board = oppResult.newBoard
         that._playHistory = oppResult.newHistory
 
