@@ -241,17 +241,13 @@ Page({
         if (c[1] > maxY) maxY = c[1]
       }
 
-      // 也检查正解坐标范围
+      // 正解坐标只收集，不参与 span 计算
+      // （span 只由棋子位置决定，正解坐标只用于后续边界校验）
       var seqs = p.correct_sequences || []
       var allMoveCoords = []
       for (var si = 0; si < seqs.length; si++) {
         for (var mi = 0; mi < seqs[si].length; mi++) {
           allMoveCoords.push(seqs[si][mi])
-          var mc = seqs[si][mi]
-          if (mc[0] < minX) minX = mc[0]
-          if (mc[0] > maxX) maxX = mc[0]
-          if (mc[1] < minY) minY = mc[1]
-          if (mc[1] > maxY) maxY = mc[1]
         }
       }
 
