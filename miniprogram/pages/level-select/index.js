@@ -3,11 +3,11 @@ var api = apiModule.api
 var storage = require('../../utils/storage')
 
 var LEVELS = [
-  { name: 'beginner', label: '零基础', emoji: '🐣', desc: '完全不会，从头学起', rating: 520, goVillage: true },
-  { name: '7K', label: '7级', emoji: '🌱', desc: '了解基本规则和吃子', rating: 520 },
-  { name: '3K', label: '3级', emoji: '⭐', desc: '有基础，在学死活手筋', rating: 695 },
-  { name: '1D', label: '初段', emoji: '💪', desc: '业余初段水平', rating: 845 },
-  { name: '3D', label: '三段', emoji: '🏆', desc: '业余高段位', rating: 960 },
+  { name: 'beginner', label: '零基础', emoji: '🐣', desc: '完全不会，从头学起', rating: 520, goVillage: true, color: '#E8F5E9' },
+  { name: '7K', label: '7级', emoji: '🌱', desc: '了解基本规则和吃子', rating: 520, color: '#FFF3E0' },
+  { name: '3K', label: '3级', emoji: '⭐', desc: '有基础，在学死活手筋', rating: 695, color: '#E3F2FD' },
+  { name: '1D', label: '初段', emoji: '💪', desc: '业余初段水平', rating: 845, color: '#F3E5F5' },
+  { name: '3D', label: '三段', emoji: '🏆', desc: '业余高段位', rating: 960, color: '#FFF8E1' },
 ]
 
 Page({

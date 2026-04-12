@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "chest": "/components/chest/index"
+    "chest": "/components/chest/index",
+    "mascot": "/components/mascot/index"
   },
   "navigationStyle": "custom"
 }

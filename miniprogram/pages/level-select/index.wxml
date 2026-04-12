@@ -10,6 +10,7 @@
         wx:for="{{levels}}"
         wx:key="name"
         class="level-card {{selected === item.name ? 'level-card-active' : ''}}"
+        style="background:{{item.color || '#FFF'}};"
         data-name="{{item.name}}"
         bindtap="onSelectLevel"
       >

@@ -108,10 +108,10 @@
   border: 2rpx solid #E5E5E5;
 }
 .chest-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.2;
+  width: 100%; aspect-ratio: 1;
+  border: 3rpx dashed #E0E0E0;
+  border-radius: 16rpx;
+  display: flex; align-items: center; justify-content: center;
 }
 .chest-empty-icon {
   font-size: 48rpx;
