@@ -17,7 +17,7 @@
 .avatar-text { font-size: 24rpx; font-weight: 700; text-align: center; }
 .profile-info { display: flex; flex-direction: column; gap: 6rpx; }
 .profile-name { font-size: 36rpx; font-weight: 700; color: #4B4B4B; }
-.profile-sub { font-size: 26rpx; color: #AFAFAF; }
+.profile-sub { font-size: 24rpx; color: #AFAFAF; }
 
 /* Stats grid */
 .stats-grid { display: flex; gap: 16rpx; }
@@ -32,12 +32,12 @@
 .section-card { padding: 32rpx; display: flex; flex-direction: column; gap: 24rpx; }
 .section-title { font-size: 30rpx; font-weight: 700; color: #4B4B4B; }
 .bar-row { display: flex; align-items: center; gap: 16rpx; }
-.bar-label { font-size: 26rpx; color: #4B4B4B; width: 80rpx; }
+.bar-label { font-size: 24rpx; color: #4B4B4B; width: 80rpx; }
 .bar-track {
   flex: 1; height: 24rpx; background: #F0F0F0; border-radius: 12rpx; overflow: hidden;
 }
 .bar-fill { height: 100%; border-radius: 12rpx; transition: width 0.5s ease; min-width: 4rpx; }
-.bar-rate { font-size: 26rpx; font-weight: 600; color: #4B4B4B; width: 80rpx; text-align: right; }
+.bar-rate { font-size: 24rpx; font-weight: 600; color: #4B4B4B; width: 80rpx; text-align: right; }
 
 /* Actions */
 .action-list { display: flex; flex-direction: column; gap: 2rpx; }

@@ -92,7 +92,7 @@
   padding: 28rpx 32rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
   margin-bottom: 20rpx;
 }
 

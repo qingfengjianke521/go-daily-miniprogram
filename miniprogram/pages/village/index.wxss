@@ -88,7 +88,7 @@
   padding: 28rpx 32rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
   margin-top: 20rpx;
   border-left: 8rpx solid transparent;
   position: relative;
@@ -164,7 +164,7 @@
 }
 
 .node-name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
   color: #333;
 }

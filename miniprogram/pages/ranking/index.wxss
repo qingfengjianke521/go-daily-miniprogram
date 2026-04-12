@@ -8,7 +8,7 @@
 }
 .tab {
   flex: 1; text-align: center; padding: 14rpx 0;
-  border-radius: 9999rpx; font-size: 26rpx; font-weight: 600;
+  border-radius: 9999rpx; font-size: 24rpx; font-weight: 600;
   color: #AFAFAF; background: #F7F7F7;
 }
 .tab-on { background: #58CC02; color: white; }
@@ -23,7 +23,7 @@
 }
 .empty-icon { font-size: 96rpx; }
 .empty-title { font-size: 32rpx; font-weight: 700; color: #4B4B4B; }
-.empty-sub { font-size: 26rpx; color: #AFAFAF; }
+.empty-sub { font-size: 24rpx; color: #AFAFAF; }
 
 /* ===== 领奖台 ===== */
 .podium {
@@ -69,6 +69,6 @@
   font-size: 24rpx; font-weight: 700; color: #58CC02;
 }
 .rank-info { flex: 1; display: flex; flex-direction: column; }
-.rank-name { font-size: 26rpx; font-weight: 600; color: #4B4B4B; }
+.rank-name { font-size: 24rpx; font-weight: 600; color: #4B4B4B; }
 .rank-sub { font-size: 20rpx; color: #AFAFAF; }
 .rank-score { font-size: 28rpx; font-weight: 700; color: #58CC02; }
