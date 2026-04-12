@@ -200,3 +200,9 @@ node scripts/merge-and-upload.js  # 合并+上传
 - **不要动首页天梯界面** — 已确认OK
 - **不要翻转SGF的Y轴** — 已验证不需要翻转，翻转会导致所有题目错位
 - **部署云函数不要用 miniprogram-ci cloud 命令行** — 用 deploy.js 的 Node.js API
+
+## 完成通知
+每次完成任务（commit之后），执行以下命令通知用户：
+```bash
+afplay /System/Library/Sounds/Glass.aiff && osascript -e 'display notification "任务完成，请检查" with title "黑白天天练"'
+```
