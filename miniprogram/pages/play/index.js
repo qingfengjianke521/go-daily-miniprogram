@@ -1229,7 +1229,28 @@ Page({
         this._saveVillageCompletion()
         return
       }
-      // 没有更多题了，请求新题
+      // 打卡模式最后一题已完成 → 跳总结页（不请求新题）
+      if (!playState.isContinueMode && this.data.isDone) {
+        var curResults = (playState.resultsAccumulated || []).slice()
+        // 当前题结果可能还没加进 resultsAccumulated
+        var curPid = this._problem && this._problem.problem_id
+        var alreadyIn = curResults.some(function(r) { return r.problem_id === curPid })
+        if (!alreadyIn && curPid) {
+          curResults.push({
+            problem_id: curPid,
+            is_correct: !this.data.isWrong,
+            rating_change: this.data.ratingChange || 0,
+          })
+        }
+        app.globalData.summaryState = {
+          results: curResults,
+          problems: playState.problems,
+          chest_dropped: this._chestDropped || null,
+        }
+        wx.redirectTo({ url: '/pages/summary/index' })
+        return
+      }
+      // 继续模式：请求新题
       var that = this
       wx.showLoading({ title: '选题中...' })
       api.getContinueProblem().then(function (res) {
